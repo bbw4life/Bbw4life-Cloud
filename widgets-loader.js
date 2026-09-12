@@ -633,6 +633,61 @@
 <!-- ═══ END BIRTHDAY GIFT ═══ -->
 
 
+<!-- ═══════════════════════════════════════════════════════
+     BBW4LIFE — SETS FLOATING WIDGET + FLIPBOOK POPUP
+═══════════════════════════════════════════════════════ -->
+<div id="bbw-sets-widget" aria-hidden="false">
+  <span class="bbw-sets-widget__label">Sets</span>
+  <div class="bbw-sets-widget__row">
+    <button class="bbw-sets-widget__circle" id="bbwSetsCircleBtn" aria-label="Open Sets collection">
+      <img src="https://cdn.shopify.com/s/files/1/0746/5346/6724/files/sets_collection.png?v=1789170659" alt="Sets" loading="lazy">
+    </button>
+    <button class="bbw-sets-widget__collapse" id="bbwSetsCollapseBtn" aria-label="Open Sets collection" aria-expanded="false">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div id="bbw-sets-overlay" aria-hidden="true">
+  <div id="bbw-sets-flipbook-wrap">
+    <button id="bbwSetsCloseBtn" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div id="bbw-sets-flipbook" class="bbw-sets-flipbook">
+      <div class="bbw-sets-cover" id="bbwSetsCover">
+        <img src="https://cdn.shopify.com/s/files/1/0746/5346/6724/files/sets_collection.png?v=1789170659" alt="Sets Collection">
+        <div class="bbw-sets-cover__overlay">
+          <span class="bbw-sets-cover__title">Sets</span>
+          <span class="bbw-sets-cover__sub">Tap to explore</span>
+        </div>
+      </div>
+      <div class="bbw-sets-pages" id="bbwSetsPages"></div>
+      <button class="bbw-sets-nav-arrow bbw-sets-nav-arrow--prev" id="bbwSetsPrevBtn" aria-label="Previous page">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <button class="bbw-sets-nav-arrow bbw-sets-nav-arrow--next" id="bbwSetsNextBtn" aria-label="Next page">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="bbw-sets-flipbook-footer">
+      <div class="bbw-sets-dots" id="bbwSetsDots"></div>
+      <a href="/collections/sets.html" class="bbw-sets-viewall-btn">View All Product</a>
+    </div>
+  </div>
+</div>
+
+
 `;
 
   /* ──────────────────────────────────────────────────────────

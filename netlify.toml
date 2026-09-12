@@ -710,6 +710,51 @@
   to = "/products/product123.html"
   status = 200
 
+[[redirects]]
+  from = "/bbw4life/black-gray-printed-outfit-set-plus-size"
+  to = "/products/product124.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/cinched-top-straight-leg-pants-set"
+  to = "/products/product125.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/printed-lace-jacket-dress-skirt-set"
+  to = "/products/product126.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/tie-up-top-wide-leg-pants-casual-set"
+  to = "/products/product127.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/printed-comfortable-casual-set"
+  to = "/products/product128.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/pajama-set-with-lace-shorts"
+  to = "/products/product129.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/loose-fashionable-sportswear-set"
+  to = "/products/product130.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/geo-pattern-shirt-high-waist-pants-set"
+  to = "/products/product131.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/mens-large-size-casual-three-piece-set"
+  to = "/products/product132.html"
+  status = 200
+
 # ─────────────────────────────────────────────
 # BLOG ARTICLES — Pretty URLs
 # ─────────────────────────────────────────────

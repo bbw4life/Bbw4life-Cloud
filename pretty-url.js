@@ -130,6 +130,15 @@
     '/products/product121.html': '/bbw4life/laikou-vitamin-c-skincare-cleanser',
     '/products/product122.html': '/bbw4life/hyaluronic-acid-water-sensitive-sunscreen',
     '/products/product123.html': '/bbw4life/skin-hydrating-moisturizing-mist',
+    '/products/product124.html': '/bbw4life/black-gray-printed-outfit-set-plus-size',
+    '/products/product125.html': '/bbw4life/cinched-top-straight-leg-pants-set',
+    '/products/product126.html': '/bbw4life/printed-lace-jacket-dress-skirt-set',
+    '/products/product127.html': '/bbw4life/tie-up-top-wide-leg-pants-casual-set',
+    '/products/product128.html': '/bbw4life/printed-comfortable-casual-set',
+    '/products/product129.html': '/bbw4life/pajama-set-with-lace-shorts',
+    '/products/product130.html': '/bbw4life/loose-fashionable-sportswear-set',
+    '/products/product131.html': '/bbw4life/geo-pattern-shirt-high-waist-pants-set',
+    '/products/product132.html': '/bbw4life/mens-large-size-casual-three-piece-set',
 
     // ── BLOG ARTICLES ─────────────────────────────────────
     '/blog/article-featured.html': '/bbw4life/journal/beauty-has-no-sizes-movement-redefining-beauty',

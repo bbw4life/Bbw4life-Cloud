@@ -3615,6 +3615,15 @@ function showErrorPopup(message) {
               'Pdg-Francenel-product121': 'laikou-vitamin-c-skincare-cleanser',
               'Pdg-Francenel-product122': 'hyaluronic-acid-water-sensitive-sunscreen',
               'Pdg-Francenel-product123': 'skin-hydrating-moisturizing-mist',
+              'Pdg-Francenel-product124': 'black-gray-printed-outfit-set-plus-size',
+              'Pdg-Francenel-product125': 'cinched-top-straight-leg-pants-set',
+              'Pdg-Francenel-product126': 'printed-lace-jacket-dress-skirt-set',
+              'Pdg-Francenel-product127': 'tie-up-top-wide-leg-pants-casual-set',
+              'Pdg-Francenel-product128': 'printed-comfortable-casual-set',
+              'Pdg-Francenel-product129': 'pajama-set-with-lace-shorts',
+              'Pdg-Francenel-product130': 'loose-fashionable-sportswear-set',
+              'Pdg-Francenel-product131': 'geo-pattern-shirt-high-waist-pants-set',
+              'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
             };
 
               // ── Récupérer les données du produit courant
@@ -9587,6 +9596,15 @@ const BBW_WISHLIST_SLUG_MAP = {
   'Pdg-Francenel-product121': 'laikou-vitamin-c-skincare-cleanser',
   'Pdg-Francenel-product122': 'hyaluronic-acid-water-sensitive-sunscreen',
   'Pdg-Francenel-product123': 'skin-hydrating-moisturizing-mist',
+  'Pdg-Francenel-product124': 'black-gray-printed-outfit-set-plus-size',
+  'Pdg-Francenel-product125': 'cinched-top-straight-leg-pants-set',
+  'Pdg-Francenel-product126': 'printed-lace-jacket-dress-skirt-set',
+  'Pdg-Francenel-product127': 'tie-up-top-wide-leg-pants-casual-set',
+  'Pdg-Francenel-product128': 'printed-comfortable-casual-set',
+  'Pdg-Francenel-product129': 'pajama-set-with-lace-shorts',
+  'Pdg-Francenel-product130': 'loose-fashionable-sportswear-set',
+  'Pdg-Francenel-product131': 'geo-pattern-shirt-high-waist-pants-set',
+  'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
 };
 // Exposé sur window : un `const` de niveau script n'est visible que dans
 // CE fichier — un autre <script> classique séparé (ex: collections.js,
@@ -17530,5 +17548,238 @@ function injectColFbt() {
     });
 
     block.dataset.p2UpsellReady = '1';
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════
+   BBW4LIFE — SETS FLOATING WIDGET + FLIPBOOK POPUP
+══════════════════════════════════════════════════════════ */
+(function initBbwSetsWidget() {
+  const PAGE_COUNT   = 5;
+  const AUTO_OPEN_MS = 3000;
+  const PAGE_TURN_MS = 5000;
+
+  let pagesData   = null;
+  let currentPage = 0;
+  let autoOpenTimer  = null;
+  let pageTurnTimer  = null;
+  let opened      = false;
+
+  function getSetsProductUrl(allProducts, id) {
+    const idx = allProducts.findIndex(p => String(p.id) === String(id));
+    if (idx === -1) return '/collections/sets.html';
+    return `/products/product${idx + 1}.html`;
+  }
+
+  function buildPagesData() {
+    const allProducts = window.__allProducts;
+    if (!Array.isArray(allProducts) || allProducts.length === 0) return null;
+
+    const settings = allProducts.find(p => p.type === 'settings') || {};
+    const setsCfg  = settings.sets || {};
+    const ids      = Array.isArray(setsCfg.product_ids) ? setsCfg.product_ids : [];
+
+    const picked = ids
+      .map(id => allProducts.find(p => p.id === id))
+      .filter(Boolean)
+      .slice(0, PAGE_COUNT);
+
+    if (picked.length === 0) return null;
+
+    return picked.map(prod => {
+      const img = prod.image_hover || prod.image || '';
+      let discountPct = null;
+      if (prod.compare_price > prod.price) {
+        discountPct = Math.round(((prod.compare_price - prod.price) / prod.compare_price) * 100);
+      }
+      return {
+        id: prod.id,
+        image: img,
+        title: prod.title || '',
+        price: prod.price,
+        comparePrice: prod.compare_price,
+        discountPct,
+        url: getSetsProductUrl(allProducts, prod.id)
+      };
+    });
+  }
+
+  const SETS_WISHLIST_SVG =
+    '<svg class="wishlist-icon-empty" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15110E" stroke-width="2">' +
+    '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>' +
+    '<svg class="wishlist-icon-filled" width="18" height="18" viewBox="0 0 24 24" fill="#15110E" stroke="#15110E" stroke-width="2">' +
+    '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+
+  function renderPages() {
+    const pagesWrap = document.getElementById('bbwSetsPages');
+    const dotsWrap  = document.getElementById('bbwSetsDots');
+    if (!pagesWrap || !dotsWrap || !pagesData) return;
+
+    const wl    = Array.isArray(window.wishlist) ? window.wishlist : [];
+    const total = pagesData.length;
+    pagesWrap.innerHTML = pagesData.map((p, i) => `
+      <div class="bbw-sets-page${i === 0 ? ' is-active' : ''}" data-page-index="${i}" style="z-index:${total - i + 10}">
+        <div class="bbw-sets-page__image-wrap">
+          <img src="${p.image}" alt="${p.title}" loading="lazy">
+          ${p.discountPct ? `<span class="bbw-sets-page__discount">${p.discountPct}% OFF</span>` : ''}
+          <span class="bbw-sets-page__wishlist${wl.includes(p.id) ? ' added' : ''}" data-id="${p.id}">${SETS_WISHLIST_SVG}</span>
+        </div>
+        <div class="bbw-sets-page__body">
+          <p class="bbw-sets-page__title">${p.title}</p>
+          <div class="bbw-sets-page__price-row">
+            <span class="bbw-sets-page__price">$${Number(p.price).toFixed(2)}</span>
+            ${p.comparePrice > p.price ? `<span class="bbw-sets-page__compare">$${Number(p.comparePrice).toFixed(2)}</span>` : ''}
+          </div>
+          <a href="${p.url}" class="bbw-sets-page__btn">View Product</a>
+        </div>
+      </div>
+    `).join('');
+
+    dotsWrap.innerHTML = pagesData.map((_, i) =>
+      `<span data-dot-index="${i}"${i === 0 ? ' class="is-active"' : ''}></span>`
+    ).join('');
+  }
+
+  function toggleSetsWishlist(icon) {
+    const id = icon.dataset.id;
+    if (!id) return;
+    if (!Array.isArray(window.wishlist)) window.wishlist = [];
+    const idx = window.wishlist.indexOf(id);
+    if (idx === -1) { window.wishlist.push(id); icon.classList.add('added'); }
+    else { window.wishlist.splice(idx, 1); icon.classList.remove('added'); }
+    if (typeof window.saveWishlist === 'function') window.saveWishlist();
+    if (typeof window.updateBadges === 'function') window.updateBadges();
+    if (typeof window.updateWishlistIcons === 'function') window.updateWishlistIcons();
+    document.dispatchEvent(new Event('wishlist:change'));
+  }
+
+  const PAGE_TRANSITION_MS = 900; // doit matcher la transition CSS de .bbw-sets-page
+
+  function showPage(index) {
+    const pagesWrap = document.getElementById('bbwSetsPages');
+    const dotsWrap  = document.getElementById('bbwSetsDots');
+    if (!pagesWrap || !dotsWrap || !pagesData) return;
+
+    const total   = pagesData.length;
+    const oldPage = currentPage;
+    currentPage   = ((index % total) + total) % total;
+    if (currentPage === oldPage) return;
+
+    const allPages = Array.from(pagesWrap.querySelectorAll('.bbw-sets-page'));
+
+    // 1) Déclenche la rotation (classe is-turned) sans toucher au z-index
+    //    tout de suite : la page qui tourne doit rester visuellement
+    //    au-dessus de la page suivante pendant toute la bascule, sinon
+    //    celle-ci apparaît "par en dessous" avant que la page en cours
+    //    n'ait fini de tourner (effet slider au lieu d'un vrai flip).
+    allPages.forEach(el => {
+      const i = Number(el.dataset.pageIndex);
+      el.classList.toggle('is-turned', i < currentPage);
+      el.classList.toggle('is-active', i === currentPage);
+    });
+
+    // 2) Ne réordonne le z-index qu'une fois la rotation terminée.
+    setTimeout(() => {
+      allPages.forEach(el => {
+        const i = Number(el.dataset.pageIndex);
+        el.style.zIndex = i < currentPage ? String(i + 1) : String(total - i + 10);
+      });
+    }, PAGE_TRANSITION_MS);
+
+    dotsWrap.querySelectorAll('span').forEach(el => {
+      el.classList.toggle('is-active', Number(el.dataset.dotIndex) === currentPage);
+    });
+  }
+
+  function startPageRotation() {
+    clearInterval(pageTurnTimer);
+    pageTurnTimer = setInterval(() => {
+      if (!pagesData || pagesData.length === 0) return;
+      showPage(currentPage + 1);
+    }, PAGE_TURN_MS);
+  }
+
+  function openCoverBook() {
+    const flipbook = document.getElementById('bbw-sets-flipbook');
+    if (flipbook) flipbook.classList.add('is-open');
+    startPageRotation();
+  }
+
+  function openSetsPopup() {
+    const overlay  = document.getElementById('bbw-sets-overlay');
+    const flipbook = document.getElementById('bbw-sets-flipbook');
+    if (!overlay) return;
+
+    if (!pagesData) {
+      pagesData = buildPagesData();
+      if (pagesData) renderPages();
+    }
+
+    if (flipbook) flipbook.classList.remove('is-open');
+    currentPage = 0;
+    showPage(0);
+
+    overlay.classList.add('active');
+    overlay.setAttribute('aria-hidden', 'false');
+    opened = true;
+
+    clearTimeout(autoOpenTimer);
+    clearInterval(pageTurnTimer);
+    autoOpenTimer = setTimeout(openCoverBook, AUTO_OPEN_MS);
+  }
+
+  function closeSetsPopup() {
+    const overlay = document.getElementById('bbw-sets-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      overlay.setAttribute('aria-hidden', 'true');
+    }
+    opened = false;
+    clearTimeout(autoOpenTimer);
+    clearInterval(pageTurnTimer);
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('#bbwSetsCircleBtn') || e.target.closest('#bbwSetsCollapseBtn')) {
+      openSetsPopup();
+      return;
+    }
+    if (e.target.closest('#bbwSetsCloseBtn')) {
+      closeSetsPopup();
+      return;
+    }
+    if (e.target.id === 'bbw-sets-overlay') {
+      closeSetsPopup();
+      return;
+    }
+    const setsWishlistIcon = e.target.closest('.bbw-sets-page__wishlist');
+    if (setsWishlistIcon) {
+      e.preventDefault();
+      toggleSetsWishlist(setsWishlistIcon);
+      return;
+    }
+    const dot = e.target.closest('#bbwSetsDots span');
+    if (dot) {
+      clearInterval(pageTurnTimer);
+      showPage(Number(dot.dataset.dotIndex));
+      startPageRotation();
+      return;
+    }
+    if (e.target.closest('#bbwSetsNextBtn')) {
+      clearInterval(pageTurnTimer);
+      showPage(currentPage + 1);
+      startPageRotation();
+      return;
+    }
+    if (e.target.closest('#bbwSetsPrevBtn')) {
+      clearInterval(pageTurnTimer);
+      showPage(currentPage - 1);
+      startPageRotation();
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && opened) closeSetsPopup();
   });
 })();

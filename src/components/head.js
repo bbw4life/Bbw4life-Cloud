@@ -105,6 +105,14 @@ const SEO_MAP = {
         og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/BBW_Original_Coming_Soon.png?v=1777936945',
         canonical: 'https://bbw4life.com/collections/bbw4life-new-arrivals.html'
     },
+    
+        '/collections/sets.html': {
+        title: 'Matching Outfit Sets — Two & Three Piece Sets for Curvy Women | BBW4LIFE',
+        description: 'Shop BBW4LIFE\'s Sets collection — matching two-piece and three-piece outfit sets for curvy women. Coordinated tops, pants, skirts and loungewear. Sizes S to 6XL. Free worldwide shipping. 30-day returns.',
+        keywords: 'plus size outfit sets, matching sets curvy women, two piece set plus size, three piece set plus size, BBW4LIFE sets, curvy women coordinated outfits, plus size loungewear set, BBW matching outfit, curvy fashion sets, plus size two piece outfit, BBW4LIFE two piece, plus size set collection',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/sets_collection.png?v=1789170659',
+        canonical: 'https://bbw4life.com/collections/sets.html'
+    },
 
     // ─────────────────────────────────────────────────────
     // PAGES
@@ -961,6 +969,78 @@ const SEO_MAP = {
         keywords: 'hydrating facial mist, moisturizing mist, skin refresh spray, facial mist spray, instant hydration mist, BBW4LIFE beauty, curvy beauty skincare, dewy skin mist, makeup setting mist, BBW beauty skincare',
         og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-123-principale.png?v=1788617070',
         canonical: 'https://bbw4life.com/products/product123.html'
+    },
+
+    '/products/product124.html': {
+        title: 'Plus-Size Black & Gray Printed Outfit Set | BBW4LIFE',
+        description: 'Plus-size Womens Black And Gray Printed Outfit Set — oversized top and wide-leg pants in bold abstract prints. Sizes 1XL to 5XL. Free worldwide shipping.',
+        keywords: 'plus size outfit set, black and gray printed set, womens two piece set, oversized top wide leg pants, plus size loungewear, BBW4LIFE sets, curvy outfit set, 1XL 2XL 3XL 4XL 5XL set, plus size casual set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-124-principale.png?v=1789147138',
+        canonical: 'https://bbw4life.com/products/product124.html'
+    },
+
+    '/products/product125.html': {
+        title: 'Cinched Top & Straight-Leg Pants Set | BBW4LIFE',
+        description: 'Cinched Plus-Size Top And Straight-Leg Pants Set Womens Outfit — flattering silhouette in 5 rich colors. Sizes S to 5XL. Free worldwide shipping.',
+        keywords: 'cinched top set, straight leg pants set, plus size two piece outfit, womens matching set, plus size workwear set, BBW4LIFE sets, curvy outfit set, S M L XL 2XL 3XL 4XL 5XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-125-principale.png?v=1789147137',
+        canonical: 'https://bbw4life.com/products/product125.html'
+    },
+
+    '/products/product126.html': {
+        title: 'Printed Lace Jacket Dress & Skirt Set | BBW4LIFE',
+        description: 'Printed Lace Jacket Large Size Round Neck Dress Skirt Set — elegant floral lace jacket with matching dress. Sizes XL to 4XL. Free worldwide shipping.',
+        keywords: 'lace jacket dress set, plus size dress skirt set, round neck dress plus size, floral lace jacket, womens matching dress set, BBW4LIFE sets, curvy dress set, XL 2XL 3XL 4XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-126-principale.png?v=1789147139',
+        canonical: 'https://bbw4life.com/products/product126.html'
+    },
+
+    '/products/product127.html': {
+        title: 'Tie-Up Top & Wide Leg Pants Casual Set | BBW4LIFE',
+        description: 'New Casual Set Loose Large Size Tie-up Top High Waist Wide Leg Pants Set — relaxed everyday comfort in Yellow and Wine Red. Sizes S to 3XL. Free worldwide shipping.',
+        keywords: 'tie up top set, wide leg pants set, plus size casual set, high waist pants set, loose fit outfit set, BBW4LIFE sets, curvy casual set, S M L XL XXL 3XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-127-principale.png?v=1789147138',
+        canonical: 'https://bbw4life.com/products/product127.html'
+    },
+
+    '/products/product128.html': {
+        title: 'Printed Comfortable Casual Set | BBW4LIFE',
+        description: 'Plus Size Printed Comfortable Casual Set — soft striped top with matching wine red leggings for everyday ease. Sizes 1XL to 5XL. Free worldwide shipping.',
+        keywords: 'plus size casual set, printed loungewear set, comfortable outfit set, striped top leggings set, wine red set, BBW4LIFE sets, curvy casual set, 1XL 2XL 3XL 4XL 5XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-128-principale.png?v=1789162541',
+        canonical: 'https://bbw4life.com/products/product128.html'
+    },
+
+    '/products/product129.html': {
+        title: 'Pajama Set With Lace Shorts | BBW4LIFE',
+        description: 'Plus-size Pajama Set With Lace Shorts — soft satin cami top with delicate lace trim shorts. Available in Pink, Navy Blue, Black & Green. Sizes XL to 4XL. Free worldwide shipping.',
+        keywords: 'pajama set plus size, lace shorts pajama, satin cami pajama set, sleepwear set curvy, plus size lingerie set, BBW4LIFE sets, curvy sleepwear, XL 1XL 2XL 3XL 4XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-129-principale.png?v=1789162604',
+        canonical: 'https://bbw4life.com/products/product129.html'
+    },
+
+    '/products/product130.html': {
+        title: 'Loose Fashionable Sportswear Set | BBW4LIFE',
+        description: 'Womens Loose Plus-Size Fashionable Sportswear Set — bold black and white colorblock hoodie and jogger set. Sizes M to 4XL. Free worldwide shipping.',
+        keywords: 'plus size sportswear set, hoodie jogger set, colorblock tracksuit, womens loose fit set, athleisure set curvy, BBW4LIFE sets, curvy sportswear, M L XL 2XL 3XL 4XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-130-principale.png?v=1789163092',
+        canonical: 'https://bbw4life.com/products/product130.html'
+    },
+
+    '/products/product131.html': {
+        title: 'Geo Pattern Shirt & High Waist Pants Set | BBW4LIFE',
+        description: 'Plus Size Geo Pattern Shirt High Waist Pants Set — bold geometric print shirt with matching high waist pants. Available in Brown & Black. Sizes L to 5XL. Free worldwide shipping.',
+        keywords: 'geo pattern shirt set, high waist pants set, plus size matching set, geometric print outfit, plus size two piece set, BBW4LIFE sets, curvy outfit set, L XL 2XL 3XL 4XL 5XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-131-principale.png?v=1789163686',
+        canonical: 'https://bbw4life.com/products/product131.html'
+    },
+
+    '/products/product132.html': {
+        title: "Men's Large Size Casual Three-Piece Set | BBW4LIFE",
+        description: "Men's Large Size Casual Three-piece Set — blazer, vest and pants suit set in Dark Gray, Black & Gray. Sizes XS to 6XL. Free worldwide shipping.",
+        keywords: 'mens three piece suit set, plus size mens suit, casual blazer vest pants set, big and tall suit, mens formal set, BBW4LIFE sets, mens plus size, XS S M L XL 2XL 3XL 4XL 5XL 6XL suit',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-132-principale.png?v=1789164761',
+        canonical: 'https://bbw4life.com/products/product132.html'
     },
 
     '/products/product69.html': {
