@@ -10491,6 +10491,6 @@
         { "firstName": "Marisol", "lastName": "Ortega" }
       ]
     },
-    "use_pretty_urls": "no"
+    "use_pretty_urls": "yes"
   }
 ]
