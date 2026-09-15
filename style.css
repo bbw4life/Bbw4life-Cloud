@@ -3827,6 +3827,27 @@ body {
   gap: 6px;
 }
 
+.bbw-mini-like-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.bbw-mini-like-count {
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #15110E;
+  text-shadow: none;
+}
+
+#bbw-product-grid-featured .bbw-mini-like-count {
+  color: #fdfaf5;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+}
+
 .bbw-mini-like-btn {
   width: 22px;
   height: 22px;
@@ -3863,11 +3884,11 @@ body {
   .bbw-mini-like-widget { bottom: 6px; left: 6px; gap: 4px; }
   .bbw-mini-like-btn { width: 18px; height: 18px; }
   .bbw-mini-like-btn svg { width: 10px; height: 10px; }
+  .bbw-mini-like-count { font-size: 0.52rem; }
 }
 
 /* Cartes compactes (mini-slider, recently viewed, FBT, panier, wishlist) :
    icônes encore plus réduites pour rester proportionnées et responsive. */
-.mini-media-slider .bbw-mini-like-widget,
 .rv-card__img-wrap .bbw-mini-like-widget,
 .col-rv-card .bbw-mini-like-widget,
 .col-fbt-card .bbw-mini-like-widget,
@@ -3879,6 +3900,37 @@ body {
   bottom: 4px;
   left: 4px;
   gap: 3px;
+}
+
+/* mini-product-slider : wishlist deja en bas-gauche, like/dislike passe
+   a droite pour ne pas se superposer. */
+.mini-media-slider .bbw-mini-like-widget {
+  bottom: 4px;
+  left: auto;
+  right: 4px;
+  gap: 3px;
+}
+.mini-media-slider .bbw-mini-like-col,
+.rv-card__img-wrap .bbw-mini-like-col,
+.col-rv-card .bbw-mini-like-col,
+.col-fbt-card .bbw-mini-like-col,
+.cart-item-img-wrap .bbw-mini-like-col,
+.cp-item-img-wrap .bbw-mini-like-col,
+.drawer-extra-card__img-wrap .bbw-mini-like-col,
+.cp-extra-card__img-wrap .bbw-mini-like-col,
+.wishlist-item .bbw-mini-like-col {
+  gap: 1px;
+}
+.mini-media-slider .bbw-mini-like-count,
+.rv-card__img-wrap .bbw-mini-like-count,
+.col-rv-card .bbw-mini-like-count,
+.col-fbt-card .bbw-mini-like-count,
+.cart-item-img-wrap .bbw-mini-like-count,
+.cp-item-img-wrap .bbw-mini-like-count,
+.drawer-extra-card__img-wrap .bbw-mini-like-count,
+.cp-extra-card__img-wrap .bbw-mini-like-count,
+.wishlist-item .bbw-mini-like-count {
+  font-size: 0.46rem;
 }
 .mini-media-slider .bbw-mini-like-btn,
 .rv-card__img-wrap .bbw-mini-like-btn,

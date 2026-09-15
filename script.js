@@ -7320,6 +7320,7 @@ if (rcCheckoutBtn) {
         const satcPrice   = document.getElementById('satc-price');
         const satcComparePrice = document.getElementById('satc-compare-price');
         const satcWishlist = document.getElementById('satc-wishlist');
+        const satcDiscountBadge = document.getElementById('satc-discount-badge');
         const satcSwatches= document.getElementById('satc-swatches');
         const satcColorName = document.getElementById('satc-color-name');
         const satcColorField= document.getElementById('satc-color-field');
@@ -7389,6 +7390,85 @@ if (rcCheckoutBtn) {
             // dans le fichier, une fois le DOM entièrement construit.
         }
 
+        // ── Like / Dislike : même système que #product-like-widget (page
+        //    produit) et le widget mini générique — compteurs stockés dans
+        //    save-reviews.js (actions like-vote / get-likes). Géré ici
+        //    directement (pas via initMiniLikeDislike) car le sticky-atc est
+        //    hors de .product-section, donc sans data-product-id ancêtre. ──
+        const satcLikeBtn    = document.getElementById('satc-like-btn');
+        const satcDislikeBtn = document.getElementById('satc-dislike-btn');
+        const satcLikeCount    = document.getElementById('satc-like-count');
+        const satcDislikeCount = document.getElementById('satc-dislike-count');
+        if (satcLikeBtn && satcDislikeBtn) {
+            const SATC_LIKE_ICON_SVG    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="9" height="9"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
+            const SATC_DISLIKE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="9" height="9"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
+            if (!satcLikeBtn.querySelector('svg')) satcLikeBtn.insertAdjacentHTML('afterbegin', SATC_LIKE_ICON_SVG);
+            if (!satcDislikeBtn.querySelector('svg')) satcDislikeBtn.insertAdjacentHTML('afterbegin', SATC_DISLIKE_ICON_SVG);
+
+            const ANON_ID_KEY = 'bbw_anon_vote_id';
+            function satcGetAnonId() {
+                try {
+                    let id = localStorage.getItem(ANON_ID_KEY);
+                    if (!id) {
+                        id = 'anon-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+                        localStorage.setItem(ANON_ID_KEY, id);
+                    }
+                    return id;
+                } catch (e) {
+                    return 'anon-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+                }
+            }
+            function satcGetIdentity() {
+                let email = null, token = null;
+                try {
+                    email = localStorage.getItem('userEmail') || null;
+                    token = localStorage.getItem('userAccountToken') || null;
+                } catch (e) {}
+                if (email && token) return { email, token };
+                return { anonId: satcGetAnonId() };
+            }
+            function satcCallLikeApi(action, voteType) {
+                const identity = satcGetIdentity();
+                const body = Object.assign({ action, productId: product.id }, identity);
+                if (voteType) body.voteType = voteType;
+                return fetch('/.netlify/functions/save-reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).then(r => r.json());
+            }
+            function satcRenderCounts(likes, dislikes) {
+                if (satcLikeCount) satcLikeCount.textContent = likes || 0;
+                if (satcDislikeCount) satcDislikeCount.textContent = dislikes || 0;
+            }
+            function satcRenderMyVote(myVote) {
+                satcLikeBtn.classList.toggle('active', myVote === 'like');
+                satcDislikeBtn.classList.toggle('active', myVote === 'dislike');
+            }
+            satcCallLikeApi('get-likes').then(function (data) {
+                if (data && data.success) { satcRenderCounts(data.likes, data.dislikes); satcRenderMyVote(data.myVote); }
+            }).catch(function () {});
+
+            let satcVoting = false;
+            function satcHandleVote(e, voteType) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (satcVoting) return;
+                satcVoting = true;
+                satcLikeBtn.disabled = true;
+                satcDislikeBtn.disabled = true;
+                satcCallLikeApi('like-vote', voteType).then(function (data) {
+                    if (data && data.success) { satcRenderCounts(data.likes, data.dislikes); satcRenderMyVote(data.myVote); }
+                }).catch(function () {}).finally(function () {
+                    satcVoting = false;
+                    satcLikeBtn.disabled = false;
+                    satcDislikeBtn.disabled = false;
+                });
+            }
+            satcLikeBtn.addEventListener('click', function (e) { satcHandleVote(e, 'like'); });
+            satcDislikeBtn.addEventListener('click', function (e) { satcHandleVote(e, 'dislike'); });
+        }
+
         // ── Image par défaut ──
         const defaultImg = (hasColors && product.colors[0].image) ? product.colors[0].image : product.image;
         satcImg.src = upgradeShopifyImageUrl(defaultImg);
@@ -7409,9 +7489,15 @@ if (rcCheckoutBtn) {
                 if (compare > p) {
                     satcComparePrice.textContent = '$' + compare.toFixed(2);
                     satcComparePrice.style.display = '';
+                    if (satcDiscountBadge) {
+                        const pct = Math.round(((compare - p) / compare) * 100);
+                        satcDiscountBadge.textContent = pct + '% OFF';
+                        satcDiscountBadge.style.display = 'inline-block';
+                    }
                 } else {
                     satcComparePrice.textContent = '';
                     satcComparePrice.style.display = 'none';
+                    if (satcDiscountBadge) satcDiscountBadge.style.display = 'none';
                 }
             }
         }
@@ -17482,7 +17568,7 @@ function injectColFbt() {
   const MINI_LIKE_SELECTORS =
     '.col-card__media, .cart-item-img-wrap, .cp-item-img-wrap, ' +
     '.bbwpg-card__img-wrap, .bbw-nb-card__media, .cs-media, .rv-card__img-wrap, .col-rv-card__img, ' +
-    '.fs-img-frame, .mini-media-slider, ' +
+    '.fs-img-frame, .mini-media-slider, .pdp-grid-card__media, ' +
     '.drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
     '.wishlist-item img, .col-qv-media, .col-fbt-card__img';
 
@@ -17537,11 +17623,24 @@ function injectColFbt() {
     const widget = document.createElement('div');
     widget.className = 'bbw-mini-like-widget';
 
+    const likeCount = document.createElement('span');
+    likeCount.className = 'bbw-mini-like-count';
+    likeCount.textContent = '0';
+
     const likeBtn = document.createElement('button');
     likeBtn.type = 'button';
     likeBtn.className = 'bbw-mini-like-btn bbw-mini-like-btn--like';
     likeBtn.setAttribute('aria-label', 'Like this product');
     likeBtn.innerHTML = LIKE_ICON_SVG;
+
+    const likeCol = document.createElement('div');
+    likeCol.className = 'bbw-mini-like-col';
+    likeCol.appendChild(likeCount);
+    likeCol.appendChild(likeBtn);
+
+    const dislikeCount = document.createElement('span');
+    dislikeCount.className = 'bbw-mini-like-count';
+    dislikeCount.textContent = '0';
 
     const dislikeBtn = document.createElement('button');
     dislikeBtn.type = 'button';
@@ -17549,9 +17648,19 @@ function injectColFbt() {
     dislikeBtn.setAttribute('aria-label', 'Dislike this product');
     dislikeBtn.innerHTML = DISLIKE_ICON_SVG;
 
-    widget.appendChild(likeBtn);
-    widget.appendChild(dislikeBtn);
+    const dislikeCol = document.createElement('div');
+    dislikeCol.className = 'bbw-mini-like-col';
+    dislikeCol.appendChild(dislikeCount);
+    dislikeCol.appendChild(dislikeBtn);
+
+    widget.appendChild(likeCol);
+    widget.appendChild(dislikeCol);
     wrap.appendChild(widget);
+
+    function renderCounts(likes, dislikes) {
+      likeCount.textContent = likes || 0;
+      dislikeCount.textContent = dislikes || 0;
+    }
 
     function renderMyVote(myVote) {
       likeBtn.classList.toggle('active', myVote === 'like');
@@ -17559,7 +17668,7 @@ function injectColFbt() {
     }
 
     callLikeApi(productId, 'get-likes').then(function (data) {
-      if (data && data.success) renderMyVote(data.myVote);
+      if (data && data.success) { renderCounts(data.likes, data.dislikes); renderMyVote(data.myVote); }
     }).catch(function () {});
 
     let voting = false;
@@ -17571,7 +17680,7 @@ function injectColFbt() {
       likeBtn.disabled = true;
       dislikeBtn.disabled = true;
       callLikeApi(productId, 'like-vote', voteType).then(function (data) {
-        if (data && data.success) renderMyVote(data.myVote);
+        if (data && data.success) { renderCounts(data.likes, data.dislikes); renderMyVote(data.myVote); }
       }).catch(function () {}).finally(function () {
         voting = false;
         likeBtn.disabled = false;

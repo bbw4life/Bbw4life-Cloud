@@ -7977,8 +7977,8 @@
     "sticky_media_mobile": "no",
     "media_auto_slider": "yes",
     "swatch_scroll_mobile": "yes",
-    "sticky_atc_mobile_threshold": 10,
-    "sticky_atc_mobile_threshold_bbw_features": 8,
+    "sticky_atc_mobile_threshold": 12,
+    "sticky_atc_mobile_threshold_bbw_features": 7.5,
     "sticky_atc_desktop_threshold": 7.3,
     "theme_color": "#000000",
     "allowed_languages": ["en", "fr", "es", "ar", "zh", "ht", "hi", "pt", "ru", "de", "ja"],
@@ -10492,10 +10492,10 @@
       "disable_image_download": "yes",
       "disable_video_download": "yes",
       "disable_copy": "yes",
-      "disable_devtools_key": "no"
+      "disable_devtools_key": "yes"
     },
     "mini_product_slider": {
-      "title": "Queens And King Also Love These",
+      "title": "Queens And Kings Also Love These",
       "product_ids": [
         "Pdg-Francenel-product131",
         "Pdg-Francenel-product127",
