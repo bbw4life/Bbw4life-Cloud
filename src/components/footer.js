@@ -180,7 +180,10 @@
     if (contactText) contactText.textContent = s.contact_text || '';
 
     const emailLink = $('bbwEmailLink');
-    if (emailLink) emailLink.href = 'mailto:' + (s.email_link || '');
+    if (emailLink) {
+      const contactEmails = s.contact_emails || {};
+      emailLink.href = 'mailto:' + (contactEmails.general || s.email_link || '');
+    }
 
     const chatBtn = $('bbwChatNowBtn');
     if (chatBtn) chatBtn.textContent = s.whatsapp_chat_now_text || '💬 Chat With Us';
@@ -444,7 +447,12 @@
   }
 
   /* ──────────────────────────────────────────────────────────────
-     9. WHATSAPP CHAT
+     9. CHAT — envoie le message choisi dans le chatbot IA (widget
+     #cf-chat-widget, script.js) au lieu de WhatsApp : ouvre le widget
+     via window.__cfOpenChat puis pousse le message avec
+     window.__cfSendMessage, exactement comme les quick-chips du chat
+     lui-même. Fallback WhatsApp conservé si le widget n'est pas chargé
+     sur la page (ne casse rien pour ce cas).
   ────────────────────────────────────────────────────────────── */
   function initWhatsApp(s) {
     const btn    = $('bbwChatNowBtn');
@@ -462,7 +470,22 @@
       sendB.addEventListener('click', function () {
         const msg = sel.value;
         if (!msg) { alert('Please select an issue to continue.'); return; }
-        window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(msg), '_blank');
+
+        if (typeof window.__cfOpenChat === 'function' && typeof window.__cfSendMessage === 'function') {
+          // setTimeout : le chatbot a un click-outside listener global
+          // (document.addEventListener('click', ...) dans script.js) qui
+          // referme la fenêtre si le clic n'est pas dans le widget — ce
+          // clic sur #bbwSendBtn (dans le footer, donc hors du widget) le
+          // déclencherait sur le même événement et annulerait l'ouverture
+          // à l'instant même où elle a lieu. Différer au tick suivant
+          // laisse ce handler terminer avant d'ouvrir pour de bon.
+          setTimeout(function () {
+            window.__cfOpenChat();
+            window.__cfSendMessage(msg);
+          }, 0);
+        } else {
+          window.open('https://wa.me/' + number + '?text=' + encodeURIComponent(msg), '_blank');
+        }
       });
     }
   }

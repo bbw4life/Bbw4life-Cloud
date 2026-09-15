@@ -1599,30 +1599,39 @@
   100% { opacity: 1; transform: scale(1); box-shadow: var(--col-shadow); }
 }
 
-/* Boucles neutralisées — les cartes se posent et restent immobiles,
-   pas de bounce/glow/rotation en continu (trop "dropshipping"). Les
-   noms d'animation et le nombre de keyframes sont conservés à
-   l'identique pour ne rien casser côté JS/structure. */
+/* Boucles infinies — discrètes et éditoriales (pas de gros bounce type
+   template dropshipping), une par animation, actives en continu après
+   l'entrée. Mises en pause au survol via
+   .col-product-card:hover { animation-play-state: paused } pour ne
+   jamais entrer en conflit avec les transforms de hover (zoom image,
+   ombre agrandie, etc.), qui restent gérés par des règles séparées. */
 @keyframes colFadeSlideUpLoop {
   0%, 100% { transform: translateY(0); box-shadow: var(--col-shadow); }
+  50%      { transform: translateY(-4px); box-shadow: var(--col-shadow-lg); }
 }
 @keyframes colZoomFadeLoop {
   0%, 100% { transform: scale(1); box-shadow: var(--col-shadow); }
+  50%      { transform: scale(1.015); box-shadow: var(--col-shadow-lg); }
 }
 @keyframes colFlipInLoop {
   0%, 100% { transform: perspective(900px) rotateY(0deg); }
+  50%      { transform: perspective(900px) rotateY(2.5deg); }
 }
 @keyframes colSlideLeftLoop {
   0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-4px); }
 }
 @keyframes colSlideRightLoop {
   0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(4px); }
 }
 @keyframes colRotateInLoop {
   0%, 100% { transform: rotate(0deg) scale(1); }
+  50%      { transform: rotate(-1deg) scale(1.01); }
 }
 @keyframes colGlowPopLoop {
   0%, 100% { box-shadow: var(--col-shadow); transform: scale(1); }
+  50%      { box-shadow: var(--col-shadow-lg); transform: scale(1.015); }
 }
 
 

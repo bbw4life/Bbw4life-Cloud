@@ -1520,5 +1520,75 @@
   "keywords": ["hydrating mist", "moisturizing mist", "face mist", "skin mist", "facial spray", "product123"],
   "type": "product",
   "icon": "fas fa-tag"
+},
+{
+  "title": "Sets Collection",
+  "url": "/collections/sets.html",
+  "keywords": ["sets", "outfit sets", "matching sets", "two piece set", "three piece set", "ensembles", "tenues assorties", "collection sets"],
+  "type": "page",
+  "icon": "fas fa-gem"
+},
+{
+  "title": "Plus-size Womens Black And Gray Printed Outfit Set",
+  "url": "/products/product124.html",
+  "keywords": ["black and gray printed set", "outfit set", "two piece set", "plus size set", "oversized top", "wide leg pants", "ensemble grande taille", "product124"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Cinched Plus-Size Top And Straight-Leg Pants Set Womens Outfit",
+  "url": "/products/product125.html",
+  "keywords": ["cinched top", "straight leg pants", "two piece set", "plus size set", "matching set", "ensemble grande taille", "product125"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Printed Lace Jacket Large Size Round Neck Dress Skirt Set",
+  "url": "/products/product126.html",
+  "keywords": ["lace jacket", "dress skirt set", "round neck dress", "plus size set", "matching set", "ensemble grande taille", "product126"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "New Casual Set Loose Large Size Tie-up Top High Waist Wide Leg Pants Set",
+  "url": "/products/product127.html",
+  "keywords": ["tie up top", "wide leg pants", "casual set", "plus size set", "high waist pants", "ensemble grande taille", "product127"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Plus Size Printed Comfortable Casual Set",
+  "url": "/products/product128.html",
+  "keywords": ["printed casual set", "comfortable set", "leggings set", "plus size set", "loungewear", "ensemble grande taille", "product128"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Plus-size Pajama Set With Lace Shorts",
+  "url": "/products/product129.html",
+  "keywords": ["pajama set", "lace shorts", "sleepwear", "plus size set", "satin cami", "pyjama grande taille", "product129"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Womens Loose Plus-Size Fashionable Sportswear Set",
+  "url": "/products/product130.html",
+  "keywords": ["sportswear set", "hoodie jogger set", "athleisure", "plus size set", "colorblock", "tenue de sport grande taille", "product130"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Plus Size Geo Pattern Shirt High Waist Pants Set",
+  "url": "/products/product131.html",
+  "keywords": ["geo pattern shirt", "high waist pants", "plus size set", "matching set", "geometric print", "ensemble grande taille", "product131"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Men's Large Size Casual Three-piece Set",
+  "url": "/products/product132.html",
+  "keywords": ["mens three piece suit", "blazer vest pants", "big and tall suit", "mens formal set", "suit set", "costume homme grande taille", "product132"],
+  "type": "product",
+  "icon": "fas fa-tag"
 }
 ]

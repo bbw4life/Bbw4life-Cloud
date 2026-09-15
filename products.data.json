@@ -7147,6 +7147,10 @@
     "trio_discount": 20,
     "rating": 4.6,
     "reviews_count": 15,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "Best Seller"
+    },
     "title": "LED Facial Mask Skin Care Mask Beauty Salon",
     "description": "LED Facial Mask Skin Care Mask Beauty Salon — English Style.",
     "price": 65.21,
@@ -7190,6 +7194,10 @@
     "trio_discount": 20,
     "rating": 4.5,
     "reviews_count": 10,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "In Promotion"
+    },
     "title": "Neck & Face Lifting Beauty Instrument",
     "description": "Micro-current lifting and tightening device with color light therapy for neck and face care.",
     "price": 34.17,
@@ -7239,6 +7247,10 @@
     "trio_discount": 20,
     "rating": 4.8,
     "reviews_count": 13,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "Top Sale"
+    },
     "title": "Laikou Vitamin C Skincare Cleanser",
     "description": "Laikou Vitamin C Skincare Cleanser, 40g.",
     "price": 15.18,
@@ -7283,6 +7295,10 @@
     "trio_discount": 20,
     "rating": 4.7,
     "reviews_count": 14,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "Best Seller"
+    },
     "title": "Hyaluronic Acid Water-Sensitive Sunscreen — Refreshing, Not Oily, 50ml",
     "description": "Hyaluronic Acid Water-sensitive Sunscreen, refreshing and not oily, 50ml, White.",
     "price": 15.19,
@@ -7327,6 +7343,10 @@
     "trio_discount": 20,
     "rating": 4.4,
     "reviews_count": 10,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "Best deal"
+    },
     "title": "Skin Hydrating And Moisturizing Mist",
     "description": "Skin Hydrating And Moisturizing Mist, 100ml.",
     "price": 15.74,
@@ -7371,6 +7391,10 @@
     "trio_discount": 20,
     "rating": 4.5,
     "reviews_count": 12,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Plus-size Womens Black And Gray Printed Outfit Set",
     "description": "Plus-size Womens Black And Gray Printed Outfit Set.",
     "price": 26.86,
@@ -7431,6 +7455,10 @@
     "trio_discount": 20,
     "rating": 4.6,
     "reviews_count": 17,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Cinched Plus-Size Top And Straight-Leg Pants Set Womens Outfit",
     "description": "Cinched Plus-Size Top And Straight-Leg Pants Set Womens Outfit.",
     "price": 31.25,
@@ -7518,6 +7546,10 @@
     "trio_discount": 20,
     "rating": 4.4,
     "reviews_count": 10,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Printed Lace Jacket Large Size Round Neck Dress Skirt Set",
     "description": "Printed Lace Jacket Large Size Round Neck Dress Skirt Set.",
     "price": 37.92,
@@ -7570,6 +7602,10 @@
     "trio_discount": 20,
     "rating": 4.7,
     "reviews_count": 14,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "New Casual Set Loose Large Size Tie-up Top High Waist Wide Leg Pants Set",
     "description": "New Casual Set Loose Large Size Tie-up Top High Waist Wide Leg Pants Set.",
     "price": 39.78,
@@ -7626,6 +7662,10 @@
     "trio_discount": 20,
     "rating": 4.3,
     "reviews_count": 11,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Plus Size Printed Comfortable Casual Set",
     "description": "Plus Size Printed Comfortable Casual Set.",
     "price": 31.91,
@@ -7675,6 +7715,10 @@
     "trio_discount": 20,
     "rating": 4.8,
     "reviews_count": 19,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Plus-size Pajama Set With Lace Shorts",
     "description": "Plus-size Pajama Set With Lace Shorts.",
     "price": 20.71,
@@ -7741,6 +7785,10 @@
     "trio_discount": 20,
     "rating": 4.6,
     "reviews_count": 16,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Womens Loose Plus-Size Fashionable Sportswear Set",
     "description": "Womens Loose Plus-Size Fashionable Sportswear Set.",
     "price": 29.19,
@@ -7791,6 +7839,10 @@
     "trio_discount": 20,
     "rating": 4.5,
     "reviews_count": 13,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Plus Size Geo Pattern Shirt High Waist Pants Set",
     "description": "Plus Size Geo Pattern Shirt High Waist Pants Set.",
     "price": 35.02,
@@ -7847,6 +7899,10 @@
     "trio_discount": 20,
     "rating": 4.7,
     "reviews_count": 15,
+    "badge": {
+      "icon": "fi-rr-flame",
+      "text": "New Arrival"
+    },
     "title": "Men's Large Size Casual Three-piece Set",
     "description": "Men's Large Size Casual Three-piece Set.",
     "price": 110.03,
@@ -8062,7 +8118,8 @@
       "separator_dot": "no",
       "separator_chevron": "no",
       "separator_pipe": "no",
-      "separator_double_arrow": "yes"
+      "separator_double_arrow": "no",
+      "separator_double_slash": "yes"
     },
     "social_links": {
       "facebook": "https://facebook.com/bbw4liife",
@@ -8212,6 +8269,7 @@
       "hours": 10
     },
     "col_card_animations": {
+      "enabled": "yes",
       "fadeSlideUp": "yes",
       "zoomFade": "no",
       "flipIn": "no",
@@ -8249,18 +8307,18 @@
     },
     "story_circles": {
       "animations": {
-        "marquee": "yes",
+        "marquee": "no",
         "pulse": "no",
         "bounce": "no",
-        "float": "no",
+        "float": "yes",
         "glow": "no",
         "spin": "no",
         "wave": "no",
         "shake": "no"
       },
       "border_style": {
-        "conic_noir": "no",
-        "solid": "yes",
+        "conic_noir": "yes",
+        "solid": "no",
         "gradient_rgb": "no",
         "dashed": "no",
         "dotted": "no",
@@ -8310,8 +8368,40 @@
         "Pdg-Francenel-product67"
       ]
     },
+    "sets_popup_widget": {
+      "max_products": 5,
+      "product_ids": [
+        "Pdg-Francenel-product128",
+        "Pdg-Francenel-product129",
+        "Pdg-Francenel-product130",
+        "Pdg-Francenel-product131",
+        "Pdg-Francenel-product132"
+      ]
+    },
     "story_row_women": {
       "label": "Women's Picks",
+      "animations": {
+        "marquee": "yes",
+        "pulse": "no",
+        "bounce": "no",
+        "float": "no",
+        "glow": "no",
+        "spin": "no",
+        "wave": "no",
+        "shake": "no"
+      },
+      "marquee_direction": "left",
+      "marquee_speed": "150s",
+      "border_style": {
+        "conic_noir": "no",
+        "solid": "no",
+        "gradient_rgb": "no",
+        "dashed": "no",
+        "dotted": "no",
+        "double": "yes"
+      },
+      "border_size": 1,
+      "border_color": "#B8925A",
       "product_ids": [
         "Pdg-Francenel-product124",
         "Pdg-Francenel-product125",
@@ -8341,6 +8431,28 @@
     },
     "story_row_men": {
       "label": "Men's Picks",
+      "animations": {
+        "marquee": "yes",
+        "pulse": "no",
+        "bounce": "no",
+        "float": "no",
+        "glow": "no",
+        "spin": "no",
+        "wave": "no",
+        "shake": "no"
+      },
+      "marquee_direction": "right",
+      "marquee_speed": "150s",
+      "border_style": {
+        "conic_noir": "no",
+        "solid": "no",
+        "gradient_rgb": "no",
+        "dashed": "no",
+        "dotted": "no",
+        "double": "yes"
+      },
+      "border_size": 2,
+      "border_color": "#B8925A",
       "product_ids": [
         "Pdg-Francenel-product35",
         "Pdg-Francenel-product39",
@@ -10380,7 +10492,7 @@
       "disable_image_download": "yes",
       "disable_video_download": "yes",
       "disable_copy": "yes",
-      "disable_devtools_key": "yes"
+      "disable_devtools_key": "no"
     },
     "mini_product_slider": {
       "title": "Queens And King Also Love These",

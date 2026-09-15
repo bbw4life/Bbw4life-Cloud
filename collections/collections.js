@@ -642,8 +642,9 @@
         glowPop:     'col-anim--glowPop'
       };
       const cardAnims = settings.col_card_animations || {};
-      const activeAnim = Object.keys(cardAnims).find(k => (cardAnims[k] || '').toLowerCase() === 'yes');
-      animationClass = (activeAnim && animMap[activeAnim]) ? animMap[activeAnim] : 'col-anim--fadeSlideUp';
+      const animsEnabled = (cardAnims.enabled || 'yes').toLowerCase() !== 'no';
+      const activeAnim = Object.keys(animMap).find(k => (cardAnims[k] || '').toLowerCase() === 'yes');
+      animationClass = !animsEnabled ? '' : ((activeAnim && animMap[activeAnim]) ? animMap[activeAnim] : 'col-anim--fadeSlideUp');
       
       const realProducts = data.filter(p => !p.type && p.active !== false);
       if (productIds.length > 0) {
@@ -955,7 +956,7 @@
   ================================================================ */
   function buildCard(prod, idx, color, variantPrice) {
     const card = document.createElement('div');
-    card.className = 'col-product-card ' + animationClass + ' col-anim-delay-' + Math.min(idx % 12 + 1, 12);
+    card.className = 'col-product-card' + (animationClass ? ' ' + animationClass + ' col-anim-delay-' + Math.min(idx % 12 + 1, 12) : '');
     card.dataset.id = prod.id;
 
     const discount   = getDiscount(prod);
@@ -1149,7 +1150,7 @@
     const displayPrice = selectedColor ? getMinPriceForColor(prod, selectedColor.name) : prod.price;
 
     colQvInner.innerHTML =
-      '<div class="col-qv-media">' +
+      '<div class="col-qv-media" data-id="' + prod.id + '">' +
         '<img id="qvMainImg" src="' + upgradeShopifyImageUrl(imgSrc, 700) + '" alt="' + prod.title + '" style="width:100%;height:100%;object-fit:cover;">' +
       '</div>' +
       '<div class="col-qv-info">' +

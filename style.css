@@ -204,7 +204,7 @@ body {
 .story-circles-marquee-inner {
   display: flex;
   gap: 18px;
-  animation: sc-marquee-scroll 100s linear infinite;
+  animation: sc-marquee-scroll var(--sc-marquee-duration, 100s) linear infinite;
   will-change: transform;
   flex-shrink: 0;
 }
@@ -214,6 +214,17 @@ body {
 @keyframes sc-marquee-scroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(calc(-100% - 18px)); }
+}
+
+/* Sens inverse du marquee (défilement vers la droite) — utilisé par
+   story_row_women / story_row_men via marquee_direction: "right".
+   cf. buildRow() dans script.js. */
+.story-circles-section.marquee--right .story-circles-marquee-inner {
+  animation-name: sc-marquee-scroll-right;
+}
+@keyframes sc-marquee-scroll-right {
+  0%   { transform: translateX(calc(-100% - 18px)); }
+  100% { transform: translateX(0); }
 }
 
 
@@ -3686,7 +3697,8 @@ body {
 .col-card__media .bbw-watermark,
 .cs-media .bbw-watermark,
 .rv-card__img-wrap .bbw-watermark,
-.bbwpg-card__img-wrap .bbw-watermark {
+.bbwpg-card__img-wrap .bbw-watermark,
+.bbw-nb-card__media .bbw-watermark {
   font-size: clamp(15px, 4vw, 25px);
 }
 
@@ -3794,6 +3806,103 @@ body {
     font-size: 7px;
     bottom: 9%;
   }
+}
+
+
+/* ================================================================
+   BBW4LIFE — MINI LIKE/DISLIKE SUR CARTES PRODUIT
+   Même palette que #product-like-widget (page produit) — icônes rondes
+   sans compteur texte, coin bas-gauche pour ne jamais chevaucher les
+   icônes déjà présentes sur les cartes (wishlist/quick-view en haut-
+   droite, badges en haut-gauche, watermark centré en bas).
+   cf. initMiniLikeDislike dans script.js.
+================================================================ */
+.bbw-mini-like-widget {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 6;
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}
+
+.bbw-mini-like-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(21,17,14,0.55);
+  border: 1px solid rgba(255,255,255,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fdfaf5;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.22);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.bbw-mini-like-btn:hover {
+  transform: scale(1.08);
+}
+
+.bbw-mini-like-btn--like.active {
+  background: var(--bbw-gold);
+  border-color: var(--bbw-gold);
+  color: #15110E;
+}
+
+.bbw-mini-like-btn--dislike.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fdfaf5;
+}
+
+@media (max-width: 768px) {
+  .bbw-mini-like-widget { bottom: 6px; left: 6px; gap: 4px; }
+  .bbw-mini-like-btn { width: 18px; height: 18px; }
+  .bbw-mini-like-btn svg { width: 10px; height: 10px; }
+}
+
+/* Cartes compactes (mini-slider, recently viewed, FBT, panier, wishlist) :
+   icônes encore plus réduites pour rester proportionnées et responsive. */
+.mini-media-slider .bbw-mini-like-widget,
+.rv-card__img-wrap .bbw-mini-like-widget,
+.col-rv-card .bbw-mini-like-widget,
+.col-fbt-card .bbw-mini-like-widget,
+.cart-item-img-wrap .bbw-mini-like-widget,
+.cp-item-img-wrap .bbw-mini-like-widget,
+.drawer-extra-card__img-wrap .bbw-mini-like-widget,
+.cp-extra-card__img-wrap .bbw-mini-like-widget,
+.wishlist-item .bbw-mini-like-widget {
+  bottom: 4px;
+  left: 4px;
+  gap: 3px;
+}
+.mini-media-slider .bbw-mini-like-btn,
+.rv-card__img-wrap .bbw-mini-like-btn,
+.col-rv-card .bbw-mini-like-btn,
+.col-fbt-card .bbw-mini-like-btn,
+.cart-item-img-wrap .bbw-mini-like-btn,
+.cp-item-img-wrap .bbw-mini-like-btn,
+.drawer-extra-card__img-wrap .bbw-mini-like-btn,
+.cp-extra-card__img-wrap .bbw-mini-like-btn,
+.wishlist-item .bbw-mini-like-btn {
+  width: 16px;
+  height: 16px;
+}
+.mini-media-slider .bbw-mini-like-btn svg,
+.rv-card__img-wrap .bbw-mini-like-btn svg,
+.col-rv-card .bbw-mini-like-btn svg,
+.col-fbt-card .bbw-mini-like-btn svg,
+.cart-item-img-wrap .bbw-mini-like-btn svg,
+.cp-item-img-wrap .bbw-mini-like-btn svg,
+.drawer-extra-card__img-wrap .bbw-mini-like-btn svg,
+.cp-extra-card__img-wrap .bbw-mini-like-btn svg,
+.wishlist-item .bbw-mini-like-btn svg {
+  width: 9px;
+  height: 9px;
 }
 
 
@@ -5300,7 +5409,7 @@ body {
 
 .cf-chat-window {
   position: absolute;
-  bottom: 30px;
+  bottom: -60px;
   left: 0;
   width: 390px;
   max-height: min(520px, calc(100vh - 90px));
@@ -9402,6 +9511,67 @@ body.sr-page .bbw-search-dropdown {
   padding: 4px 9px;
   border-radius: 5px;
   z-index: 2;
+}
+
+.bbw-nb-card__wishlist {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  z-index: 6;
+  background: rgba(253,249,244,0.96);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(184,146,90,0.18), 0 1px 0 rgba(255,255,255,0.90) inset;
+  border: 1px solid rgba(184,146,90,0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+.bbw-nb-card__wishlist:hover {
+  transform: scale(1.12);
+  box-shadow: 0 4px 16px rgba(184,146,90,0.30);
+  border-color: rgba(184,146,90,0.55);
+}
+.bbw-nb-card__wishlist svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  flex-shrink: 0;
+}
+.bbw-nb-card__wishlist .wishlist-icon-empty {
+  display: block;
+  width: 14px;
+  height: 14px;
+  stroke: var(--bbw-gold);
+  fill: none;
+  stroke-width: 2;
+  transition: stroke 0.20s ease;
+}
+.bbw-nb-card__wishlist .wishlist-icon-filled {
+  display: none;
+  width: 14px;
+  height: 14px;
+  fill: var(--bbw-gold);
+  stroke: none;
+}
+.bbw-nb-card__wishlist.added .wishlist-icon-empty  { display: none; }
+.bbw-nb-card__wishlist.added .wishlist-icon-filled { display: block; }
+.bbw-nb-card__wishlist.added {
+  background: rgba(184,146,90,0.10);
+  border-color: rgba(184,146,90,0.35);
+  box-shadow: 0 2px 10px rgba(184,146,90,0.20);
+}
+
+@media (max-width: 768px) {
+  .bbw-nb-card__wishlist { width: 24px; height: 24px; top: 8px; right: 8px; }
+  .bbw-nb-card__wishlist .wishlist-icon-empty,
+  .bbw-nb-card__wishlist .wishlist-icon-filled { width: 12px; height: 12px; }
 }
 
 .bbw-nb-card__body {

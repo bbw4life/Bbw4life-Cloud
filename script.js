@@ -1662,10 +1662,12 @@ function showErrorPopup(message) {
 
           const card = document.createElement('div');
           card.className = 'bbw-nb-card';
+          card.dataset.id = prod.id;
           card.innerHTML = `
             <a href="${productUrl}" class="bbw-nb-card__media">
               <span class="bbw-nb-card__badge">${badgeText}</span>
               <img src="${imgMain}" alt="${prod.title}" loading="lazy">
+              <span class="mini-wishlist-icon bbw-nb-card__wishlist" data-id="${prod.id}"></span>
             </a>
             <div class="bbw-nb-card__body">
               <a href="${productUrl}" class="bbw-nb-card__title">${prod.title}</a>
@@ -1677,7 +1679,34 @@ function showErrorPopup(message) {
               <a href="${productUrl}" class="bbw-nb-card__btn">View Product</a>
             </div>`;
           grid.appendChild(card);
+
+          const wishlistIcon = card.querySelector('.bbw-nb-card__wishlist');
+          if (wishlistIcon) {
+            wishlistIcon.innerHTML =
+              '<svg class="wishlist-icon-empty" viewBox="0 0 24 24" fill="none" stroke="var(--bbw-gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>' +
+              '</svg>' +
+              '<svg class="wishlist-icon-filled" viewBox="0 0 24 24" fill="var(--bbw-gold)" stroke="none">' +
+              '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' +
+              '</svg>';
+            wishlistIcon.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              const id = wishlistIcon.dataset.id;
+              if (!id) return;
+              if (!Array.isArray(window.wishlist)) window.wishlist = [];
+              const idx = window.wishlist.indexOf(id);
+              if (idx === -1) { window.wishlist.push(id); wishlistIcon.classList.add('added'); }
+              else { window.wishlist.splice(idx, 1); wishlistIcon.classList.remove('added'); }
+              if (typeof window.saveWishlist === 'function') window.saveWishlist();
+              if (typeof window.updateBadges === 'function') window.updateBadges();
+              if (typeof window.updateWishlistIcons === 'function') window.updateWishlistIcons();
+              document.dispatchEvent(new Event('wishlist:change'));
+            });
+          }
         });
+
+        if (typeof window.updateWishlistIcons === 'function') window.updateWishlistIcons();
       })();
 
 
@@ -2205,6 +2234,55 @@ function showErrorPopup(message) {
 
 
       // ══════════════════════════════════════════
+      //  STOCK — helper partagé entre les 2 blocs Featured Spotlight,
+      //  même logique CJ (cache localStorage) + Eprolo que initStockBar
+      //  (page produit) : sans ça, tout produit CJ affichait un bloc
+      //  .fs-stock vide en permanence puisque seul eprolo_id déclenchait
+      //  l'appel API.
+      // ══════════════════════════════════════════
+      function renderSpotlightStock(fsStock, prod) {
+        if (!fsStock) return;
+        if (!prod.eprolo_id && !prod.cj_product_id) { fsStock.style.display = 'none'; return; }
+
+        fsStock.innerHTML = '⏳ Checking stock...';
+
+        function render(stockData) {
+          if (stockData.success && stockData.totalStock !== null) {
+            const inventoryMode = (settings.inventory_display_mode || 'anderson').toLowerCase().trim();
+            const s = inventoryMode === 'francenel'
+              ? stockData.totalStock
+              : capDisplayStock(stockData.totalStock);
+            const color = s <= 100 ? '🔴' : s <= 200 ? '🟡' : '🟢';
+            fsStock.innerHTML = `${color} Only <strong>${s} left</strong> in stock`;
+          } else {
+            fsStock.style.display = 'none';
+          }
+        }
+
+        if (prod.cj_product_id) {
+          const cached = getCachedCJStock(prod.cj_product_id);
+          if (cached) { render(cached); return; }
+
+          const vids = (prod.variants || []).map(v => v.vid).filter(Boolean);
+          if (!vids.length) { fsStock.style.display = 'none'; return; }
+
+          fetch(`/.netlify/functions/get-product-stock?cj_vids=${vids.join(',')}`)
+            .then(r => r.json())
+            .then(stockData => {
+              setCachedCJStock(prod.cj_product_id, stockData);
+              render(stockData);
+            })
+            .catch(() => { fsStock.style.display = 'none'; });
+          return;
+        }
+
+        fetch(`/.netlify/functions/get-product-stock?eprolo_id=${prod.eprolo_id}`)
+          .then(r => r.json())
+          .then(render)
+          .catch(() => { fsStock.style.display = 'none'; });
+      }
+
+      // ══════════════════════════════════════════
       //  FEATURED SPOTLIGHT — dynamique depuis settings
       // ══════════════════════════════════════════
       (function initFeaturedSpotlight() {
@@ -2216,6 +2294,9 @@ function showErrorPopup(message) {
 
         const section = document.getElementById('featured-spotlight');
         if (!section) return;
+
+        const fsFrameEl = section.querySelector('.fs-img-frame');
+        if (fsFrameEl) fsFrameEl.dataset.id = spotlightId;
 
         // Titre
         const titleEl = section.querySelector('.fs-title');
@@ -2310,28 +2391,8 @@ function showErrorPopup(message) {
         const viewBtn = section.querySelector('.fs-btn-primary');
         if (viewBtn) viewBtn.href = getProductUrl(spotlightId);
 
-        // Stock dynamique
-          if (prod.eprolo_id) {
-            const fsStock = section.querySelector('.fs-stock');
-            if (fsStock) {
-              fsStock.innerHTML = '⏳ Checking stock...';
-              fetch(`/.netlify/functions/get-product-stock?eprolo_id=${prod.eprolo_id}`)
-                .then(r => r.json())
-                .then(stockData => {
-                  if (stockData.success && stockData.totalStock !== null) {
-                    const inventoryMode = (settings.inventory_display_mode || 'anderson').toLowerCase().trim();
-                    const s = inventoryMode === 'francenel'
-                      ? stockData.totalStock
-                      : capDisplayStock(stockData.totalStock);
-                    const color = s <= 100 ? '🔴' : s <= 200 ? '🟡' : '🟢';
-                    fsStock.innerHTML = `${color} Only <strong>${s} left</strong> in stock`;
-                  } else {
-                    fsStock.style.display = 'none';
-                  }
-                })
-                .catch(() => { fsStock.style.display = 'none'; });
-            }
-          }
+        // Stock dynamique — Eprolo ou CJ, jamais les deux vides à la fois
+        renderSpotlightStock(section.querySelector('.fs-stock'), prod);
       })();
 
       // ══════════════════════════════════════════
@@ -2371,6 +2432,9 @@ function showErrorPopup(message) {
         const section = document.getElementById('featured-spotlight-2');
         if (!section) return;
         if (!prod) return;
+
+        const fsFrameEl2 = section.querySelector('.fs-img-frame');
+        if (fsFrameEl2) fsFrameEl2.dataset.id = spotlightId;
 
         // Titre
         const titleEl = section.querySelector('.fs-title');
@@ -2469,28 +2533,8 @@ function showErrorPopup(message) {
         const viewBtn = section.querySelector('.fs-btn-primary');
         if (viewBtn) viewBtn.href = getProductUrl(spotlightId);
 
-        // Stock dynamique
-        if (prod.eprolo_id) {
-          const fsStock = section.querySelector('.fs-stock');
-          if (fsStock) {
-            fsStock.innerHTML = '⏳ Checking stock...';
-            fetch(`/.netlify/functions/get-product-stock?eprolo_id=${prod.eprolo_id}`)
-              .then(r => r.json())
-              .then(stockData => {
-                if (stockData.success && stockData.totalStock !== null) {
-                  const inventoryMode = (settings.inventory_display_mode || 'anderson').toLowerCase().trim();
-                  const s = inventoryMode === 'francenel'
-                    ? stockData.totalStock
-                    : capDisplayStock(stockData.totalStock);
-                  const color = s <= 100 ? '🔴' : s <= 200 ? '🟡' : '🟢';
-                  fsStock.innerHTML = `${color} Only <strong>${s} left</strong> in stock`;
-                } else {
-                  fsStock.style.display = 'none';
-                }
-              })
-              .catch(() => { fsStock.style.display = 'none'; });
-          }
-        }
+        // Stock dynamique — Eprolo ou CJ, jamais les deux vides à la fois
+        renderSpotlightStock(section.querySelector('.fs-stock'), prod);
       })();
 
       // ══════════════════════════════════════════
@@ -4564,6 +4608,7 @@ function showErrorPopup(message) {
       const card = document.createElement('a');
       card.className = 'rv-card';
       card.href      = url;
+      card.dataset.id = prod.id;
 
       /* Image wrap :
          image_hover  → affiché par défaut (opacity 1)
@@ -5034,6 +5079,7 @@ initAnnouncementBar();
 
     var card = document.createElement('div');
     card.className = 'bbwpg-card';
+    card.dataset.id = prod.id;
 
    card.innerHTML =
   '<a class="bbwpg-card__img-link" href="' + url + '" aria-label="' + prod.title + '">' +
@@ -6352,7 +6398,8 @@ if (window.innerWidth <= 768) {
     'separator_dot':          '"•"',
     'separator_chevron':      '"»"',
     'separator_pipe':         '"|"',
-    'separator_double_arrow': '">>"'
+    'separator_double_arrow': '">>"',
+    'separator_double_slash': '"//"'
   };
 
   let activeSep = '"/"';
@@ -7092,9 +7139,35 @@ if (rcCheckoutBtn) {
     const ids = rowSettings.product_ids || [];
     if (!ids.length) { section.style.display = 'none'; return; }
 
-    section.classList.add('border--solid');
-    section.style.setProperty('--sc-border-size', '2px');
-    section.style.setProperty('--sc-border-color', '#B8925A');
+    // ── Animation (par défaut : aucune, comme avant l'ajout du setting —
+    //    search_story_row n'a pas de clé "animations" et garde ce comportement) ──
+    const animations = rowSettings.animations || {};
+    const animType = Object.keys(animations).find(
+      k => (animations[k] || '').toLowerCase() === 'yes'
+    ) || null;
+    if (animType) section.classList.add('anim--' + animType);
+
+    const marqueeDir = (rowSettings.marquee_direction || 'left').toLowerCase() === 'right' ? 'right' : 'left';
+    if (animType === 'marquee') {
+      if (marqueeDir === 'right') section.classList.add('marquee--right');
+      // "20s" ou "20" (nombre brut) acceptés — fallback 100s = comportement historique.
+      const rawSpeed = String(rowSettings.marquee_speed || '100s').trim();
+      const speed = /s$/i.test(rawSpeed) ? rawSpeed : rawSpeed + 's';
+      section.style.setProperty('--sc-marquee-duration', speed);
+    }
+
+    // ── Border style (par défaut : solid 2px doré, comportement historique
+    //    inchangé pour tout setting sans clé "border_style" explicite) ──
+    const borderStyles = rowSettings.border_style || {};
+    const borderType = Object.keys(borderStyles).find(
+      k => (borderStyles[k] || '').toLowerCase() === 'yes'
+    ) || 'solid';
+    section.classList.add('border--' + borderType);
+
+    const borderSize  = rowSettings.border_size  || 2;
+    const borderColor = rowSettings.border_color || '#B8925A';
+    section.style.setProperty('--sc-border-size', borderSize + 'px');
+    section.style.setProperty('--sc-border-color', borderColor);
 
     const realItems = ids
       .filter(id => !id.startsWith('--'))
@@ -7115,7 +7188,30 @@ if (rcCheckoutBtn) {
     section.style.setProperty('--sc-count', realItems.length);
 
     track.innerHTML = ''; // retire un éventuel skeleton avant de remplir
-    realItems.forEach(item => track.appendChild(makeItem(item)));
+
+    if (animType === 'marquee') {
+      const screenW = window.innerWidth;
+      const itemW   = 90 + 18;
+      const totalW  = realItems.length * itemW;
+      const repeats = Math.ceil((screenW * 3) / totalW) + 1;
+
+      const group1 = document.createElement('div');
+      const group2 = document.createElement('div');
+      group1.className = 'story-circles-marquee-inner';
+      group2.className = 'story-circles-marquee-inner';
+
+      for (let i = 0; i < repeats; i++) {
+        realItems.forEach(item => {
+          group1.appendChild(makeItem(item));
+          group2.appendChild(makeItem(item));
+        });
+      }
+
+      track.appendChild(group1);
+      track.appendChild(group2);
+    } else {
+      realItems.forEach(item => track.appendChild(makeItem(item)));
+    }
   }
 
   buildRow('story-row-women', 'storyRowWomenTrack', 'story_row_women');
@@ -7654,6 +7750,7 @@ if (rcCheckoutBtn) {
     const card = document.createElement('a');
     card.className = 'rv-card';
     card.href      = url;
+    card.dataset.id = prod.id;
 
     card.innerHTML =
       '<div class="rv-card__img-wrap">' +
@@ -14464,6 +14561,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.__cfSendMessage = sendMessage;
+    window.__cfOpenChat    = openChat;
 
     /* ── Image attachment ── */
     function clearPendingImage() {
@@ -17114,6 +17212,7 @@ function injectColRecentlyViewed() {
     if (found) productId = found.id;
 
     if (!productId) return;
+    card.dataset.id = productId;
 
     // Wrapper relatif
     var wrap = document.createElement('div');
@@ -17145,6 +17244,7 @@ function injectColFbt() {
     if (found) productId = found.id;
 
     if (!productId) return;
+    card.dataset.id = productId;
 
     card.style.position = 'relative';
     card.appendChild(makeBtn(productId));
@@ -17238,6 +17338,9 @@ function injectColFbt() {
 
     /* ── 3. BBW Product Grid Featured ── */
     document.querySelectorAll('.bbwpg-card__img-wrap').forEach(inject);
+
+    /* ── 3b. BBW Featured — vitrine home ── */
+    document.querySelectorAll('.bbw-nb-card__media').forEach(inject);
 
     /* ── 4. Collection Slider ── */
     document.querySelectorAll('.cs-media').forEach(inject);
@@ -17346,7 +17449,7 @@ function injectColFbt() {
     inject(document.getElementById('main-image-slider'));
 
     document.querySelectorAll(
-      '.col-card__media, .bbwpg-card__img-wrap, ' +
+      '.col-card__media, .bbwpg-card__img-wrap, .bbw-nb-card__media, ' +
       '.cs-media, .rv-card__img-wrap, .fs-img-frame, .mini-media-slider, ' +
       '.cart-item-img-wrap, .cp-item-img-wrap, .drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
       '.highlight-product-card, .col-qv-media, .cf-pc-img-wrap'
@@ -17355,6 +17458,164 @@ function injectColFbt() {
     document.querySelectorAll('.col-rv-card__img, .col-fbt-card__img').forEach(injectOnImg);
   });
 
+  observer.observe(document.body, { childList: true, subtree: true });
+})();
+
+
+/* ================================================================
+   BBW4LIFE — MINI LIKE/DISLIKE SUR CARTES PRODUIT
+   Même système de vote que #product-like-widget (page produit, plus
+   haut dans ce fichier — inchangé, backend save-reviews.js action
+   like-vote/get-likes partagé par productId) mais en mini version (2
+   icônes rondes sans compteur texte) superposée aux images produit sur
+   les cartes collection/panier/etc. — mêmes conteneurs que le
+   watermark, hors #main-image-slider (déjà géré par le widget page
+   produit) et jrgq-gallery-block (exclu).
+
+   ÉTAPE 1 (validation) : uniquement .col-card__media (collections) et
+   .cart-item-img-wrap / .cp-item-img-wrap (panier) — étendu aux autres
+   conteneurs une fois le rendu validé.
+================================================================ */
+(function initMiniLikeDislike() {
+  'use strict';
+
+  const MINI_LIKE_SELECTORS =
+    '.col-card__media, .cart-item-img-wrap, .cp-item-img-wrap, ' +
+    '.bbwpg-card__img-wrap, .bbw-nb-card__media, .cs-media, .rv-card__img-wrap, .col-rv-card__img, ' +
+    '.fs-img-frame, .mini-media-slider, ' +
+    '.drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
+    '.wishlist-item img, .col-qv-media, .col-fbt-card__img';
+
+  const ANON_ID_KEY = 'bbw_anon_vote_id';
+  function getAnonId() {
+    try {
+      let id = localStorage.getItem(ANON_ID_KEY);
+      if (!id) {
+        id = 'anon-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(ANON_ID_KEY, id);
+      }
+      return id;
+    } catch (e) {
+      return 'anon-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+    }
+  }
+
+  function getIdentity() {
+    let email = null, token = null;
+    try {
+      email = localStorage.getItem('userEmail') || null;
+      token = localStorage.getItem('userAccountToken') || null;
+    } catch (e) {}
+    if (email && token) return { email, token };
+    return { anonId: getAnonId() };
+  }
+
+  function callLikeApi(productId, action, voteType) {
+    const identity = getIdentity();
+    const body = Object.assign({ action, productId }, identity);
+    if (voteType) body.voteType = voteType;
+    return fetch('/.netlify/functions/save-reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(r => r.json());
+  }
+
+  const LIKE_ICON_SVG    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
+  const DISLIKE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
+
+  function attach(wrap) {
+    if (!wrap || wrap.dataset.bbwMiniLikeDone) return;
+    const cardEl = wrap.closest('[data-id], [data-product-id]');
+    const productId = cardEl ? (cardEl.dataset.id || cardEl.dataset.productId) : null;
+    if (!productId) return;
+    wrap.dataset.bbwMiniLikeDone = '1';
+
+    const pos = getComputedStyle(wrap).position;
+    if (pos === 'static') wrap.style.position = 'relative';
+
+    const widget = document.createElement('div');
+    widget.className = 'bbw-mini-like-widget';
+
+    const likeBtn = document.createElement('button');
+    likeBtn.type = 'button';
+    likeBtn.className = 'bbw-mini-like-btn bbw-mini-like-btn--like';
+    likeBtn.setAttribute('aria-label', 'Like this product');
+    likeBtn.innerHTML = LIKE_ICON_SVG;
+
+    const dislikeBtn = document.createElement('button');
+    dislikeBtn.type = 'button';
+    dislikeBtn.className = 'bbw-mini-like-btn bbw-mini-like-btn--dislike';
+    dislikeBtn.setAttribute('aria-label', 'Dislike this product');
+    dislikeBtn.innerHTML = DISLIKE_ICON_SVG;
+
+    widget.appendChild(likeBtn);
+    widget.appendChild(dislikeBtn);
+    wrap.appendChild(widget);
+
+    function renderMyVote(myVote) {
+      likeBtn.classList.toggle('active', myVote === 'like');
+      dislikeBtn.classList.toggle('active', myVote === 'dislike');
+    }
+
+    callLikeApi(productId, 'get-likes').then(function (data) {
+      if (data && data.success) renderMyVote(data.myVote);
+    }).catch(function () {});
+
+    let voting = false;
+    function handleVote(e, voteType) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (voting) return;
+      voting = true;
+      likeBtn.disabled = true;
+      dislikeBtn.disabled = true;
+      callLikeApi(productId, 'like-vote', voteType).then(function (data) {
+        if (data && data.success) renderMyVote(data.myVote);
+      }).catch(function () {}).finally(function () {
+        voting = false;
+        likeBtn.disabled = false;
+        dislikeBtn.disabled = false;
+      });
+    }
+
+    likeBtn.addEventListener('click', function (e) { handleVote(e, 'like'); });
+    dislikeBtn.addEventListener('click', function (e) { handleVote(e, 'dislike'); });
+  }
+
+  const IMG_ELEMENT_SELECTORS = '.wishlist-item img, .col-rv-card__img, .col-fbt-card__img';
+
+  function attachOnImg(img) {
+    if (!img) return;
+    attach(img.parentElement);
+  }
+
+  function scan() {
+    document.querySelectorAll(MINI_LIKE_SELECTORS).forEach(function (el) {
+      if (el.matches(IMG_ELEMENT_SELECTORS)) { attachOnImg(el); return; }
+      attach(el);
+    });
+  }
+
+  if (window.__allProducts && window.__allProducts.length) {
+    scan();
+  } else {
+    let tries = 0;
+    const wait = setInterval(function () {
+      tries++;
+      if (window.__allProducts && window.__allProducts.length) {
+        clearInterval(wait);
+        scan();
+      } else if (tries > 80) {
+        clearInterval(wait);
+      }
+    }, 100);
+  }
+
+  const observer = new MutationObserver(function (mutations) {
+    const relevant = mutations.some(function (m) { return m.addedNodes.length > 0; });
+    if (relevant) scan();
+  });
   observer.observe(document.body, { childList: true, subtree: true });
 })();
 
@@ -17555,7 +17816,6 @@ function injectColFbt() {
    BBW4LIFE — SETS FLOATING WIDGET + FLIPBOOK POPUP
 ══════════════════════════════════════════════════════════ */
 (function initBbwSetsWidget() {
-  const PAGE_COUNT   = 5;
   const AUTO_OPEN_MS = 3000;
   const PAGE_TURN_MS = 5000;
 
@@ -17576,13 +17836,14 @@ function injectColFbt() {
     if (!Array.isArray(allProducts) || allProducts.length === 0) return null;
 
     const settings = allProducts.find(p => p.type === 'settings') || {};
-    const setsCfg  = settings.sets || {};
+    const setsCfg  = settings.sets_popup_widget || {};
     const ids      = Array.isArray(setsCfg.product_ids) ? setsCfg.product_ids : [];
+    const pageCount = parseInt(setsCfg.max_products, 10) || 5;
 
     const picked = ids
       .map(id => allProducts.find(p => p.id === id))
       .filter(Boolean)
-      .slice(0, PAGE_COUNT);
+      .slice(0, pageCount);
 
     if (picked.length === 0) return null;
 

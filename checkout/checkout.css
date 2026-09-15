@@ -1168,42 +1168,89 @@ select:focus {
 
 
 /* ════════════════════════════════════════════════════════════════
-   OUR PROMISE TO YOU (sidebar)
+   OUR PROMISE TO YOU (sidebar) — accordéon à 3 sections : Privacy
+   Protection, Efficient and Safe Logistics, Customer Service.
 ════════════════════════════════════════════════════════════════ */
 .ck-promise-card {
   background: var(--ck-ivory);
   border: 1px solid var(--ck-border);
   border-radius: var(--ck-radius);
-  padding: 20px 18px;
+  padding: 6px 18px;
   box-shadow: var(--ck-shadow-s);
 }
-.ck-promise-card h3 {
-  display: flex; align-items: center; gap: 8px;
+
+.ck-promise-item {
+  border-bottom: 1px solid var(--ck-border);
+}
+.ck-promise-item:last-child { border-bottom: none; }
+
+.ck-promise-summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 0;
   font-family: var(--font-body);
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--ck-gold);
-  margin-bottom: 14px;
+  user-select: none;
 }
-.ck-promise-card h3 i { color: var(--ck-rose); font-size: 0.85rem; }
-.ck-promise-card ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.ck-promise-card li {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 0.85rem;
-  color: var(--ck-slate);
-  font-weight: 500;
-}
-.ck-promise-card li i {
-  width: 20px; height: 20px;
+.ck-promise-summary::-webkit-details-marker { display: none; }
+
+.ck-promise-icon {
+  width: 22px; height: 22px;
   border-radius: 50%;
   background: var(--ck-gold-ultra);
-  color: var(--ck-gold);
+  color: var(--ck-rose);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   flex-shrink: 0;
   border: 1px solid rgba(184,146,90,0.30);
+}
+
+.ck-promise-title { flex: 1; }
+
+.ck-promise-toggle {
+  color: var(--ck-gold);
+  font-size: 0.7rem;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.ck-promise-item[open] .ck-promise-toggle { transform: rotate(180deg); }
+
+.ck-promise-panel {
+  padding: 0 0 16px 32px;
+  font-size: 0.85rem;
+  color: var(--ck-slate);
+  line-height: 1.5;
+}
+.ck-promise-panel p { margin: 0 0 10px; }
+.ck-promise-panel a {
+  color: var(--ck-gold);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.ck-promise-badges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.ck-promise-badges img {
+  width: 100%;
+  height: 34px;
+  object-fit: contain;
+  background: #fff;
+  border: 1px solid var(--ck-border);
+  border-radius: 4px;
+  padding: 4px;
+}
+
+@media (max-width: 480px) {
+  .ck-promise-badges { grid-template-columns: repeat(3, 1fr); }
+  .ck-promise-panel { padding-left: 0; }
 }
 
 
