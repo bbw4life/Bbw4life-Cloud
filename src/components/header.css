@@ -2028,7 +2028,7 @@ body {
 .bc-item + .bc-item::before {
   content: var(--bc-sep, '/');
   display: inline-block;
-  color: rgba(192, 56, 94, 0.38);
+  color: var(--bbw-gold-border-hi, rgba(184, 146, 90, 0.50));
   font-size: 11px;
   font-weight: 600;
   margin: 0 10px;

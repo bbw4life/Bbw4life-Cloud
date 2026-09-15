@@ -3894,17 +3894,17 @@ body {
 .col-fbt-card .bbw-mini-like-widget,
 .cart-item-img-wrap .bbw-mini-like-widget,
 .cp-item-img-wrap .bbw-mini-like-widget,
-.drawer-extra-card__img-wrap .bbw-mini-like-widget,
-.cp-extra-card__img-wrap .bbw-mini-like-widget,
 .wishlist-item .bbw-mini-like-widget {
   bottom: 4px;
   left: 4px;
   gap: 3px;
 }
 
-/* mini-product-slider : wishlist deja en bas-gauche, like/dislike passe
-   a droite pour ne pas se superposer. */
-.mini-media-slider .bbw-mini-like-widget {
+/* mini-product-slider / cart extra : wishlist deja en bas-gauche,
+   like/dislike passe a droite pour ne pas se superposer. */
+.mini-media-slider .bbw-mini-like-widget,
+.drawer-extra-card__img-wrap .bbw-mini-like-widget,
+.cp-extra-card__img-wrap .bbw-mini-like-widget {
   bottom: 4px;
   left: auto;
   right: 4px;
