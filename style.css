@@ -6477,7 +6477,7 @@ body {
     left: 50% !important;
     right: auto !important;
     top: auto !important;
-    bottom: 84px;
+    bottom: 24px !important;
     transform: translateX(-50%) scale(0.85) translateY(20px);
     transform-origin: bottom center !important;
     width: calc(100vw - 24px);

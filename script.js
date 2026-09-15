@@ -487,7 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pageReady) {
         tryHide();
       } else {
-        window.addEventListener('load', function () {
+        document.addEventListener('DOMContentLoaded', function () {
           pageReady = true;
           tryHide();
         });
@@ -495,10 +495,15 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(function () {});
 
-  if (document.readyState === 'complete') {
+  // DOMContentLoaded (DOM prêt) plutôt que window.load : header.js/footer.js
+  // sont injectés dynamiquement après un fetch (src/components/layout-loader.js)
+  // et les ~25 images produit chargent en parallèle — attendre "load" retarde
+  // la disparition du preloader bien au-delà du minimum voulu (jusqu'au filet
+  // de sécurité de 8s), donnant l'impression qu'il s'affiche trop longtemps.
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
     pageReady = true;
   } else {
-    window.addEventListener('load', function () { pageReady = true; });
+    document.addEventListener('DOMContentLoaded', function () { pageReady = true; });
   }
 
   function spawnParticles() {
@@ -17778,9 +17783,19 @@ function injectColFbt() {
     if (cfg.bg_color) logoEl.style.setProperty('--bbw-preload-bg', cfg.bg_color);
     wrap.appendChild(logoEl);
 
+    // Affichage minimum garanti : si l'image est déjà en cache navigateur,
+    // img.complete est vrai dès l'attache et le logo disparaîtrait avant
+    // même d'être peint à l'écran (0ms visible) — on force donc un délai
+    // minimum plutôt que de révéler instantanément.
+    var attachedAt = Date.now();
+    var MIN_VISIBLE_MS = 250;
     function reveal() {
-      logoEl.classList.add('is-loaded');
-      setTimeout(function() { if (logoEl.parentNode) logoEl.parentNode.removeChild(logoEl); }, 400);
+      var elapsed = Date.now() - attachedAt;
+      var wait = Math.max(0, MIN_VISIBLE_MS - elapsed);
+      setTimeout(function() {
+        logoEl.classList.add('is-loaded');
+        setTimeout(function() { if (logoEl.parentNode) logoEl.parentNode.removeChild(logoEl); }, 400);
+      }, wait);
     }
     if (img.complete && img.naturalWidth > 0) {
       reveal();

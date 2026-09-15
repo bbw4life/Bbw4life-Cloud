@@ -1248,6 +1248,10 @@ select:focus {
   padding: 4px;
 }
 
+.ck-promise-item--privacy .ck-promise-badges img {
+  height: 48px;
+}
+
 @media (max-width: 480px) {
   .ck-promise-badges { grid-template-columns: repeat(3, 1fr); }
   .ck-promise-panel { padding-left: 0; }

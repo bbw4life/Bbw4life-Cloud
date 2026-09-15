@@ -7977,7 +7977,7 @@
     "sticky_media_mobile": "no",
     "media_auto_slider": "yes",
     "swatch_scroll_mobile": "yes",
-    "sticky_atc_mobile_threshold": 12,
+    "sticky_atc_mobile_threshold": 10,
     "sticky_atc_mobile_threshold_bbw_features": 7.5,
     "sticky_atc_desktop_threshold": 7.3,
     "theme_color": "#000000",

@@ -172,4 +172,14 @@
       injectPreloader(); // no-op si déjà injecté via le cache ci-dessus
     })
     .catch(function () {});
+
+  // ── Retour arrière via bfcache ────────────────────────────
+  // Si l'utilisateur navigue ailleurs pendant que le preloader est encore
+  // visible puis revient en arrière, certains navigateurs restaurent la
+  // page depuis le bfcache (event.persisted===true) sans réexécuter ce
+  // script — le DOM figé au moment du départ (preloader encore présent)
+  // réapparaît tel quel. On le retire immédiatement dans ce cas précis.
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) removePreloader();
+  });
 })();

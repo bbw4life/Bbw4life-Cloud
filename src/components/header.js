@@ -1083,7 +1083,7 @@
       affiliateEl.innerHTML = `<a href="/account.html" class="promo-bar__link">Become an Affiliate</a> — Earn Per Click + a $${jackpot} Jackpot Bonus`;
     }
     if (shippingEl) {
-      shippingEl.textContent = `Free Worldwide Shipping on Orders Over $${shipping}`;
+      shippingEl.innerHTML = `Free shipping on orders over $${shipping}! Need help? <a href="/page/contact.html" class="promo-bar__link">Contact Us</a>`;
     }
 
     syncPromoBarHeight();
