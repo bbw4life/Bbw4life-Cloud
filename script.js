@@ -17305,13 +17305,37 @@ function injectColRecentlyViewed() {
     if (!productId) return;
     card.dataset.id = productId;
 
-    // Wrapper relatif
-    var wrap = document.createElement('div');
-    wrap.style.cssText = 'position:relative;display:contents';
-    img.style.display = 'block';
-
     card.style.position = 'relative';
     card.appendChild(makeBtn(productId));
+  });
+}
+
+/* ────────────────────────────────────────────────────────
+   7b. BUNDLE DEAL (home) — coin inférieur droit de l'image
+────────────────────────────────────────────────────────── */
+function injectBundleDeal() {
+  var section = document.getElementById('bundle-deal');
+  if (!section) return;
+
+  section.querySelectorAll('.bd-product-item').forEach(function(card) {
+    var imgWrap = card.querySelector('.bd-product-item__media');
+    if (!imgWrap || imgWrap.querySelector('.bbw-mini-wish')) return;
+    var productId = card.dataset.productId;
+    if (!productId) return;
+    imgWrap.appendChild(makeBtn(productId));
+  });
+}
+
+/* ────────────────────────────────────────────────────────
+   7c. CART UPSELL (cart.html) — coin inférieur droit de l'image
+────────────────────────────────────────────────────────── */
+function injectCartUpsell() {
+  document.querySelectorAll('.p2-upsell-item').forEach(function(item) {
+    var imgWrap = item.querySelector('.p2-upsell-img-wrap');
+    if (!imgWrap || imgWrap.querySelector('.bbw-mini-wish')) return;
+    var productId = item.dataset.id;
+    if (!productId) return;
+    imgWrap.appendChild(makeBtn(productId));
   });
 }
 
@@ -17354,6 +17378,8 @@ function injectColFbt() {
     injectRecentlyViewed();
     injectColRecentlyViewed();
     injectColFbt();
+    injectBundleDeal();
+    injectCartUpsell();
     syncAll();
   }
 
@@ -17440,7 +17466,7 @@ function injectColFbt() {
     document.querySelectorAll('.rv-card__img-wrap').forEach(inject);
 
     /* ── 5b. Recently Viewed — col-rv-card (collections page) ── */
-    document.querySelectorAll('.col-rv-card__img').forEach(injectOnImg);
+    document.querySelectorAll('.col-rv-card__media').forEach(inject);
 
     /* ── 6. Featured Spotlight ── */
     const fsFrame = document.querySelector('.fs-img-frame');
@@ -17455,6 +17481,11 @@ function injectColFbt() {
     /* ── 9. Cart extra + Drawer extra ── */
     document.querySelectorAll(
       '.drawer-extra-card__img-wrap, .cp-extra-card__img-wrap'
+    ).forEach(inject);
+
+    /* ── 9b. Bundle deal (home) + Cart upsell ── */
+    document.querySelectorAll(
+      '.bd-product-item__media, .p2-upsell-img-wrap'
     ).forEach(inject);
 
     /* ── 10. Wishlist modal ── */
@@ -17473,7 +17504,7 @@ function injectColFbt() {
     });
 
     /* ── 13. FBT cards (collections page) ── */
-    document.querySelectorAll('.col-fbt-card__img').forEach(injectOnImg);
+    document.querySelectorAll('.col-fbt-card__media').forEach(inject);
 
     /* ── 14. Quick View (collections page) ── */
     document.querySelectorAll('.col-qv-media').forEach(inject);
@@ -17543,10 +17574,11 @@ function injectColFbt() {
       '.col-card__media, .bbwpg-card__img-wrap, .bbw-nb-card__media, ' +
       '.cs-media, .rv-card__img-wrap, .fs-img-frame, .mini-media-slider, ' +
       '.cart-item-img-wrap, .cp-item-img-wrap, .drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
+      '.bd-product-item__media, .p2-upsell-img-wrap, ' +
       '.highlight-product-card, .col-qv-media, .cf-pc-img-wrap'
     ).forEach(inject);
 
-    document.querySelectorAll('.col-rv-card__img, .col-fbt-card__img').forEach(injectOnImg);
+    document.querySelectorAll('.col-rv-card__media, .col-fbt-card__media').forEach(inject);
   });
 
   observer.observe(document.body, { childList: true, subtree: true });
@@ -17572,10 +17604,11 @@ function injectColFbt() {
 
   const MINI_LIKE_SELECTORS =
     '.col-card__media, .cart-item-img-wrap, .cp-item-img-wrap, ' +
-    '.bbwpg-card__img-wrap, .bbw-nb-card__media, .cs-media, .rv-card__img-wrap, .col-rv-card__img, ' +
+    '.bbwpg-card__img-wrap, .bbw-nb-card__media, .cs-media, .rv-card__img-wrap, .col-rv-card__media, ' +
     '.fs-img-frame, .mini-media-slider, .pdp-grid-card__media, ' +
     '.drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
-    '.wishlist-item img, .col-qv-media, .col-fbt-card__img';
+    '.bd-product-item__media, .p2-upsell-img-wrap, ' +
+    '.wishlist-item img, .col-qv-media, .col-fbt-card__media';
 
   const ANON_ID_KEY = 'bbw_anon_vote_id';
   function getAnonId() {
@@ -17697,7 +17730,7 @@ function injectColFbt() {
     dislikeBtn.addEventListener('click', function (e) { handleVote(e, 'dislike'); });
   }
 
-  const IMG_ELEMENT_SELECTORS = '.wishlist-item img, .col-rv-card__img, .col-fbt-card__img';
+  const IMG_ELEMENT_SELECTORS = '.wishlist-item img';
 
   function attachOnImg(img) {
     if (!img) return;

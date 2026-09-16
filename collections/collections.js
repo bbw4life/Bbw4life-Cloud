@@ -494,7 +494,7 @@
     const card = document.createElement('div');
     card.className = 'col-rv-card';
     card.innerHTML =
-      '<img class="col-rv-card__img" src="' + imgSrc + '" alt="' + title + '" loading="lazy">' +
+      '<div class="col-rv-card__media"><img class="col-rv-card__img" src="' + imgSrc + '" alt="' + title + '" loading="lazy"></div>' +
       '<div class="col-rv-card__info">' +
         '<p class="col-rv-card__title">' + title + '</p>' +
         '<span class="col-rv-card__price">$' + price.toFixed(2) + '</span>' +
@@ -528,7 +528,7 @@
       const card = document.createElement('div');
       card.className = 'col-fbt-card';
       card.innerHTML =
-        '<img class="col-fbt-card__img" src="' + upgradeShopifyImageUrl(prod.image, 300) + '" alt="' + prod.title + '" loading="lazy">' +
+        '<div class="col-fbt-card__media"><img class="col-fbt-card__img" src="' + upgradeShopifyImageUrl(prod.image, 300) + '" alt="' + prod.title + '" loading="lazy"></div>' +
         '<div class="col-fbt-card__info">' +
           '<p class="col-fbt-card__title">' + prod.title + '</p>' +
           '<span class="col-fbt-card__price">$' + prod.price.toFixed(2) + '</span>' +

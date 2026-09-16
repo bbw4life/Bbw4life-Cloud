@@ -662,6 +662,12 @@
   background: rgba(255,252,245,0.95);
   box-shadow: 0 4px 18px rgba(184,146,90,0.10);
 }
+.cp-upsell-section .p2-upsell-img-wrap {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+}
 .cp-upsell-section .p2-upsell-img-wrap img {
   width: 62px; height: 62px;
   object-fit: cover;

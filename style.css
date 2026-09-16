@@ -3551,6 +3551,29 @@ body {
 }
 
 
+.bd-product-item__media .bbw-mini-wish {
+  bottom: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+}
+.bd-product-item__media .bbw-mini-wish svg {
+  width: 10px;
+  height: 10px;
+}
+
+.p2-upsell-img-wrap .bbw-mini-wish {
+  bottom: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+}
+.p2-upsell-img-wrap .bbw-mini-wish svg {
+  width: 9px;
+  height: 9px;
+}
+
+
 .drawer-extra-card__img-wrap,
 .cp-extra-card__img-wrap {
   position: relative;
@@ -3707,6 +3730,22 @@ body {
 .drawer-extra-card__img-wrap .bbw-watermark,
 .cp-extra-card__img-wrap .bbw-watermark {
   font-size: 8px;
+  bottom: 6%;
+  max-width: 88%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bd-product-item__media .bbw-watermark {
+  font-size: 7px;
+  bottom: 6%;
+  max-width: 88%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p2-upsell-img-wrap .bbw-watermark {
+  font-size: 6px;
   bottom: 6%;
   max-width: 88%;
   overflow: hidden;
@@ -3955,6 +3994,49 @@ body {
 .wishlist-item .bbw-mini-like-btn svg {
   width: 9px;
   height: 9px;
+}
+
+/* Bundle deal (home) / upsell panier : wishlist en bas-droite (cf.
+   plus haut), like/dislike en bas-gauche — formats les plus compacts
+   du site vu la petite taille des vignettes (72px / 62px). */
+.bd-product-item__media .bbw-mini-like-widget {
+  bottom: 3px;
+  left: 3px;
+  gap: 2px;
+}
+.bd-product-item__media .bbw-mini-like-col {
+  gap: 1px;
+}
+.bd-product-item__media .bbw-mini-like-count {
+  font-size: 0.42rem;
+}
+.bd-product-item__media .bbw-mini-like-btn {
+  width: 14px;
+  height: 14px;
+}
+.bd-product-item__media .bbw-mini-like-btn svg {
+  width: 8px;
+  height: 8px;
+}
+
+.p2-upsell-img-wrap .bbw-mini-like-widget {
+  bottom: 2px;
+  left: 2px;
+  gap: 2px;
+}
+.p2-upsell-img-wrap .bbw-mini-like-col {
+  gap: 1px;
+}
+.p2-upsell-img-wrap .bbw-mini-like-count {
+  font-size: 0.4rem;
+}
+.p2-upsell-img-wrap .bbw-mini-like-btn {
+  width: 13px;
+  height: 13px;
+}
+.p2-upsell-img-wrap .bbw-mini-like-btn svg {
+  width: 7px;
+  height: 7px;
 }
 
 
@@ -11742,6 +11824,7 @@ body.sr-page .bbw-search-dropdown {
 .bd-product-item__media {
     display: block !important;
     flex-shrink: 0 !important;
+    position: relative !important;
 }
 
 .bd-product-item__title {
