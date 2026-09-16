@@ -197,6 +197,13 @@ body {
   z-index: 1090;
   background: #f7f3ee;
   box-sizing: border-box;
+  /* Avant l'injection JS du texte (#promoBarAffiliate/#promoBarShipping
+     vides), la barre ne doit pas s'effondrer sous var(--promo-bar-h) —
+     le header (top: calc(ann-bar-h + promo-bar-h)) resterait alors
+     positionné plus bas que la vraie hauteur de la barre encore vide,
+     créant un espace visible entre les deux tant que le texte n'est
+     pas encore là. */
+  min-height: var(--promo-bar-h);
 }
 
 .promo-bar__inner {

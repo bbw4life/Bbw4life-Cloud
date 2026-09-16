@@ -3874,6 +3874,18 @@ function showErrorPopup(message) {
                 dislikeBtn.classList.toggle('active', myVote === 'dislike');
               }
 
+              // ── Synchronisation instantanée avec les autres widgets
+              //    like/dislike du même produit affichés ailleurs sur la
+              //    page (sticky-atc, widget mini générique) — même esprit
+              //    que l'événement 'wishlist:change' déjà utilisé pour la
+              //    wishlist. Écoute aussi les votes émis par ces autres
+              //    widgets pour rester à jour sans attendre le polling. ──
+              document.addEventListener('bbw:like-change', function (e) {
+                const d = e.detail || {};
+                if (d.productId !== pid || d.source === 'product-like-widget') return;
+                renderCounts(d.likes, d.dislikes);
+              });
+
               function callLikeApi(action, voteType) {
                 const identity = getIdentity();
                 const body = Object.assign({ action, productId: pid }, identity);
@@ -3924,6 +3936,9 @@ function showErrorPopup(message) {
                   if (data && data.success) {
                     renderCounts(data.likes, data.dislikes);
                     renderMyVote(data.myVote);
+                    document.dispatchEvent(new CustomEvent('bbw:like-change', {
+                      detail: { productId: pid, likes: data.likes, dislikes: data.dislikes, myVote: data.myVote, source: 'product-like-widget' }
+                    }));
                   }
                 }).catch(() => {}).finally(() => {
                   voting = false;
@@ -7450,6 +7465,16 @@ if (rcCheckoutBtn) {
                 satcLikeBtn.classList.toggle('active', myVote === 'like');
                 satcDislikeBtn.classList.toggle('active', myVote === 'dislike');
             }
+
+            // ── Synchronisation instantanée avec les autres widgets
+            //    like/dislike du même produit (page produit, widget mini
+            //    générique) — même esprit que 'wishlist:change'. ──
+            document.addEventListener('bbw:like-change', function (e) {
+                const d = e.detail || {};
+                if (d.productId !== product.id || d.source === 'sticky-atc') return;
+                satcRenderCounts(d.likes, d.dislikes);
+            });
+
             satcCallLikeApi('get-likes').then(function (data) {
                 if (data && data.success) { satcRenderCounts(data.likes, data.dislikes); satcRenderMyVote(data.myVote); }
             }).catch(function () {});
@@ -7463,7 +7488,13 @@ if (rcCheckoutBtn) {
                 satcLikeBtn.disabled = true;
                 satcDislikeBtn.disabled = true;
                 satcCallLikeApi('like-vote', voteType).then(function (data) {
-                    if (data && data.success) { satcRenderCounts(data.likes, data.dislikes); satcRenderMyVote(data.myVote); }
+                    if (data && data.success) {
+                        satcRenderCounts(data.likes, data.dislikes);
+                        satcRenderMyVote(data.myVote);
+                        document.dispatchEvent(new CustomEvent('bbw:like-change', {
+                            detail: { productId: product.id, likes: data.likes, dislikes: data.dislikes, myVote: data.myVote, source: 'sticky-atc' }
+                        }));
+                    }
                 }).catch(function () {}).finally(function () {
                     satcVoting = false;
                     satcLikeBtn.disabled = false;
@@ -17705,6 +17736,18 @@ function injectColFbt() {
       dislikeBtn.classList.toggle('active', myVote === 'dislike');
     }
 
+    // ── Synchronisation instantanée : n'importe quel autre widget
+    //    like/dislike du même produit (page produit, sticky-atc, ou une
+    //    autre instance de ce mini-widget ailleurs sur la même page —
+    //    ex: le produit apparaît à la fois dans une collection et dans
+    //    le panier) met à jour ce widget-ci dès qu'un vote est émis,
+    //    même esprit que 'wishlist:change'. ──
+    document.addEventListener('bbw:like-change', function (e) {
+      const d = e.detail || {};
+      if (d.productId !== productId) return;
+      renderCounts(d.likes, d.dislikes);
+    });
+
     callLikeApi(productId, 'get-likes').then(function (data) {
       if (data && data.success) { renderCounts(data.likes, data.dislikes); renderMyVote(data.myVote); }
     }).catch(function () {});
@@ -17718,7 +17761,13 @@ function injectColFbt() {
       likeBtn.disabled = true;
       dislikeBtn.disabled = true;
       callLikeApi(productId, 'like-vote', voteType).then(function (data) {
-        if (data && data.success) { renderCounts(data.likes, data.dislikes); renderMyVote(data.myVote); }
+        if (data && data.success) {
+          renderCounts(data.likes, data.dislikes);
+          renderMyVote(data.myVote);
+          document.dispatchEvent(new CustomEvent('bbw:like-change', {
+            detail: { productId: productId, likes: data.likes, dislikes: data.dislikes, myVote: data.myVote, source: 'mini-like' }
+          }));
+        }
       }).catch(function () {}).finally(function () {
         voting = false;
         likeBtn.disabled = false;
