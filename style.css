@@ -14032,6 +14032,16 @@ button::selection, button *::selection {
   -webkit-transform: rotateY(-160deg);
   transform: rotateY(-160deg);
   box-shadow: -10px 10px 30px rgba(0,0,0,0.3);
+  z-index: 1;
+}
+
+/* Dès qu'au moins une page a tourné (.has-turned-page posée par le JS sur
+   .bbw-sets-flipbook), la peau ouverte n'a plus besoin d'être visible —
+   en rendu 3D perspective, un rotateY() ne la met jamais strictement de
+   profil comme une vraie page de livre : elle reste visible en biais
+   derrière la première page tournée si on ne la masque pas explicitement. */
+.bbw-sets-flipbook.has-turned-page .bbw-sets-cover {
+  visibility: hidden;
 }
 
 .bbw-sets-pages {
@@ -14072,6 +14082,9 @@ button::selection, button *::selection {
 }
 
 .bbw-sets-page.is-turned {
+  /* -179deg (pas -180 pile, qui aplatit le rendu 3D) : la page finit
+     quasiment face à l'écran, à plat par-dessus la couverture — c'est le
+     z-index (cf. JS showPage) qui doit garantir qu'elle la recouvre. */
   -webkit-transform: rotateY(-179deg);
   transform: rotateY(-179deg);
   box-shadow: 8px 0 20px rgba(0,0,0,0.2);

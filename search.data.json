@@ -1590,5 +1590,19 @@
   "keywords": ["mens three piece suit", "blazer vest pants", "big and tall suit", "mens formal set", "suit set", "costume homme grande taille", "product132"],
   "type": "product",
   "icon": "fas fa-tag"
+},
+{
+  "title": "Men's Casual Suit Pants Mid Waist Straight",
+  "url": "/products/product133.html",
+  "keywords": ["mens suit pants", "casual trousers", "mid waist straight pants", "office business pants", "formal trousers", "pantalon homme", "product133"],
+  "type": "product",
+  "icon": "fas fa-tag"
+},
+{
+  "title": "Fashion Line Printing Men's Round Neck Suit",
+  "url": "/products/product134.html",
+  "keywords": ["mens round neck suit", "tracksuit set", "sweatshirt jogger set", "mens matching set", "printed tracksuit", "survetement homme", "product134"],
+  "type": "product",
+  "icon": "fas fa-tag"
 }
 ]

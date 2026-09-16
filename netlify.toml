@@ -755,6 +755,16 @@
   to = "/products/product132.html"
   status = 200
 
+[[redirects]]
+  from = "/bbw4life/mens-casual-suit-pants-mid-waist-straight"
+  to = "/products/product133.html"
+  status = 200
+
+[[redirects]]
+  from = "/bbw4life/fashion-line-printing-round-neck-suit"
+  to = "/products/product134.html"
+  status = 200
+
 # ─────────────────────────────────────────────
 # BLOG ARTICLES — Pretty URLs
 # ─────────────────────────────────────────────

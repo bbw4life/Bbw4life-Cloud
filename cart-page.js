@@ -1490,8 +1490,8 @@
   ────────────────────────────────────────────────────────── */
   function buildCard(prod, btnText, allProducts, context) {
     var prefix   = context === 'drawer' ? 'drawer-extra' : 'cp-extra';
-    var imgSrc   = upgradeImg(prod.image, context === 'drawer' ? 200 : 400);
-    var hoverSrc = prod.image_hover ? upgradeImg(prod.image_hover, context === 'drawer' ? 200 : 400) : '';
+    var imgSrc   = upgradeImg(prod.image, context === 'drawer' ? 500 : 700);
+    var hoverSrc = prod.image_hover ? upgradeImg(prod.image_hover, context === 'drawer' ? 500 : 700) : '';
 
     var discountPct = 0;
     if (prod.compare_price && parseFloat(prod.compare_price) > parseFloat(prod.price)) {

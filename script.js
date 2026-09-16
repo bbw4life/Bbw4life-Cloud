@@ -3673,6 +3673,8 @@ function showErrorPopup(message) {
               'Pdg-Francenel-product130': 'loose-fashionable-sportswear-set',
               'Pdg-Francenel-product131': 'geo-pattern-shirt-high-waist-pants-set',
               'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
+              'Pdg-Francenel-product133': 'mens-casual-suit-pants-mid-waist-straight',
+              'Pdg-Francenel-product134': 'fashion-line-printing-round-neck-suit',
             };
 
               // ── Récupérer les données du produit courant
@@ -9824,6 +9826,8 @@ const BBW_WISHLIST_SLUG_MAP = {
   'Pdg-Francenel-product130': 'loose-fashionable-sportswear-set',
   'Pdg-Francenel-product131': 'geo-pattern-shirt-high-waist-pants-set',
   'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
+  'Pdg-Francenel-product133': 'mens-casual-suit-pants-mid-waist-straight',
+  'Pdg-Francenel-product134': 'fashion-line-printing-round-neck-suit',
 };
 // Exposé sur window : un `const` de niveau script n'est visible que dans
 // CE fichier — un autre <script> classique séparé (ex: collections.js,
@@ -18044,12 +18048,10 @@ function injectColFbt() {
     const settings = allProducts.find(p => p.type === 'settings') || {};
     const setsCfg  = settings.sets_popup_widget || {};
     const ids      = Array.isArray(setsCfg.product_ids) ? setsCfg.product_ids : [];
-    const pageCount = parseInt(setsCfg.max_products, 10) || 5;
 
     const picked = ids
       .map(id => allProducts.find(p => p.id === id))
-      .filter(Boolean)
-      .slice(0, pageCount);
+      .filter(Boolean);
 
     if (picked.length === 0) return null;
 
@@ -18133,6 +18135,8 @@ function injectColFbt() {
     if (currentPage === oldPage) return;
 
     const allPages = Array.from(pagesWrap.querySelectorAll('.bbw-sets-page'));
+    const flipbookEl = document.getElementById('bbw-sets-flipbook');
+    if (flipbookEl) flipbookEl.classList.toggle('has-turned-page', currentPage > 0);
 
     // 1) Déclenche la rotation (classe is-turned) sans toucher au z-index
     //    tout de suite : la page qui tourne doit rester visuellement
@@ -18149,7 +18153,7 @@ function injectColFbt() {
     setTimeout(() => {
       allPages.forEach(el => {
         const i = Number(el.dataset.pageIndex);
-        el.style.zIndex = i < currentPage ? String(i + 1) : String(total - i + 10);
+        el.style.zIndex = i < currentPage ? String(i + 2) : String(total - i + 10);
       });
     }, PAGE_TRANSITION_MS);
 
@@ -18182,7 +18186,7 @@ function injectColFbt() {
       if (pagesData) renderPages();
     }
 
-    if (flipbook) flipbook.classList.remove('is-open');
+    if (flipbook) flipbook.classList.remove('is-open', 'has-turned-page');
     currentPage = 0;
     showPage(0);
 

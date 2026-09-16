@@ -995,8 +995,8 @@
 
     card.innerHTML =
       '<div class="col-card__media">' +
-        '<img class="col-card__img col-card__img--main" src="' + upgradeShopifyImageUrl(mainImg, 600) + '" alt="' + prod.title + (color ? ' — ' + color.name : '') + '" loading="lazy" onerror="this.src=\'' + upgradeShopifyImageUrl(prod.image, 600) + '\'">' +
-        (hoverImg ? '<img class="col-card__img col-card__img--hover" src="' + upgradeShopifyImageUrl(hoverImg, 600) + '" alt="' + prod.title + '" loading="lazy">' : '') +
+        '<img class="col-card__img col-card__img--main" src="' + upgradeShopifyImageUrl(mainImg, 800) + '" alt="' + prod.title + (color ? ' — ' + color.name : '') + '" loading="lazy" onerror="this.src=\'' + upgradeShopifyImageUrl(prod.image, 800) + '\'">' +
+        (hoverImg ? '<img class="col-card__img col-card__img--hover" src="' + upgradeShopifyImageUrl(hoverImg, 800) + '" alt="' + prod.title + '" loading="lazy">' : '') +
         '<div class="col-card__badges">' + badgesHTML + '</div>' +
         '<button class="col-card__wishlist" data-id="' + prod.id + '" title="Add to wishlist"><i class="far fa-heart"></i></button>' +
         '<button class="col-card__quick-view" data-id="' + prod.id + '"><i class="fas fa-search"></i> Quick View</button>' +

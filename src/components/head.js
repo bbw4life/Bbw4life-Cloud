@@ -1043,6 +1043,22 @@ const SEO_MAP = {
         canonical: 'https://bbw4life.com/products/product132.html'
     },
 
+    '/products/product133.html': {
+        title: "Men's Casual Suit Pants — Mid Waist Straight | BBW4LIFE",
+        description: "Men's Casual Suit Pants Mid Waist Straight — office and business formal trousers in 10 colors. Sizes XS to 4XL. Free worldwide shipping.",
+        keywords: 'mens suit pants, mens casual trousers, mid waist straight pants, office business pants, mens plus size pants, BBW4LIFE mens, formal trousers men, XS S M L XL XXL 3XL 4XL pants',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-133-principale.png?v=1789563267',
+        canonical: 'https://bbw4life.com/products/product133.html'
+    },
+
+    '/products/product134.html': {
+        title: 'Fashion Line Printing Round Neck Suit | BBW4LIFE',
+        description: 'Fashion Line Printing Men\'s Round Neck Suit — matching sweatshirt and jogger set in 12 colorways. Sizes S to 5XL. Free worldwide shipping.',
+        keywords: 'mens round neck suit, mens tracksuit set, sweatshirt jogger set, mens plus size sets, BBW4LIFE sets, mens matching set, printed tracksuit, S M L XL 2XL 3XL 4XL 5XL set',
+        og_image: 'https://cdn.shopify.com/s/files/1/0746/5346/6724/files/pdg-francenel-product-134-principale.png?v=1789563265',
+        canonical: 'https://bbw4life.com/products/product134.html'
+    },
+
     '/products/product69.html': {
         title: 'GlamSatin Dress — Black Halter Ruched Maxi | BBW4LIFE',
         description: 'Turn heads in this luxurious black satin halter maxi dress. Deep V-neckline, ruched waist knot detail, bold front slit — made for queens plus size. Sizes 1XL to 5XL. Free worldwide shipping. BBW4LIFE Original.',

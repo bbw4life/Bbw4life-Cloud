@@ -139,6 +139,8 @@
     '/products/product130.html': '/bbw4life/loose-fashionable-sportswear-set',
     '/products/product131.html': '/bbw4life/geo-pattern-shirt-high-waist-pants-set',
     '/products/product132.html': '/bbw4life/mens-large-size-casual-three-piece-set',
+    '/products/product133.html': '/bbw4life/mens-casual-suit-pants-mid-waist-straight',
+    '/products/product134.html': '/bbw4life/fashion-line-printing-round-neck-suit',
 
     // ── BLOG ARTICLES ─────────────────────────────────────
     '/blog/article-featured.html': '/bbw4life/journal/beauty-has-no-sizes-movement-redefining-beauty',
