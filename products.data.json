@@ -8544,7 +8544,7 @@
     ],
     "enable_media_zoom": "yes",
     "plans_available": "no",
-    "reservation_price": 10,
+    "reservation_price": 5,
     "loyalty_points_per_order": 10,
     "collapsible_order_summary": "yes",
     "header_search_always_visible": "yes",
@@ -8679,11 +8679,11 @@
       "marquee_speed": "150s",
       "border_style": {
         "conic_noir": "no",
-        "solid": "no",
+        "solid": "yes",
         "gradient_rgb": "no",
         "dashed": "no",
         "dotted": "no",
-        "double": "yes"
+        "double": "no"
       },
       "border_size": 1,
       "border_color": "#B8925A",
@@ -8730,13 +8730,13 @@
       "marquee_speed": "150s",
       "border_style": {
         "conic_noir": "no",
-        "solid": "no",
+        "solid": "yes",
         "gradient_rgb": "no",
         "dashed": "no",
         "dotted": "no",
-        "double": "yes"
+        "double": "no"
       },
-      "border_size": 2,
+      "border_size": 1,
       "border_color": "#B8925A",
       "product_ids": [
         "Pdg-Francenel-product133",
@@ -10871,7 +10871,9 @@
         "Pdg-Francenel-product124",
         "Pdg-Francenel-product128",
         "Pdg-Francenel-product130",
-        "Pdg-Francenel-product132"
+        "Pdg-Francenel-product132",
+        "Pdg-Francenel-product134",
+        "Pdg-Francenel-product78"
       ]
     },
     "bbw_featured_home": {

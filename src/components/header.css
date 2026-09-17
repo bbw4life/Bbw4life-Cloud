@@ -4382,6 +4382,64 @@ a.plan-close-thanks-btn {
   pointer-events: none;
 }
 
+/* Wishlist — coin haut-gauche. Décalé sous le badge existant (.imq-card-badge,
+   lui aussi top-left) pour ne jamais le chevaucher quand un produit a un
+   badge : les deux restent lisibles au lieu de se superposer. */
+.imq-card-wishlist {
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  z-index: 6;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.20s ease;
+}
+.imq-card-wishlist:hover { transform: scale(1.12); }
+.imq-card-wishlist svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.55));
+}
+.imq-card-wishlist .wishlist-icon-filled { display: none; }
+.imq-card-wishlist.added .wishlist-icon-empty  { display: none; }
+.imq-card-wishlist.added .wishlist-icon-filled { display: block; }
+.imq-card-wishlist.added svg { fill: var(--bbw-gold, #B8925A); stroke: var(--bbw-gold, #B8925A); }
+
+/* Panier — coin bas-droite, même système que .pdp-grid-card__cart
+   (bouton .add-to-cart rond, doré) mais dimensionné pour cette petite
+   carte de marquee. */
+.imq-card-cart {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 6;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bbw-gold, #c9963e);
+  color: #1a0e00;
+  border: 1px solid rgba(201,150,62,0.55);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 0;
+  transition: transform 0.20s ease, background 0.20s ease;
+}
+.imq-card-cart:hover {
+  background: #1a0e00;
+  color: #e8bc6a;
+  transform: scale(1.12);
+}
+
 
 @media (max-width: 768px) {
   .imq-card { width: 150px; height: 120px; }
@@ -4390,6 +4448,9 @@ a.plan-close-thanks-btn {
   .imq-title { font-size: clamp(1.6rem, 6vw, 2.2rem); }
   .imq-track--left  { animation-duration: 38s; }
   .imq-track--right { animation-duration: 42s; }
+  .imq-card-wishlist { width: 17px; height: 17px; top: 26px; left: 7px; }
+  .imq-card-wishlist svg { width: 14px; height: 14px; }
+  .imq-card-cart { width: 20px; height: 20px; bottom: 6px; right: 6px; font-size: 8px; }
 }
 
 

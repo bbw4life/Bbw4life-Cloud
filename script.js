@@ -426,187 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-/* ══════════════════════════════════════════
-   BBW4LIFE PRELOADER — Beauty Has No Sizes
-══════════════════════════════════════════ */
-(function () {
-  'use strict';
-  var STYLE_MAP = {
-    style_pulse_logo:   'style-pulse-logo',
-    style_progress_bar: 'style-progress-bar',
-    style_spinner_ring: 'style-spinner-ring',
-    style_dots_wave:    'style-dots-wave',
-    style_morph_text:   'style-morph-text'
-  };
-
-  var MORPH_TEXTS  = ['Welcome ✨', 'Beauty Has No Sizes', 'You Are Enough', 'BBW4LIFE 💖'];
-  var morphTimer   = null;
-  var barTimer     = null;
-  var morphIdx     = 0;
-  var dismissed    = false;
-  var MIN_SHOW_MS  = 3000;
-  var startedAt    = Date.now();
-  var pageReady    = false;
-  var pl           = null;
-  var barFill      = null;
-  var barPct       = null;
-  var morphEl      = null;
-  var currentPct   = 0;
-
-  // Filet de sécurité ABSOLU, indépendant du fetch products.data.json
-  // ci-dessous : sur réseau lent ou en échec, ce fetch peut ne jamais
-  // résoudre (ou résoudre très tard), et jusqu'ici applyStyle()/doHide()
-  // n'étaient programmés QUE dans son .then() — le preloader restait
-  // alors planté à l'écran indéfiniment. On force sa disparition au bout
-  // de 8s dans tous les cas, que le fetch ait répondu ou non.
-  setTimeout(function () {
-    pl = pl || document.getElementById('cf-preloader');
-    doHide();
-  }, 8000);
-
-  fetch('/products.data.json')
-    .then(function (r) { return r.json(); })
-    .then(function (data) {
-      var arr      = Array.isArray(data) ? data : [];
-      var settings = arr.find(function (p) { return p.type === 'settings'; }) || {};
-      var cfg      = settings.preloader || {};
-
-      var show = (cfg.show || 'yes').trim().toLowerCase();
-
-      pl = document.getElementById('cf-preloader');
-      if (!pl) return;
-
-      if (show !== 'yes') {
-        pl.style.cssText = 'display:none!important';
-        var st = document.getElementById('cf-pre-style');
-        if (st && st.parentNode) st.parentNode.removeChild(st);
-        return;
-      }
-
-      barFill = document.getElementById('cf-pre-progress-fill');
-      barPct  = document.getElementById('cf-pre-progress-pct');
-      morphEl = document.getElementById('cf-pre-morph-text');
-
-      spawnParticles();
-
-      var activeKey = Object.keys(STYLE_MAP).find(function (k) {
-        return (cfg[k] || 'no').trim().toLowerCase() === 'yes';
-      }) || 'style_dots_wave';
-
-      applyStyle(activeKey);
-
-      if (pageReady) {
-        tryHide();
-      } else {
-        document.addEventListener('DOMContentLoaded', function () {
-          pageReady = true;
-          tryHide();
-        });
-      }
-    })
-    .catch(function () {});
-
-  // DOMContentLoaded (DOM prêt) plutôt que window.load : header.js/footer.js
-  // sont injectés dynamiquement après un fetch (src/components/layout-loader.js)
-  // et les ~25 images produit chargent en parallèle — attendre "load" retarde
-  // la disparition du preloader bien au-delà du minimum voulu (jusqu'au filet
-  // de sécurité de 8s), donnant l'impression qu'il s'affiche trop longtemps.
-  if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    pageReady = true;
-  } else {
-    document.addEventListener('DOMContentLoaded', function () { pageReady = true; });
-  }
-
-  function spawnParticles() {
-    var container = document.getElementById('cf-pre-particles');
-    if (!container) return;
-    var colors = [
-      'rgba(110,36,57,0.5)',
-      'rgba(184,146,90,0.5)',
-      'rgba(156,58,82,0.45)',
-      'rgba(21,17,14,0.12)'
-    ];
-    for (var i = 0; i < 22; i++) {
-      var p        = document.createElement('div');
-      p.className  = 'cf-pre-particle';
-      var size     = Math.random() * 5 + 3;
-      var left     = Math.random() * 100;
-      var duration = Math.random() * 6 + 5;
-      var delay    = Math.random() * 8;
-      var color    = colors[Math.floor(Math.random() * colors.length)];
-      p.style.cssText =
-        'width:' + size + 'px;height:' + size + 'px;' +
-        'left:' + left + '%;' +
-        'background:' + color + ';' +
-        'animation-duration:' + duration + 's;' +
-        'animation-delay:' + delay + 's;';
-      container.appendChild(p);
-    }
-  }
-
-  function applyStyle(key) {
-    var cssClass = STYLE_MAP[key] || STYLE_MAP.style_dots_wave;
-    Object.values(STYLE_MAP).forEach(function (cls) { pl.classList.remove(cls); });
-    pl.classList.add(cssClass);
-
-    if (cssClass === 'style-progress-bar' && barFill && barPct) {
-      barTimer = setInterval(function () {
-        var step = currentPct < 70 ? 3 : currentPct < 90 ? 1 : 0.4;
-        currentPct = Math.min(95, currentPct + step);
-        barFill.style.width = currentPct + '%';
-        barPct.textContent  = Math.floor(currentPct) + '%';
-      }, 80);
-    }
-
-    if (cssClass === 'style-morph-text' && morphEl) {
-      morphEl.textContent = MORPH_TEXTS[0];
-      morphEl.className   = 'cf-pre-morph-text cf-morph-active';
-      morphTimer = setInterval(function () {
-        morphIdx = (morphIdx + 1) % MORPH_TEXTS.length;
-        morphEl.className = 'cf-pre-morph-text cf-morph-exit';
-        setTimeout(function () {
-          morphEl.textContent = MORPH_TEXTS[morphIdx];
-          morphEl.className   = 'cf-pre-morph-text cf-morph-enter';
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              morphEl.className = 'cf-pre-morph-text cf-morph-active';
-            });
-          });
-        }, 420);
-      }, 1600);
-    }
-  }
-
-  function tryHide() {
-    if (dismissed || !pl) return;
-    var elapsed = Date.now() - startedAt;
-    var delay   = Math.max(0, MIN_SHOW_MS - elapsed);
-    setTimeout(doHide, delay);
-  }
-
-  function doHide() {
-    if (dismissed || !pl) return;
-    dismissed = true;
-    clearInterval(barTimer);
-    clearInterval(morphTimer);
-
-    if (barFill) {
-      barFill.style.width = '100%';
-      if (barPct) barPct.textContent = '100%';
-    }
-
-    var isProgress = pl.classList.contains('style-progress-bar');
-    setTimeout(function () {
-      pl.classList.add('cf-pre--hidden');
-      setTimeout(function () {
-        if (pl && pl.parentNode) pl.parentNode.removeChild(pl);
-        var st = document.getElementById('cf-pre-style');
-        if (st && st.parentNode) st.parentNode.removeChild(st);
-      }, 600);
-    }, isProgress ? 350 : 0);
-  }
-
-})();
 
 
  function upgradeShopifyImageUrl(url, size) {
@@ -3074,8 +2893,14 @@ function showErrorPopup(message) {
 
           const productUrl = getProductUrl(pid);
           const item = document.createElement('div');
-          item.className        = 'product-item';
+          item.className        = 'product-item product-card';
           item.dataset.productId = pid;
+          // dataset.id (en plus de productId, déjà utilisé ailleurs pour les
+          // mini-sliders média) : addToCart() lit dataset.id en priorité et
+          // bascule sur la branche "page produit" (sélecteurs de taille/
+          // couleur inexistants ici) dès que dataset.productId est présent —
+          // sans dataset.id, le clic panier planterait silencieusement.
+          item.dataset.id = pid;
 
           item.innerHTML = `
             <div class="product-image">
@@ -3084,6 +2909,7 @@ function showErrorPopup(message) {
               </a>
               <div class="mini-discount-badge"></div>
               <span class="mini-wishlist-icon" data-id="${pid}"></span>
+              <button type="button" class="mini-cart-btn add-to-cart" aria-label="Add to cart"><i class="fi fi-rr-shopping-cart"></i></button>
             </div>
             <div class="product-info">
               <p class="product-price">
@@ -3097,6 +2923,12 @@ function showErrorPopup(message) {
           /* Wishlist SVG */
           const wishlistIcon = item.querySelector('.mini-wishlist-icon');
           if (wishlistIcon) wishlistIcon.innerHTML = WISHLIST_SVG;
+
+          /* Ajout panier — même système que pdp-grid-card__cart (bouton
+             .add-to-cart, listener addToCart qui lit .product-card
+             le plus proche via closest()). */
+          const cartBtn = item.querySelector('.mini-cart-btn');
+          if (cartBtn) cartBtn.addEventListener('click', function (e) { e.preventDefault(); addToCart(e); });
 
           /* Prix + badge */
           const currentPriceEl = item.querySelector('.current-price');
@@ -8898,7 +8730,8 @@ document.dispatchEvent(new Event('wishlist:change'));
 
   function addToCart(e) {
     e.stopPropagation();
-    const container = e.target.closest('.product-card') || e.target.closest('.product-section');
+    const cardContainer = e.target.closest('.product-card');
+    const container = cardContainer || e.target.closest('.product-section');
     if (!container) return false;
     const id = container.dataset.id || container.dataset.productId;
     const product = products.find(p => p.id === id);
@@ -8911,7 +8744,14 @@ document.dispatchEvent(new Event('wishlist:change'));
     function getVariantComparePrice(product, color, size) {
       return getVariantPrice(product, color, size) * (product.compare_price / product.price);
     }
-    const isProductPage = !!container.dataset.productId;
+    // La vraie page produit est .product-section (jamais .product-card) —
+    // se baser sur dataset.productId était faux dès qu'une carte de type
+    // .product-card porte aussi ce champ pour un autre usage (ex: le
+    // mini-media-slider de mini-product-slider le lit indépendamment),
+    // ce qui faisait passer une simple carte "Add to Cart" par la
+    // branche page-produit et exiger un choix de taille/couleur
+    // inexistant dans ce contexte.
+    const isProductPage = !cardContainer;
     let quantity = 1;
     const qtyInput = container.querySelector('.quantity input');
     if (qtyInput) quantity = parseInt(qtyInput.value);
@@ -16878,6 +16718,14 @@ startAutoSlide();
     return url + sep + 'width=' + (size || 600) + '&quality=90';
   }
 
+  var IMQ_WISHLIST_SVG =
+    '<svg class="wishlist-icon-empty" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fffef7" stroke-width="2">' +
+      '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' +
+    '</svg>' +
+    '<svg class="wishlist-icon-filled" width="13" height="13" viewBox="0 0 24 24" fill="#fffef7" stroke="#fffef7" stroke-width="2">' +
+      '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>' +
+    '</svg>';
+
   function buildCard(prod) {
     if (!prod) return null;
 
@@ -16889,8 +16737,13 @@ startAutoSlide();
     var url         = prod.url || '#';
 
     var card = document.createElement('a');
-    card.className = 'imq-card';
-    card.href      = url;
+    // "product-card" : réutilise le système add-to-cart générique (cf.
+    // addToCart() dans script.js, qui distingue page produit / grille via
+    // .product-card vs .product-section) — même mécanisme que
+    // mini-product-slider/pdp-grid-card, juste ajouté ici.
+    card.className   = 'imq-card product-card';
+    card.href        = url;
+    card.dataset.id  = prod.id;
 
     var badgeHTML = badge
       ? '<span class="imq-card-badge">' + badge + '</span>'
@@ -16905,12 +16758,89 @@ startAutoSlide();
       '<img class="imq-card-img" src="' + imgSrc + '" alt="' + title + '" loading="lazy">' +
       hoverHTML +
       '<div class="imq-card-overlay"></div>' +
+      '<span class="mini-wishlist-icon imq-card-wishlist" data-id="' + prod.id + '">' + IMQ_WISHLIST_SVG + '</span>' +
+      '<button type="button" class="imq-card-cart add-to-cart" aria-label="Add to cart"><i class="fi fi-rr-shopping-cart"></i></button>' +
       '<div class="imq-card-info">' +
         '<span class="imq-card-title">' + title + '</span>' +
         '<span class="imq-card-price">' + price + '</span>' +
       '</div>';
 
+    var wishIcon = card.querySelector('.imq-card-wishlist');
+    if (wishIcon) wishIcon.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      toggleImqWishlist(wishIcon);
+    });
+
+    var cartBtn = card.querySelector('.imq-card-cart');
+    if (cartBtn) cartBtn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      addImqToCart(prod, cartBtn);
+    });
+
     return card;
+  }
+
+  // Carte injectée hors de la page produit / grille : pas d'accès direct à
+  // toggleWishlist()/addToCart() (scope IIFE différent, non exposées sur
+  // window) — on reproduit localement la même logique via l'état global
+  // confirmé (window.wishlist, window.__getCart/__setCart, window.saveWishlist,
+  // window.updateBadges, window.updateWishlistIcons), même pattern que
+  // toggleSetsWishlist()/addToCartFromWidget() déjà utilisé pour le widget Sets.
+  function toggleImqWishlist(icon) {
+    var id = icon.dataset.id;
+    if (!id) return;
+    if (!Array.isArray(window.wishlist)) window.wishlist = [];
+    var idx = window.wishlist.indexOf(id);
+    if (idx === -1) { window.wishlist.push(id); icon.classList.add('added'); }
+    else { window.wishlist.splice(idx, 1); icon.classList.remove('added'); }
+    if (typeof window.saveWishlist === 'function') window.saveWishlist();
+    // updateWishlistIcons() lit une variable `wishlist` LOCALE à un autre
+    // IIFE, jamais synchronisée avec window.wishlist qu'on vient de modifier
+    // ici — l'appeler directement réaffiche l'ancien état et annule
+    // visuellement la classe .added qu'on vient de poser (flash/glitch).
+    // __bbwReloadWishlist() existe précisément pour ce pont : il relit
+    // localStorage dans la variable locale avant de rafraîchir l'affichage.
+    if (typeof window.__bbwReloadWishlist === 'function') window.__bbwReloadWishlist();
+    else if (typeof window.updateBadges === 'function' || typeof window.updateWishlistIcons === 'function') {
+      if (typeof window.updateBadges === 'function') window.updateBadges();
+      if (typeof window.updateWishlistIcons === 'function') window.updateWishlistIcons();
+    }
+    document.dispatchEvent(new Event('wishlist:change'));
+  }
+
+  function addImqToCart(prod, btnEl) {
+    if (!prod) return;
+    var variant = (prod.variants && prod.variants[0]) || null;
+    var color   = variant ? variant.color || null : null;
+    var size    = variant ? variant.size  || null : null;
+    var price   = variant ? variant.price : prod.price;
+    var vid     = variant ? variant.vid   : null;
+
+    var colorObj = (color && prod.colors) ? prod.colors.find(function (c) { return c.name === color; }) : null;
+    var image = getImg(colorObj ? (colorObj.image || prod.image) : prod.image, 600);
+
+    var cartArr = (typeof window.__getCart === 'function') ? window.__getCart() : [];
+    var existing = cartArr.find(function (i) { return i.id === prod.id && i.color === color && i.size === size; });
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cartArr.push({
+        id: prod.id, title: prod.title, price: price, compare_price: prod.compare_price,
+        image: image, size: size, color: color, quantity: 1,
+        cj_product_id: prod.cj_product_id || prod.eprolo_id, cj_variant_id: vid
+      });
+    }
+    if (typeof window.__setCart === 'function') window.__setCart(cartArr);
+    if (typeof window.saveCart === 'function') window.saveCart();
+    if (typeof window.updateCartQuantityInSheet === 'function') window.updateCartQuantityInSheet();
+    if (typeof window.updateBadges === 'function') window.updateBadges();
+    if (typeof window.renderCart === 'function') window.renderCart();
+    if (btnEl && typeof window.flyToCart === 'function') {
+      window.flyToCart(btnEl, image, 1);
+      setTimeout(function () { if (typeof window.openCartDrawer === 'function') window.openCartDrawer(); }, 650);
+    } else if (typeof window.openCartDrawer === 'function') {
+      window.openCartDrawer();
+    }
   }
 
   function fillTrack(trackEl, ids, products) {
@@ -17649,7 +17579,7 @@ function injectColFbt() {
   const MINI_LIKE_SELECTORS =
     '.col-card__media, .cart-item-img-wrap, .cp-item-img-wrap, ' +
     '.bbwpg-card__img-wrap, .bbw-nb-card__media, .cs-media, .rv-card__img-wrap, .col-rv-card__media, ' +
-    '.fs-img-frame, .mini-media-slider, .pdp-grid-card__media, ' +
+    '.fs-img-frame, .mini-media-slider, .pdp-grid-card__media, .imq-card, ' +
     '.drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
     '.bd-product-item__media, .p2-upsell-img-wrap, ' +
     '.wishlist-item img, .col-qv-media, .col-fbt-card__media';

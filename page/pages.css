@@ -327,7 +327,8 @@
    uniquement ici via .os-page, sans toucher la version sans-photo.
 ───────────────────────────────────────────────────────── */
 .os-page .trust-banner-wrap {
-  min-height: 78vh;
+  height: 300px;
+  min-height: 300px;
   background: var(--bbw-black, #15110E);
   overflow: hidden;
 }
@@ -369,7 +370,7 @@
   background: var(--bbw-gold-border, rgba(184,146,90,0.28));
 }
 
-.os-page .trust-banner-inner { z-index: 4; padding: 100px 28px 76px; max-width: 780px; }
+.os-page .trust-banner-inner { z-index: 4; padding: 24px 28px; max-width: 780px; }
 
 .os-page .trust-badge {
   color: rgba(246,239,229,0.85);
@@ -491,8 +492,8 @@
 }
 
 @media (max-width: 640px) {
-  .os-page .trust-banner-wrap { min-height: 62vh; }
-  .os-page .trust-banner-inner { padding: 72px 22px 52px; }
+  .os-page .trust-banner-wrap { height: 300px; min-height: 300px; }
+  .os-page .trust-banner-inner { padding: 16px 18px; }
   .os-hero-frame { inset: 8px; }
   .os-hero-corner { width: 16px; height: 16px; }
 }
@@ -3433,7 +3434,8 @@
 ═══════════════════════════════════════════ */
 .au-hero-section {
   position: relative;
-  min-height: 92vh;
+  height: 400px;
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3600,7 +3602,7 @@
   border: 1px solid rgba(184,146,90,0.35);
   padding: 6px 22px;
   border-radius: var(--au-radius-full);
-  margin-bottom: 28px;
+  margin-bottom: 14px;
   box-shadow: 0 4px 20px rgba(184,146,90,0.12);
   opacity: 0;
   transform: translateY(20px);
@@ -3616,12 +3618,12 @@
 
 .au-hero-title {
   font-family: var(--au-font-display);
-  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
   font-weight: 700;
   color: var(--au-text);
   line-height: 1.08;
   letter-spacing: -0.02em;
-  margin: 0 0 22px;
+  margin: 0 0 12px;
   opacity: 0;
   transform: translateY(24px);
   animation: auHeroFadeUp 0.8s var(--au-ease-spring) 0.25s forwards;
@@ -3638,10 +3640,10 @@
 
 .au-hero-sub {
   font-family: var(--au-font-body);
-  font-size: clamp(1rem, 1.8vw, 1.18rem);
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
   color: var(--au-text-mid);
-  line-height: 1.75;
-  margin: 0 0 32px;
+  line-height: 1.6;
+  margin: 0 0 16px;
   opacity: 0;
   transform: translateY(20px);
   animation: auHeroFadeUp 0.75s var(--au-ease-spring) 0.4s forwards;
@@ -3658,7 +3660,7 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px 18px;
-  margin-bottom: 40px;
+  margin-bottom: 0;
   opacity: 0;
   transform: translateY(18px);
   animation: auHeroFadeUp 0.7s var(--au-ease-spring) 0.55s forwards;
@@ -3697,13 +3699,7 @@
 
 
 .au-hero-scroll {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  opacity: 0;
-  transform: translateY(16px);
-  animation: auHeroFadeUp 0.7s var(--au-ease-spring) 0.70s forwards;
+  display: none;
 }
 .au-hero-scroll span {
   font-family: var(--au-font-body);
@@ -5450,10 +5446,10 @@ a.au-offer-card {
   .au-container { padding: 0 1.25rem; }
 
   
-  .au-hero-section { min-height: auto; padding: 40px 0 30px; }
+  .au-hero-section { height: 400px; min-height: 400px; padding: 0; }
   .au-hero-inner { padding: 0 1rem; }
-  .au-hero-title { font-size: clamp(2rem, 9vw, 2.8rem); }
-  .au-hero-sub { font-size: 0.92rem; }
+  .au-hero-title { font-size: clamp(1.7rem, 7vw, 2.2rem); }
+  .au-hero-sub { font-size: 0.88rem; }
   .au-hero-pill-sep { display: none; }
 
   
@@ -5487,7 +5483,7 @@ a.au-offer-card {
 }
 
 @media (max-width: 480px) {
-  .au-hero-title { font-size: 2.4rem; }
+  .au-hero-title { font-size: 1.9rem; }
   .au-numbers-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .au-num-card { padding: 22px 16px 18px; }
   .au-vision-pillars { grid-template-columns: 1fr; }
@@ -5731,7 +5727,8 @@ a.au-offer-card {
 }
 
 .success-banner-section .banner-image {
-  min-height: 360px;
+  height: 300px;
+  min-height: 300px;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -5768,7 +5765,7 @@ a.au-offer-card {
   position: relative;
   z-index: 3;
   text-align: center;
-  padding: 44px 32px;
+  padding: 20px 32px;
   width: 100%;
   max-width: 740px;
   animation: fadeUp 0.8s cubic-bezier(0.34,1.2,0.64,1) both;
@@ -5806,14 +5803,14 @@ a.au-offer-card {
   text-transform: uppercase;
   color: var(--gold-mist);
   text-shadow: 0 0 14px rgba(212,169,74,0.65);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .banner-content h2 {
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  font-size: clamp(1.4rem, 2.8vw, 2.2rem);
   color: #fff;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   line-height: 1.22;
   text-shadow: 0 0 40px rgba(192,56,94,0.40), 0 2px 8px rgba(0,0,0,0.45);
   font-weight: 700;
@@ -5825,7 +5822,7 @@ a.au-offer-card {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 .bd-line {
@@ -5847,7 +5844,7 @@ a.au-offer-card {
 .banner-content p {
   font-size: 0.92rem;
   color: rgba(255,255,255,0.70);
-  margin: 0 auto 26px;
+  margin: 0 auto 14px;
   line-height: 1.70;
   max-width: 500px;
 }
@@ -7282,16 +7279,16 @@ button[type="submit"].cta {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(135deg, var(--rose) 0%, var(--plum) 50%, var(--gold) 100%);
+  color: var(--bbw-gold, #c9963e);
+  background: #15110E;
   background-size: 200% auto;
-  border: none;
+  border: 1px solid var(--bbw-gold, #c9963e);
   border-radius: var(--radius-full);
   padding: 15px 32px;
   cursor: pointer;
   text-decoration: none;
   transition: background-position 0.45s ease, transform 0.25s ease, box-shadow 0.30s ease;
-  box-shadow: 0 6px 24px rgba(192,56,94,0.35), 0 1px 0 rgba(255,255,255,0.15) inset;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.08) inset;
   position: relative;
   overflow: hidden;
 }
@@ -7309,8 +7306,8 @@ button[type="submit"].cta::before {
 button[type="submit"].cta:hover {
   background-position: right center;
   transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(192,56,94,0.48);
-  color: #fff;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.48);
+  color: var(--bbw-gold-light, #e8bc6a);
 }
 .cta.button-3d:active,
 button[type="submit"].cta:active {
@@ -7331,7 +7328,8 @@ button[type="submit"].cta:active {
 }
 
 @media (max-width: 480px) {
-  .banner-content { padding: 32px 18px; }
+  .success-banner-section .banner-image { height: 300px; min-height: 300px; }
+  .banner-content { padding: 16px 18px; }
   .banner-content h2 { font-size: 1.5rem; }
   .contact-form-box { padding: 24px 16px 22px; }
   .jt-apply { padding: 22px 18px 20px; }

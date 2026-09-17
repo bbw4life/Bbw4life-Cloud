@@ -4775,6 +4775,36 @@ details[open] .chevron {
     transform: scale(1.15);
 }
 
+/* Bouton panier — coin haut-droit, même système que .pdp-grid-card__cart
+   (bouton .add-to-cart rond, doré) mais positionné/dimensionné pour ce
+   slider compact au lieu du bas-droite de la grille pleine taille. */
+#mini-product-slider .mini-cart-btn {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 28px;
+    height: 28px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bbw-gold, #B8925A);
+    color: var(--bbw-black, #15110E);
+    border: 1px solid rgba(184,146,90,0.45);
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(184,146,90,0.30);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 0;
+    transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+#mini-product-slider .mini-cart-btn:hover {
+    background: var(--bbw-black, #15110E);
+    color: var(--bbw-gold-light, #e8bc6a);
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(184,146,90,0.40);
+}
+
 #mini-product-slider .product-info {
     margin-top: 9px !important;
     position: relative !important;

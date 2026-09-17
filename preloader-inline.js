@@ -1,17 +1,41 @@
 (function(){
-  // Injection SYNCHRONE dès qu'on connaît l'état "show" par le cache
-  // local (dernière valeur confirmée lors d'une visite précédente) —
-  // garantit que le preloader s'affiche AVANT tout le reste de la page,
-  // sans dépendre d'un fetch réseau à chaque chargement.
-  // Au tout premier chargement (aucun cache encore), on retombe sur
-  // l'ancien comportement : on attend la confirmation asynchrone de
-  // products.data.json avant d'afficher quoi que ce soit, pour ne
-  // jamais l'afficher à tort et ne jamais bloquer le thread principal
-  // avec un XHR synchrone.
+  // ══════════════════════════════════════════════════════════════
+  // BBW4LIFE PRELOADER — contrôleur UNIQUE (injection + affichage +
+  // animation + masquage). Auparavant, ce fichier gérait seulement
+  // l'injection/le masquage pendant qu'un second bloc séparé dans
+  // script.js gérait l'animation (particules/style/morph) et avait SON
+  // PROPRE fetch('/products.data.json') indépendant, son propre état
+  // "dismissed", et son propre appel à removeChild() sur le même DOM.
+  // Deux contrôleurs non synchronisés agissant sur le même élément —
+  // chacun capable de le retirer indépendamment de l'autre — est une
+  // source classique de comportement instable d'un moteur de rendu à
+  // l'autre (fonctionne par coïncidence de timing sur l'un, pas sur les
+  // autres). Toute la logique vit maintenant ici, dans un seul endroit.
   var CACHE_KEY   = 'bbw_preloader_show';
   var VISITED_KEY = 'bbw_preloader_visited_pages';
   var injected    = false;
   var pagePath    = window.location.pathname;
+
+  var STYLE_MAP = {
+    style_pulse_logo:   'style-pulse-logo',
+    style_progress_bar: 'style-progress-bar',
+    style_spinner_ring: 'style-spinner-ring',
+    style_dots_wave:    'style-dots-wave',
+    style_morph_text:   'style-morph-text'
+  };
+  var MORPH_TEXTS = ['Welcome ✨', 'Beauty Has No Sizes', 'You Are Enough', 'BBW4LIFE 💖'];
+
+  var dismissed   = false;
+  var morphTimer  = null;
+  var barTimer    = null;
+  var morphIdx    = 0;
+  var currentPct  = 0;
+  var MIN_SHOW_MS = 3000;
+  var startedAt   = Date.now();
+  var pageReady   = false;
+  var barFill     = null;
+  var barPct      = null;
+  var morphEl     = null;
 
   // ── Page déjà visitée cette session-navigateur ? ──────────
   // Le preloader n'a de sens qu'au tout premier chargement d'une page
@@ -136,10 +160,104 @@
   }
 
   function removePreloader() {
+    dismissed = true;
+    clearInterval(barTimer);
+    clearInterval(morphTimer);
     var el = document.getElementById('cf-preloader');
     if (el && el.parentNode) el.parentNode.removeChild(el);
     var st = document.getElementById('cf-pre-style');
     if (st && st.parentNode) st.parentNode.removeChild(st);
+  }
+
+  function spawnParticles() {
+    var container = document.getElementById('cf-pre-particles');
+    if (!container) return;
+    var colors = [
+      'rgba(110,36,57,0.5)',
+      'rgba(184,146,90,0.5)',
+      'rgba(156,58,82,0.45)',
+      'rgba(21,17,14,0.12)'
+    ];
+    for (var i = 0; i < 22; i++) {
+      var p        = document.createElement('div');
+      p.className  = 'cf-pre-particle';
+      var size     = Math.random() * 5 + 3;
+      var left     = Math.random() * 100;
+      var duration = Math.random() * 6 + 5;
+      var delay    = Math.random() * 8;
+      var color    = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText =
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'left:' + left + '%;' +
+        'background:' + color + ';' +
+        'animation-duration:' + duration + 's;' +
+        'animation-delay:' + delay + 's;';
+      container.appendChild(p);
+    }
+  }
+
+  function applyStyle(pl, key) {
+    var cssClass = STYLE_MAP[key] || STYLE_MAP.style_dots_wave;
+    Object.keys(STYLE_MAP).forEach(function (k) { pl.classList.remove(STYLE_MAP[k]); });
+    pl.classList.add(cssClass);
+
+    if (cssClass === 'style-progress-bar' && barFill && barPct) {
+      barTimer = setInterval(function () {
+        var step = currentPct < 70 ? 3 : currentPct < 90 ? 1 : 0.4;
+        currentPct = Math.min(95, currentPct + step);
+        barFill.style.width = currentPct + '%';
+        barPct.textContent  = Math.floor(currentPct) + '%';
+      }, 80);
+    }
+
+    if (cssClass === 'style-morph-text' && morphEl) {
+      morphEl.textContent = MORPH_TEXTS[0];
+      morphEl.className   = 'cf-pre-morph-text cf-morph-active';
+      morphTimer = setInterval(function () {
+        morphIdx = (morphIdx + 1) % MORPH_TEXTS.length;
+        morphEl.className = 'cf-pre-morph-text cf-morph-exit';
+        setTimeout(function () {
+          morphEl.textContent = MORPH_TEXTS[morphIdx];
+          morphEl.className   = 'cf-pre-morph-text cf-morph-enter';
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              morphEl.className = 'cf-pre-morph-text cf-morph-active';
+            });
+          });
+        }, 420);
+      }, 1600);
+    }
+  }
+
+  function tryHide() {
+    if (dismissed) return;
+    var elapsed = Date.now() - startedAt;
+    var delay   = Math.max(0, MIN_SHOW_MS - elapsed);
+    setTimeout(doHide, delay);
+  }
+
+  function doHide() {
+    if (dismissed) return;
+    var pl = document.getElementById('cf-preloader');
+    if (!pl) { dismissed = true; return; }
+    dismissed = true;
+    clearInterval(barTimer);
+    clearInterval(morphTimer);
+
+    if (barFill) {
+      barFill.style.width = '100%';
+      if (barPct) barPct.textContent = '100%';
+    }
+
+    var isProgress = pl.classList.contains('style-progress-bar');
+    setTimeout(function () {
+      pl.classList.add('cf-pre--hidden');
+      setTimeout(function () {
+        if (pl && pl.parentNode) pl.parentNode.removeChild(pl);
+        var st = document.getElementById('cf-pre-style');
+        if (st && st.parentNode) st.parentNode.removeChild(st);
+      }, 600);
+    }, isProgress ? 350 : 0);
   }
 
   // ── Fast-path synchrone ───────────────────────────────────
@@ -154,7 +272,20 @@
   if (cached !== 'no' && !alreadyVisited) injectPreloader();
   markPageVisited(pagePath);
 
-  // ── Confirmation asynchrone (source de vérité) ───────────
+  if (alreadyVisited) dismissed = true;
+
+  // Filet de sécurité ABSOLU : quoi qu'il arrive (fetch lent, en échec,
+  // navigateur qui bloque le réseau), le preloader ne reste jamais
+  // affiché plus de 8s.
+  setTimeout(doHide, 8000);
+
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    pageReady = true;
+  } else {
+    document.addEventListener('DOMContentLoaded', function () { pageReady = true; });
+  }
+
+  // ── Confirmation asynchrone (source de vérité pour show/style) ───
   fetch('/products.data.json')
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -169,9 +300,38 @@
         removePreloader();
         return;
       }
+
       injectPreloader(); // no-op si déjà injecté via le cache ci-dessus
+      var pl = document.getElementById('cf-preloader');
+      if (!pl || dismissed) return;
+
+      barFill = document.getElementById('cf-pre-progress-fill');
+      barPct  = document.getElementById('cf-pre-progress-pct');
+      morphEl = document.getElementById('cf-pre-morph-text');
+
+      spawnParticles();
+
+      var activeKey = Object.keys(STYLE_MAP).find(function (k) {
+        return (cfg[k] || 'no').trim().toLowerCase() === 'yes';
+      }) || 'style_dots_wave';
+
+      applyStyle(pl, activeKey);
+
+      if (pageReady) {
+        tryHide();
+      } else {
+        document.addEventListener('DOMContentLoaded', function () {
+          pageReady = true;
+          tryHide();
+        });
+      }
     })
-    .catch(function () {});
+    .catch(function () {
+      // Même en cas d'échec du fetch, respecte le MIN_SHOW_MS via tryHide
+      // plutôt que de laisser uniquement le filet de sécurité à 8s trancher.
+      if (pageReady) tryHide();
+      else document.addEventListener('DOMContentLoaded', function () { pageReady = true; tryHide(); });
+    });
 
   // ── Retour arrière via bfcache ────────────────────────────
   // Si l'utilisateur navigue ailleurs pendant que le preloader est encore

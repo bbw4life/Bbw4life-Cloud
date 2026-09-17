@@ -3882,7 +3882,8 @@ body {
   text-shadow: none;
 }
 
-#bbw-product-grid-featured .bbw-mini-like-count {
+#bbw-product-grid-featured .bbw-mini-like-count,
+.imq-card .bbw-mini-like-count {
   color: #fdfaf5;
   text-shadow: 0 2px 6px rgba(0,0,0,0.45);
 }
@@ -3933,7 +3934,8 @@ body {
 .col-fbt-card .bbw-mini-like-widget,
 .cart-item-img-wrap .bbw-mini-like-widget,
 .cp-item-img-wrap .bbw-mini-like-widget,
-.wishlist-item .bbw-mini-like-widget {
+.wishlist-item .bbw-mini-like-widget,
+.imq-card .bbw-mini-like-widget {
   bottom: 4px;
   left: 4px;
   gap: 3px;
@@ -3957,7 +3959,8 @@ body {
 .cp-item-img-wrap .bbw-mini-like-col,
 .drawer-extra-card__img-wrap .bbw-mini-like-col,
 .cp-extra-card__img-wrap .bbw-mini-like-col,
-.wishlist-item .bbw-mini-like-col {
+.wishlist-item .bbw-mini-like-col,
+.imq-card .bbw-mini-like-col {
   gap: 1px;
 }
 .mini-media-slider .bbw-mini-like-count,
@@ -3968,7 +3971,8 @@ body {
 .cp-item-img-wrap .bbw-mini-like-count,
 .drawer-extra-card__img-wrap .bbw-mini-like-count,
 .cp-extra-card__img-wrap .bbw-mini-like-count,
-.wishlist-item .bbw-mini-like-count {
+.wishlist-item .bbw-mini-like-count,
+.imq-card .bbw-mini-like-count {
   font-size: 0.46rem;
 }
 .mini-media-slider .bbw-mini-like-btn,
@@ -3979,7 +3983,8 @@ body {
 .cp-item-img-wrap .bbw-mini-like-btn,
 .drawer-extra-card__img-wrap .bbw-mini-like-btn,
 .cp-extra-card__img-wrap .bbw-mini-like-btn,
-.wishlist-item .bbw-mini-like-btn {
+.wishlist-item .bbw-mini-like-btn,
+.imq-card .bbw-mini-like-btn {
   width: 16px;
   height: 16px;
 }
@@ -3991,7 +3996,8 @@ body {
 .cp-item-img-wrap .bbw-mini-like-btn svg,
 .drawer-extra-card__img-wrap .bbw-mini-like-btn svg,
 .cp-extra-card__img-wrap .bbw-mini-like-btn svg,
-.wishlist-item .bbw-mini-like-btn svg {
+.wishlist-item .bbw-mini-like-btn svg,
+.imq-card .bbw-mini-like-btn svg {
   width: 9px;
   height: 9px;
 }
@@ -13930,16 +13936,18 @@ button::selection, button *::selection {
   z-index: 2;
 }
 
-/* ── FLIPBOOK ── */
+/* ── FLIPBOOK ──
+   Un seul niveau de perspective/preserve-3d, posé au plus près des
+   éléments qui tournent réellement (.bbw-sets-cover / .bbw-sets-page,
+   cf. plus bas) — empiler perspective+preserve-3d sur plusieurs niveaux
+   parent/enfant (ici + .bbw-sets-pages) est toléré par Chromium mais se
+   comporte différemment sur Gecko/WebKit (repaint instable, effet
+   "coupe et reprend" pendant la rotation). */
 .bbw-sets-flipbook {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 3.6;
   max-height: 62vh;
-  -webkit-perspective: 1800px;
-  perspective: 1800px;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
   border-radius: 12px;
 }
 
@@ -14052,8 +14060,6 @@ button::selection, button *::selection {
   box-shadow: 0 20px 50px rgba(0,0,0,0.45);
   -webkit-perspective: 1800px;
   perspective: 1800px;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
 }
 
 .bbw-sets-page {
