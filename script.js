@@ -426,6 +426,188 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+/* ══════════════════════════════════════════
+   BBW4LIFE PRELOADER — Beauty Has No Sizes
+══════════════════════════════════════════ */
+(function () {
+  'use strict';
+  var STYLE_MAP = {
+    style_pulse_logo:   'style-pulse-logo',
+    style_progress_bar: 'style-progress-bar',
+    style_spinner_ring: 'style-spinner-ring',
+    style_dots_wave:    'style-dots-wave',
+    style_morph_text:   'style-morph-text'
+  };
+
+  var MORPH_TEXTS  = ['Welcome ✨', 'Beauty Has No Sizes', 'You Are Enough', 'BBW4LIFE 💖'];
+  var morphTimer   = null;
+  var barTimer     = null;
+  var morphIdx     = 0;
+  var dismissed    = false;
+  var MIN_SHOW_MS  = 3000;
+  var startedAt    = Date.now();
+  var pageReady    = false;
+  var pl           = null;
+  var barFill      = null;
+  var barPct       = null;
+  var morphEl      = null;
+  var currentPct   = 0;
+
+  // Filet de sécurité ABSOLU, indépendant du fetch products.data.json
+  // ci-dessous : sur réseau lent ou en échec, ce fetch peut ne jamais
+  // résoudre (ou résoudre très tard), et jusqu'ici applyStyle()/doHide()
+  // n'étaient programmés QUE dans son .then() — le preloader restait
+  // alors planté à l'écran indéfiniment. On force sa disparition au bout
+  // de 8s dans tous les cas, que le fetch ait répondu ou non.
+  setTimeout(function () {
+    pl = pl || document.getElementById('cf-preloader');
+    doHide();
+  }, 8000);
+
+  fetch('/products.data.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var arr      = Array.isArray(data) ? data : [];
+      var settings = arr.find(function (p) { return p.type === 'settings'; }) || {};
+      var cfg      = settings.preloader || {};
+
+      var show = (cfg.show || 'yes').trim().toLowerCase();
+
+      pl = document.getElementById('cf-preloader');
+      if (!pl) return;
+
+      if (show !== 'yes') {
+        pl.style.cssText = 'display:none!important';
+        var st = document.getElementById('cf-pre-style');
+        if (st && st.parentNode) st.parentNode.removeChild(st);
+        return;
+      }
+
+      barFill = document.getElementById('cf-pre-progress-fill');
+      barPct  = document.getElementById('cf-pre-progress-pct');
+      morphEl = document.getElementById('cf-pre-morph-text');
+
+      spawnParticles();
+
+      var activeKey = Object.keys(STYLE_MAP).find(function (k) {
+        return (cfg[k] || 'no').trim().toLowerCase() === 'yes';
+      }) || 'style_dots_wave';
+
+      applyStyle(activeKey);
+
+      if (pageReady) {
+        tryHide();
+      } else {
+        document.addEventListener('DOMContentLoaded', function () {
+          pageReady = true;
+          tryHide();
+        });
+      }
+    })
+    .catch(function () {});
+
+  // DOMContentLoaded (DOM prêt) plutôt que window.load : header.js/footer.js
+  // sont injectés dynamiquement après un fetch (src/components/layout-loader.js)
+  // et les ~25 images produit chargent en parallèle — attendre "load" retarde
+  // la disparition du preloader bien au-delà du minimum voulu (jusqu'au filet
+  // de sécurité de 8s), donnant l'impression qu'il s'affiche trop longtemps.
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    pageReady = true;
+  } else {
+    document.addEventListener('DOMContentLoaded', function () { pageReady = true; });
+  }
+
+  function spawnParticles() {
+    var container = document.getElementById('cf-pre-particles');
+    if (!container) return;
+    var colors = [
+      'rgba(110,36,57,0.5)',
+      'rgba(184,146,90,0.5)',
+      'rgba(156,58,82,0.45)',
+      'rgba(21,17,14,0.12)'
+    ];
+    for (var i = 0; i < 22; i++) {
+      var p        = document.createElement('div');
+      p.className  = 'cf-pre-particle';
+      var size     = Math.random() * 5 + 3;
+      var left     = Math.random() * 100;
+      var duration = Math.random() * 6 + 5;
+      var delay    = Math.random() * 8;
+      var color    = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText =
+        'width:' + size + 'px;height:' + size + 'px;' +
+        'left:' + left + '%;' +
+        'background:' + color + ';' +
+        'animation-duration:' + duration + 's;' +
+        'animation-delay:' + delay + 's;';
+      container.appendChild(p);
+    }
+  }
+
+  function applyStyle(key) {
+    var cssClass = STYLE_MAP[key] || STYLE_MAP.style_dots_wave;
+    Object.values(STYLE_MAP).forEach(function (cls) { pl.classList.remove(cls); });
+    pl.classList.add(cssClass);
+
+    if (cssClass === 'style-progress-bar' && barFill && barPct) {
+      barTimer = setInterval(function () {
+        var step = currentPct < 70 ? 3 : currentPct < 90 ? 1 : 0.4;
+        currentPct = Math.min(95, currentPct + step);
+        barFill.style.width = currentPct + '%';
+        barPct.textContent  = Math.floor(currentPct) + '%';
+      }, 80);
+    }
+
+    if (cssClass === 'style-morph-text' && morphEl) {
+      morphEl.textContent = MORPH_TEXTS[0];
+      morphEl.className   = 'cf-pre-morph-text cf-morph-active';
+      morphTimer = setInterval(function () {
+        morphIdx = (morphIdx + 1) % MORPH_TEXTS.length;
+        morphEl.className = 'cf-pre-morph-text cf-morph-exit';
+        setTimeout(function () {
+          morphEl.textContent = MORPH_TEXTS[morphIdx];
+          morphEl.className   = 'cf-pre-morph-text cf-morph-enter';
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              morphEl.className = 'cf-pre-morph-text cf-morph-active';
+            });
+          });
+        }, 420);
+      }, 1600);
+    }
+  }
+
+  function tryHide() {
+    if (dismissed || !pl) return;
+    var elapsed = Date.now() - startedAt;
+    var delay   = Math.max(0, MIN_SHOW_MS - elapsed);
+    setTimeout(doHide, delay);
+  }
+
+  function doHide() {
+    if (dismissed || !pl) return;
+    dismissed = true;
+    clearInterval(barTimer);
+    clearInterval(morphTimer);
+
+    if (barFill) {
+      barFill.style.width = '100%';
+      if (barPct) barPct.textContent = '100%';
+    }
+
+    var isProgress = pl.classList.contains('style-progress-bar');
+    setTimeout(function () {
+      pl.classList.add('cf-pre--hidden');
+      setTimeout(function () {
+        if (pl && pl.parentNode) pl.parentNode.removeChild(pl);
+        var st = document.getElementById('cf-pre-style');
+        if (st && st.parentNode) st.parentNode.removeChild(st);
+      }, 600);
+    }, isProgress ? 350 : 0);
+  }
+
+})();
+
 
 
  function upgradeShopifyImageUrl(url, size) {
