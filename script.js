@@ -453,6 +453,17 @@ document.addEventListener('DOMContentLoaded', () => {
   var morphEl      = null;
   var currentPct   = 0;
 
+  // Filet de sécurité ABSOLU, indépendant du fetch products.data.json
+  // ci-dessous : sur réseau lent ou en échec, ce fetch peut ne jamais
+  // résoudre (ou résoudre très tard), et jusqu'ici applyStyle()/doHide()
+  // n'étaient programmés QUE dans son .then() — le preloader restait
+  // alors planté à l'écran indéfiniment. On force sa disparition au bout
+  // de 8s dans tous les cas, que le fetch ait répondu ou non.
+  setTimeout(function () {
+    pl = pl || document.getElementById('cf-preloader');
+    doHide();
+  }, 8000);
+
   fetch('/products.data.json')
     .then(function (r) { return r.json(); })
     .then(function (data) {
@@ -564,8 +575,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 420);
       }, 1600);
     }
-
-    setTimeout(doHide, 8000);
   }
 
   function tryHide() {
@@ -17837,10 +17846,10 @@ function injectColFbt() {
     '.col-card__media, .bbwpg-card__img-wrap, ' +
     '.cs-media, .rv-card__img-wrap, .fs-img-frame, .mini-media-slider, ' +
     '.cart-item-img-wrap, .cp-item-img-wrap, .drawer-extra-card__img-wrap, .cp-extra-card__img-wrap, ' +
-    '.highlight-product-card, .product-card, ' +
+    '.highlight-product-card, .product-card:not(.pdp-grid-card), ' +
     '.bbw-nb-card__media, .jrgq-gal-img-wrap, .imq-card, ' +
     '.col-hero__media, .col-qv-media, .cf-pc-img-wrap, ' +
-    '.main-image, .thumbnail-item';
+    '.pdp-grid-card__media, .main-image, .thumbnail-item';
   const IMG_WRAP_SELECTORS = '.col-rv-card__img, .col-fbt-card__img';
   /* Conteneurs mixtes (image + texte côte à côte, ex: flex) : on entoure
      seulement l'<img> d'un wrapper dédié, pour ne pas recouvrir le texte. */
@@ -18193,6 +18202,12 @@ function injectColFbt() {
     overlay.classList.add('active');
     overlay.setAttribute('aria-hidden', 'false');
     opened = true;
+    // Suspend les animations continues en arrière-plan (marquee infini,
+    // shimmer skeleton, etc. sur les pages collections) tant que le popup
+    // est ouvert — sur certains moteurs non-Chromium, ces animations en
+    // boucle combinées au rendu 3D du flip-book créent un conflit de
+    // repaint qui fait "couper et reprendre" les pages du popup.
+    document.body.classList.add('bbw-sets-popup-open');
 
     clearTimeout(autoOpenTimer);
     clearInterval(pageTurnTimer);
@@ -18205,6 +18220,7 @@ function injectColFbt() {
       overlay.classList.remove('active');
       overlay.setAttribute('aria-hidden', 'true');
     }
+    document.body.classList.remove('bbw-sets-popup-open');
     opened = false;
     clearTimeout(autoOpenTimer);
     clearInterval(pageTurnTimer);

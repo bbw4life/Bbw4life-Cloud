@@ -1212,6 +1212,16 @@
   will-change: transform, opacity, box-shadow;
 }
 
+/* Popup Sets ouvert : retire le will-change de TOUTES les cartes de la
+   grille pendant que le popup est affiché — sur certains moteurs
+   non-Chromium, un will-change actif sur potentiellement des dizaines/
+   centaines de cartes en simultané crée autant de contextes de
+   composition GPU, ce qui entre en conflit avec le rendu 3D (rotateY)
+   du flip-book et fait "couper et reprendre" ses pages. */
+body.bbw-sets-popup-open .col-product-card {
+  will-change: auto;
+}
+
 
 .col-product-card::before {
   content: '';
@@ -2855,6 +2865,17 @@
 
 .col-marquee-inner:hover { animation-play-state: paused; }
 
+/* Popup Sets ouvert (cf. script.js openSetsPopup/closeSetsPopup) :
+   suspend le marquee infini et retire son will-change pendant que le
+   popup est ouvert — sur certains moteurs non-Chromium, un will-change
+   actif en continu sur une animation infinie, combiné au rendu 3D
+   (rotateY) du flip-book du popup, provoque un conflit de repaint qui
+   fait "couper et reprendre" les pages du popup. */
+body.bbw-sets-popup-open .col-marquee-inner {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
 @keyframes colMarqueeScroll {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -3176,6 +3197,12 @@
 @keyframes acSkeletonShimmer {
   0%   { background-position: 100% 0; }
   100% { background-position: -100% 0; }
+}
+
+/* Même suspension que le marquee (cf. règle .col-marquee-inner ci-dessus)
+   pour le shimmer des skeletons pendant que le popup Sets est ouvert. */
+body.bbw-sets-popup-open [class*="skeleton"] {
+  animation-play-state: paused;
 }
 
 /* ----------------------------------------------------------------
