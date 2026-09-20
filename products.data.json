@@ -9270,7 +9270,7 @@
     "collapsible_order_summary": "yes",
     "header_search_always_visible": "yes",
     "flash_deal": { "hours": 10 },
-    "col_card_animations": { "enabled": "yes", "fadeSlideUp": "yes", "zoomFade": "no", "flipIn": "no", "slideLeft": "no", "slideRight": "no", "rotateIn": "no", "glowPop": "no" },
+    "col_card_animations": { "enabled": "no", "fadeSlideUp": "yes", "zoomFade": "no", "flipIn": "no", "slideLeft": "no", "slideRight": "no", "rotateIn": "no", "glowPop": "no" },
     "top_starter_products": {
       "label": "Best products to start",
       "product_ids": ["Pdg-Francenel-product1", "Pdg-Francenel-product2", "Pdg-Francenel-product7", "Pdg-Francenel-product8", "Pdg-Francenel-product9"]

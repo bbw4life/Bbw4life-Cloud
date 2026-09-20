@@ -11253,6 +11253,13 @@ body.sr-page .bbw-search-dropdown {
   .comm-reviews-grid { grid-template-columns: repeat(2, 1fr); }
   .comm-reviews-band { padding: 30px 10px 0; }
   .comm-reviews-band .bbw-wave-sep--reviews-out { margin-top: 36px; }
+
+  .comm-rev-card { padding: 12px; gap: 8px; }
+  .comm-rev-avatar { width: 32px; height: 32px; }
+  .comm-rev-name { font-size: 11.5px; }
+  .comm-rev-stars { font-size: 10px; }
+  .comm-rev-quote { font-size: 11.5px; line-height: 1.5; padding-left: 9px; }
+  .comm-rev-badge { font-size: 9px; padding: 3px 8px; }
 }
 
 
@@ -11270,6 +11277,18 @@ body.sr-page .bbw-search-dropdown {
 .comm-blog-section .bbw-wave-sep--reviews-out { margin-top: 50px; }
 
 .comm-blog-header { margin-bottom: 32px; }
+
+/* Description tronquée à 3 lignes avec "…" — seulement dans cette section
+   home (comm-blog-scroller), la vraie page /blog garde l'excerpt complet. */
+.comm-blog-scroller .blog-card-body p {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  flex: none !important;
+  max-height: calc(1.72em * 3);
+}
 
 /* Desktop : 4 colonnes fixes, une seule ligne */
 .comm-blog-scroller {
