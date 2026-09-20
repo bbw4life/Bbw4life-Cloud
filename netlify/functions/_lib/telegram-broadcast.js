@@ -50,20 +50,23 @@ async function getSettings() {
   }
 }
 
-/** Comptes avec un TelegramChatId rempli (colonne AK). */
+/** Comptes avec un TelegramChatId rempli (colonne AK). "gender" est 'woman',
+ *  'man' ou '' (non sélectionné — cf. menu envoyé après liaison Telegram,
+ *  save-account.js:sendGenderSelectMenu / colonne AL). */
 async function getTelegramSubscribers() {
   const sheets = getSheetsClient();
   const spreadsheetId = getAccountsSpreadsheetId();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
-    range: 'bbw4life-accounts!B:AK' // B=firstName ... AK=telegram_chat_id
+    range: 'bbw4life-accounts!B:AL' // B=firstName ... AK=telegram_chat_id, AL=gender
   });
   const rows = res.data.values || [];
   const subs = [];
   for (const row of rows) {
     const firstName = (row[0] || '').trim();  // B
     const chatId = (row[35] || '').trim();    // AK - B = index 35
-    if (chatId) subs.push({ firstName: firstName || 'there', chatId });
+    const gender = (row[36] || '').trim().toLowerCase(); // AL - B = index 36
+    if (chatId) subs.push({ firstName: firstName || 'there', chatId, gender });
   }
   return subs;
 }
@@ -124,10 +127,12 @@ async function setCursorValue(key, value) {
   }
 }
 
-/** Renvoie les 3 prochains produits du cycle "New Arrivals" et avance le curseur. */
-async function getNextNewArrivalsBatch(productIds, batchSize = 3) {
+/** Renvoie les 3 prochains produits du cycle "New Arrivals" et avance le curseur.
+ *  cursorKey optionnel : permet un curseur séparé par genre (men/women) plutôt
+ *  que de tous partager le même — défaut inchangé pour l'appel existant. */
+async function getNextNewArrivalsBatch(productIds, batchSize = 3, cursorKey = 'new_arrivals_cursor') {
   if (!productIds.length) return [];
-  const cursor = await getCursorValue('new_arrivals_cursor', 0);
+  const cursor = await getCursorValue(cursorKey, 0);
   const start = cursor % productIds.length;
 
   const batch = [];
@@ -136,7 +141,7 @@ async function getNextNewArrivalsBatch(productIds, batchSize = 3) {
   }
 
   const nextCursor = (start + batchSize) % productIds.length;
-  await setCursorValue('new_arrivals_cursor', nextCursor);
+  await setCursorValue(cursorKey, nextCursor);
 
   return batch;
 }

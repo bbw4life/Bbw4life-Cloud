@@ -8,19 +8,38 @@ const { hashPassword, verifyPassword, isHashedPassword } = require('./_lib/passw
 
 // ── Confirmation directe dans le fil Telegram du client (pas la Web App
 // elle-même) après signup_via_telegram / link_telegram — le message reste
-// visible dans son chat même s'il ferme la Web App tout de suite après. ──
-async function sendTelegramConfirmation(telegramChatId, text) {
+// visible dans son chat même s'il ferme la Web App tout de suite après.
+// replyMarkup optionnel (ex: menu Homme/Femme envoyé juste après). ──
+async function sendTelegramConfirmation(telegramChatId, text, replyMarkup) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token || !telegramChatId) return;
   try {
+    const payload = { chat_id: telegramChatId, text, parse_mode: 'HTML' };
+    if (replyMarkup) payload.reply_markup = replyMarkup;
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: telegramChatId, text, parse_mode: 'HTML' })
+      body: JSON.stringify(payload)
     });
   } catch (e) {
     console.warn('[sendTelegramConfirmation] failed:', e.message);
   }
+}
+
+// ── Menu de sélection Homme/Femme — envoyé une fois après la liaison
+// Telegram (signup ou compte existant). Boutons inline avec callback_data
+// gérés côté telegram-webhook.js (action ==== 'callback_query'). ──
+async function sendGenderSelectMenu(telegramChatId) {
+  await sendTelegramConfirmation(
+    telegramChatId,
+    "One last thing — so we can send you the right new arrivals 💛\n\nAre you shopping for yourself as a Queen or a King?",
+    {
+      inline_keyboard: [[
+        { text: '👗 Woman', callback_data: 'bbw_gender_woman' },
+        { text: '👔 Man', callback_data: 'bbw_gender_man' }
+      ]]
+    }
+  );
 }
 
 // ── Rate limiting pour request-password-reset — par email (fallback IP si
@@ -139,7 +158,7 @@ exports.handler = async (event) => {
       return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear().toString().slice(-2)}`;
     }
 
-    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: "bbw4life-accounts!A:AK" });
+    const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: "bbw4life-accounts!A:AL" });
     let rows = res.data.values || [];
     const rowIndex = rows.findIndex(row => normalize(row[2] || "") === normalize(email));
     const rowNum = rowIndex + 1;
@@ -638,6 +657,41 @@ exports.handler = async (event) => {
         resource: { values: [[String(telegramChatId)]] }
       });
 
+      // Compte déjà lié précédemment (colonne AL déjà remplie) → pas de
+      // menu redemandé, le client a déjà fait son choix une fois.
+      const genderAlreadySet = (rows[rowIndex][37] || '').trim(); // AL - A = index 37
+      if (!genderAlreadySet) {
+        await sendGenderSelectMenu(telegramChatId);
+      }
+
+      return { statusCode: 200, body: JSON.stringify({ success: true }) };
+    }
+
+    // ==================== TELEGRAM — SET GENDER (Woman/Man select) ====================
+    // Appelé par telegram-webhook.js quand le client clique un des deux
+    // boutons du menu envoyé après liaison (sendGenderSelectMenu ci-dessus).
+    // On ne connaît que le chat_id à ce stade (pas l'email) — recherche par
+    // colonne AK (index 36 depuis A) plutôt que par email comme le reste du
+    // fichier. Colonne AL = index 37.
+    if (action === 'set_telegram_gender') {
+      const { telegramChatId, gender } = body;
+      if (!telegramChatId || (gender !== 'woman' && gender !== 'man')) {
+        throw new Error("telegramChatId and a valid gender are required");
+      }
+
+      const genderRowIndex = rows.findIndex(row => (row[36] || '').trim() === String(telegramChatId));
+      if (genderRowIndex === -1) {
+        return { statusCode: 200, body: JSON.stringify({ success: false, error: 'ACCOUNT_NOT_FOUND' }) };
+      }
+
+      const genderRowNum = genderRowIndex + 1;
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `bbw4life-accounts!AL${genderRowNum}`,
+        valueInputOption: "RAW",
+        resource: { values: [[gender]] }
+      });
+
       return { statusCode: 200, body: JSON.stringify({ success: true }) };
     }
 
@@ -666,6 +720,12 @@ exports.handler = async (event) => {
           resource: { values: [[String(telegramChatId)]] }
         });
         await sendTelegramConfirmation(telegramChatId, "✅ You're all set! Your existing BBW4LIFE account is now linked to Telegram — order confirmations, tracking numbers, new arrivals and exclusive promos will be sent here.");
+
+        const genderAlreadySet = (rows[rowIndex][37] || '').trim(); // AL - A = index 37
+        if (!genderAlreadySet) {
+          await sendGenderSelectMenu(telegramChatId);
+        }
+
         return { statusCode: 200, body: JSON.stringify({ success: true, linkedExisting: true }) };
       }
 
@@ -700,6 +760,8 @@ exports.handler = async (event) => {
       });
 
       await sendTelegramConfirmation(telegramChatId, `🎉 Welcome to BBW4LIFE, ${normalize(firstName)}! Your account has been created successfully and is now linked to Telegram — order confirmations, tracking numbers, new arrivals and exclusive promos will be sent right here.`);
+
+      await sendGenderSelectMenu(telegramChatId);
 
       return { statusCode: 200, body: JSON.stringify({ success: true }) };
     }

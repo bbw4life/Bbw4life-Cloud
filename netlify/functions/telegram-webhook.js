@@ -97,6 +97,46 @@ async function sendTelegramMessage(chatId, text, replyMarkup) {
   }
 }
 
+/* Accuse réception d'un clic sur bouton inline — sans cet appel, Telegram
+   affiche un état "chargement" indéfini sur le bouton côté client. */
+async function answerCallbackQuery(callbackQueryId, text) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ callback_query_id: callbackQueryId, text: text || '' })
+    });
+  } catch (e) {
+    console.warn('[telegram-webhook] answerCallbackQuery failed:', e.message);
+  }
+}
+
+/* Clic sur le menu Homme/Femme (cf. sendGenderSelectMenu dans
+   save-account.js) — enregistre le choix colonne AL, sans jamais bloquer
+   le webhook si save-account échoue (best effort, comme le reste du fichier). */
+async function handleGenderCallback(telegramChatId, callbackQueryId, gender) {
+  try {
+    const res = await fetch(`${BASE_URL}/.netlify/functions/save-account`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'set_telegram_gender', telegramChatId: String(telegramChatId), gender })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (data && data.success) {
+      await answerCallbackQuery(callbackQueryId, 'Got it! 💛');
+      const label = gender === 'woman' ? 'Queen' : 'King';
+      await sendTelegramMessage(telegramChatId, `Perfect — you're all set as a ${label} 👑. We'll send new arrivals picked just for you.`);
+    } else {
+      await answerCallbackQuery(callbackQueryId, "We couldn't save that — please try again.");
+    }
+  } catch (e) {
+    console.error('[telegram-webhook] handleGenderCallback failed:', e.message);
+    await answerCallbackQuery(callbackQueryId, "Something went wrong — please try again.");
+  }
+}
+
 function decodeAccountPayload(payload) {
   try {
     let b64 = payload.slice('acct_'.length).replace(/-/g, '+').replace(/_/g, '/');
@@ -156,6 +196,22 @@ exports.handler = async (event) => {
 
   try {
     const update = JSON.parse(event.body || '{}');
+
+    // ── Clic sur un bouton inline (menu Homme/Femme) — update distinct de
+    // "message", géré en premier et retourné immédiatement. N'affecte pas
+    // le reste du handler (messages texte, /start, live chat). ──
+    if (update.callback_query) {
+      const cq = update.callback_query;
+      const cqData = cq.data || '';
+      const cqChatId = cq.message && cq.message.chat && cq.message.chat.id;
+      if (cqChatId && (cqData === 'bbw_gender_woman' || cqData === 'bbw_gender_man')) {
+        await handleGenderCallback(cqChatId, cq.id, cqData === 'bbw_gender_woman' ? 'woman' : 'man');
+      } else if (cq.id) {
+        await answerCallbackQuery(cq.id, '');
+      }
+      return { statusCode: 200, body: 'ok' };
+    }
+
     const text = (update.message && update.message.text) || '';
     const telegramChatId = update.message && update.message.chat && update.message.chat.id;
     if (!text) return { statusCode: 200, body: 'ok' };
