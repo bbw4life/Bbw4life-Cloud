@@ -11358,7 +11358,7 @@
       ]
     },
     "content_protection": { 
-      "disable_right_click": "ys", 
+      "disable_right_click": "yes", 
     "disable_text_selection": "yes", 
     "disable_image_download": "yes", 
     "disable_video_download": "yes", 
