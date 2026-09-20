@@ -1954,6 +1954,12 @@ function showErrorPopup(message) {
     /* Pages BBW Features (First Edition / Request) exclues — même liste que
        les autres exclusions produit de cette page. */
     const BBW_FEATURED_IDS_BXGX = [
+        'Pdg-Francenel-product150','Pdg-Francenel-product151','Pdg-Francenel-product152',
+        'Pdg-Francenel-product135','Pdg-Francenel-product136','Pdg-Francenel-product137',
+        'Pdg-Francenel-product138','Pdg-Francenel-product139','Pdg-Francenel-product140',
+        'Pdg-Francenel-product141','Pdg-Francenel-product142','Pdg-Francenel-product143',
+        'Pdg-Francenel-product144','Pdg-Francenel-product145','Pdg-Francenel-product146',
+        'Pdg-Francenel-product147','Pdg-Francenel-product148','Pdg-Francenel-product149',
         'Pdg-Francenel-product69','Pdg-Francenel-product70','Pdg-Francenel-product71',
         'Pdg-Francenel-product72','Pdg-Francenel-product73','Pdg-Francenel-product74',
         'Pdg-Francenel-product75',
@@ -2039,6 +2045,27 @@ function showErrorPopup(message) {
         if ((sb.show || 'Yes').toLowerCase() !== 'yes') {
           banner.style.display = 'none';
           return;
+        }
+
+        // Pages BBW Features (design "Vote For This Design", repérées via
+        // .bbw-heart-banner) : le CSS masque déjà ce banner par défaut
+        // (règle body:has(.bbw-heart-banner) #sanaica-banner-paul dans
+        // products.css) pour garantir zéro flash quel que soit ce setting.
+        // Ici on ne fait que le RÉAFFICHER si show_on_bbw_features==="yes" —
+        // jamais l'inverse, pour ne jamais court-circuiter la protection CSS.
+        const isBbwFeaturesPage = !!document.querySelector('.bbw-heart-banner');
+        if (isBbwFeaturesPage) {
+          const showOnBbwFeatures = (sb.show_on_bbw_features || 'yes').toLowerCase() === 'yes';
+          if (!showOnBbwFeatures) {
+            banner.style.display = 'none';
+            return;
+          }
+          // style.display='' seul ne suffit pas : la règle CSS statique
+          // body:has(.bbw-heart-banner) #sanaica-banner-paul {display:none}
+          // continue de s'appliquer (un style inline VIDE n'a aucune
+          // priorité sur une règle externe dont le sélecteur matche encore).
+          // Il faut une valeur explicite pour la contrer.
+          banner.style.display = 'block';
         }
 
         if (sb.video_url) {
@@ -3698,6 +3725,24 @@ function showErrorPopup(message) {
               'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
               'Pdg-Francenel-product133': 'mens-casual-suit-pants-mid-waist-straight',
               'Pdg-Francenel-product134': 'fashion-line-printing-round-neck-suit',
+              'Pdg-Francenel-product135': 'woven-colorblock-bbw4life-shirt-and-pants-set',
+              'Pdg-Francenel-product136': 'diagonal-zip-polo-and-bbw4life-jogger-set',
+              'Pdg-Francenel-product137': 'diagonal-zip-bbw4life-polo-and-shorts-set',
+              'Pdg-Francenel-product138': 'greek-key-bbw4life-baroque-shirt',
+              'Pdg-Francenel-product139': 'diagonal-zip-cable-knit-bbw4life-sweater',
+              'Pdg-Francenel-product140': 'tricolor-wave-bbw4life-crewneck-and-jogger-set',
+              'Pdg-Francenel-product141': 'suede-patch-bbw4life-hoodie-and-jogger-set',
+              'Pdg-Francenel-product142': 'gold-trim-bbw4life-leather-look-blazer',
+              'Pdg-Francenel-product143': 'guitar-and-treble-clef-bbw4life-shirt-and-pants-set',
+              'Pdg-Francenel-product144': 'diagonal-bbw4life-colorblock-tee-and-shorts-set',
+              'Pdg-Francenel-product145': 'quarter-zip-bbw4life-ribbed-sweater-dress',
+              'Pdg-Francenel-product146': 'quilted-bbw4life-pink-hoodie-and-jogger-set',
+              'Pdg-Francenel-product147': 'ombre-pleated-bbw4life-skirt-and-vest-set',
+              'Pdg-Francenel-product148': 'floral-embroidered-bbw4life-blazer-and-skirt-set',
+              'Pdg-Francenel-product149': 'floral-tulle-bbw4life-off-shoulder-gown',
+              'Pdg-Francenel-product150': 'striped-tie-front-bbw4life-shirt-and-pleated-wide-leg-pants-set',
+              'Pdg-Francenel-product151': 'diagonal-sash-bbw4life-pearl-button-maxi-dress',
+              'Pdg-Francenel-product152': 'sunflower-ankara-bbw4life-godet-maxi-dress',
             };
 
               // ── Récupérer les données du produit courant
@@ -3767,6 +3812,31 @@ function showErrorPopup(message) {
                 // Ouvrir via le bouton share
                 if (e.target.closest('#pp-share-btn')) {
                   e.stopPropagation();
+
+                  // ── Priorité au panneau de partage natif du téléphone (comme Shopify) ──
+                  // Disponible sur la plupart des mobiles (iOS Safari, Android Chrome) : ouvre
+                  // le vrai tiroir système avec toutes les apps installées (WhatsApp, Messages,
+                  // Instagram, Mail, AirDrop, etc.) sans qu'on ait à les lister nous-mêmes.
+                  // Sur desktop (généralement non supporté), on retombe sur notre menu custom.
+                  if (navigator.share) {
+                    const data = getShareData();
+                    if (data) {
+                      navigator.share({
+                        title: data.title,
+                        text: data.message,
+                        url: data.pageUrl
+                      }).catch(function(err) {
+                        // AbortError = l'utilisateur a juste fermé le panneau natif, rien à faire.
+                        // Toute autre erreur (API indisponible en pratique malgré la détection,
+                        // contexte non sécurisé, etc.) → repli sur notre menu custom.
+                        if (err && err.name !== 'AbortError') {
+                          openSharePopup();
+                        }
+                      });
+                      return;
+                    }
+                  }
+
                   openSharePopup();
                   return;
                 }
@@ -5400,14 +5470,14 @@ initAnnouncementBar();
           galObs.unobserve(e.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
 
     galItems.forEach(function(item, i) {
       item.style.opacity = '0';
       item.style.transform = 'translateY(30px) scale(0.95)';
       item.style.transition =
-        'opacity 0.65s ease ' + (i * 0.08) + 's, ' +
-        'transform 0.65s cubic-bezier(0.34,1.2,0.64,1) ' + (i * 0.08) + 's';
+        'opacity 0.4s ease ' + (i * 0.05) + 's, ' +
+        'transform 0.4s cubic-bezier(0.34,1.2,0.64,1) ' + (i * 0.05) + 's';
       galObs.observe(item);
     });
   }
@@ -5482,6 +5552,24 @@ initAnnouncementBar();
     'use strict';
 
     const BBW_FEATURED_IDS = [
+      'Pdg-Francenel-product150',
+      'Pdg-Francenel-product151',
+      'Pdg-Francenel-product152',
+      'Pdg-Francenel-product135',
+      'Pdg-Francenel-product136',
+      'Pdg-Francenel-product137',
+      'Pdg-Francenel-product138',
+      'Pdg-Francenel-product139',
+      'Pdg-Francenel-product140',
+      'Pdg-Francenel-product141',
+      'Pdg-Francenel-product142',
+      'Pdg-Francenel-product143',
+      'Pdg-Francenel-product144',
+      'Pdg-Francenel-product145',
+      'Pdg-Francenel-product146',
+      'Pdg-Francenel-product147',
+      'Pdg-Francenel-product148',
+      'Pdg-Francenel-product149',
       'Pdg-Francenel-product69',
       'Pdg-Francenel-product70',
       'Pdg-Francenel-product71',
@@ -5990,6 +6078,24 @@ initAnnouncementBar();
   'use strict';
 
   const BBW_FEATURED_IDS = [
+    'Pdg-Francenel-product150',
+    'Pdg-Francenel-product151',
+    'Pdg-Francenel-product152',
+    'Pdg-Francenel-product135',
+    'Pdg-Francenel-product136',
+    'Pdg-Francenel-product137',
+    'Pdg-Francenel-product138',
+    'Pdg-Francenel-product139',
+    'Pdg-Francenel-product140',
+    'Pdg-Francenel-product141',
+    'Pdg-Francenel-product142',
+    'Pdg-Francenel-product143',
+    'Pdg-Francenel-product144',
+    'Pdg-Francenel-product145',
+    'Pdg-Francenel-product146',
+    'Pdg-Francenel-product147',
+    'Pdg-Francenel-product148',
+    'Pdg-Francenel-product149',
     'Pdg-Francenel-product69',
     'Pdg-Francenel-product70',
     'Pdg-Francenel-product71',
@@ -6033,7 +6139,7 @@ initAnnouncementBar();
           const satcAddBtn = document.getElementById('satc-add-btn');
           if (satcAddBtn) {
             const newBtn = satcAddBtn.cloneNode(true);
-            newBtn.innerHTML = '<i class="fi fi-rr-shopping-bag"></i><span>Request This Product</span>';
+            newBtn.innerHTML = '<i class="fi fi-rr-shopping-bag"></i><span>Vote For This Design</span>';
             newBtn.addEventListener('click', () => {
               if (typeof window.openProductRequestPopup === 'function') window.openProductRequestPopup(pid);
             });
@@ -6045,7 +6151,7 @@ initAnnouncementBar();
           if (qtyWrapper && !qtyWrapper.querySelector('.bbw-featured-request-btn')) {
             const reqBtnInline = document.createElement('button');
             reqBtnInline.className = 'bbw-featured-request-btn';
-            reqBtnInline.innerHTML = '<i class="fi fi-rr-shopping-bag"></i> Request This Product';
+            reqBtnInline.innerHTML = '<i class="fi fi-rr-shopping-bag"></i> Vote For This Design';
             reqBtnInline.addEventListener('click', () => {
               if (typeof window.openProductRequestPopup === 'function') window.openProductRequestPopup(pid);
             });
@@ -6066,7 +6172,7 @@ initAnnouncementBar();
             const satcAddBtn = document.getElementById('satc-add-btn');
             if (satcAddBtn && !satcAddBtn.dataset.requestified) {
               satcAddBtn.dataset.requestified = '1';
-              satcAddBtn.innerHTML = '<i class="fi fi-rr-shopping-bag"></i><span>Request This Product</span>';
+              satcAddBtn.innerHTML = '<i class="fi fi-rr-shopping-bag"></i><span>Vote For This Design</span>';
               satcAddBtn.style.background = 'linear-gradient(135deg, #c0385e, #7b3f6e)';
               /* Supprimer l'ancien listener en clonant */
               const newSatcBtn = satcAddBtn.cloneNode(true);
@@ -8062,6 +8168,12 @@ if (rcCheckoutBtn) {
   // de jank pendant le scroll).
   const revealElements = document.querySelectorAll('[data-scroll-reveal]');
   if (revealElements.length && 'IntersectionObserver' in window) {
+    // rootMargin NÉGATIF en bas (-100px) rétrécissait la zone de détection :
+    // l'élément devait entrer 100px plus profondément dans le viewport avant
+    // de déclencher isIntersecting, retardant l'apparition — surtout visible
+    // sur les grandes sections (images pleine largeur, blocs entiers) qu'on
+    // pouvait presque dépasser en scrollant avant qu'elles s'affichent.
+    // rootMargin POSITIF anticipe au contraire le déclenchement.
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -8069,7 +8181,7 @@ if (rcCheckoutBtn) {
           revealObserver.unobserve(entry.target);
         }
       });
-    }, { rootMargin: '0px 0px -100px 0px' });
+    }, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
     revealElements.forEach(el => revealObserver.observe(el));
   }
 
@@ -8688,6 +8800,12 @@ document.dispatchEvent(new Event('wishlist:change'));
       if (bbwGlobeDrawer2) bbwGlobeDrawer2.style.display = 'flex';
 
      const BBW_FEATURED_IDS = [
+        'Pdg-Francenel-product150','Pdg-Francenel-product151','Pdg-Francenel-product152',
+        'Pdg-Francenel-product135','Pdg-Francenel-product136','Pdg-Francenel-product137',
+        'Pdg-Francenel-product138','Pdg-Francenel-product139','Pdg-Francenel-product140',
+        'Pdg-Francenel-product141','Pdg-Francenel-product142','Pdg-Francenel-product143',
+        'Pdg-Francenel-product144','Pdg-Francenel-product145','Pdg-Francenel-product146',
+        'Pdg-Francenel-product147','Pdg-Francenel-product148','Pdg-Francenel-product149',
         'Pdg-Francenel-product69','Pdg-Francenel-product70','Pdg-Francenel-product71',
         'Pdg-Francenel-product72','Pdg-Francenel-product73','Pdg-Francenel-product74',
         'Pdg-Francenel-product75',
@@ -8716,14 +8834,14 @@ document.dispatchEvent(new Event('wishlist:change'));
         const warningDot = isFeaturedWarning
           ? `<div class="cart-item-warning-dot">
               <span class="cart-item-warning-tooltip">
-                ⚠️ This product is not yet validated on our site. Please submit a request.
+                ⚠️ This design isn't released yet — cast your vote to help bring it to life.
               </span>
             </div>`
           : '';
 
         const requestBtn = isFeaturedWarning
           ? `<button class="cart-item-request-btn" data-product-id="${item.id}">
-              <i class="fi fi-rr-shopping-bag"></i> Request this product
+              <i class="fi fi-rr-shopping-bag"></i> Vote for this design
             </button>`
           : '';
 
@@ -9587,6 +9705,12 @@ document.dispatchEvent(new Event('wishlist:change'));
   const plansOn_ck  = (settings_ck.plans_available || 'no').toLowerCase().trim() === 'yes';
 
   const BBW_FEATURED_IDS_CK = [
+    'Pdg-Francenel-product150','Pdg-Francenel-product151','Pdg-Francenel-product152',
+    'Pdg-Francenel-product135','Pdg-Francenel-product136','Pdg-Francenel-product137',
+    'Pdg-Francenel-product138','Pdg-Francenel-product139','Pdg-Francenel-product140',
+    'Pdg-Francenel-product141','Pdg-Francenel-product142','Pdg-Francenel-product143',
+    'Pdg-Francenel-product144','Pdg-Francenel-product145','Pdg-Francenel-product146',
+    'Pdg-Francenel-product147','Pdg-Francenel-product148','Pdg-Francenel-product149',
     'Pdg-Francenel-product69','Pdg-Francenel-product70','Pdg-Francenel-product71',
     'Pdg-Francenel-product72','Pdg-Francenel-product73','Pdg-Francenel-product74',
     'Pdg-Francenel-product75',
@@ -9647,8 +9771,8 @@ function showCheckoutBlockPopup() {
       <div class="cbp-icon">🚫</div>
       <h3 class="cbp-title">Action Required</h3>
       <p class="cbp-msg">
-        Dear customer, your cart contains <strong>products that are not yet available</strong> on our site.<br><br>
-        Please <strong>remove the "Request" products</strong> from your cart before proceeding to checkout, or submit a request for them.
+        Dear customer, your cart contains <strong>designs that aren't released yet</strong> — they're still waiting for enough votes.<br><br>
+        Please <strong>remove these "Vote" items</strong> from your cart before checking out, or cast your vote for them instead.
       </p>
       <div class="cbp-actions">
         <button class="cbp-btn cbp-btn--close" id="cbp-close-btn">Got it, I'll remove them</button>
@@ -9859,6 +9983,24 @@ const BBW_WISHLIST_SLUG_MAP = {
   'Pdg-Francenel-product132': 'mens-large-size-casual-three-piece-set',
   'Pdg-Francenel-product133': 'mens-casual-suit-pants-mid-waist-straight',
   'Pdg-Francenel-product134': 'fashion-line-printing-round-neck-suit',
+  'Pdg-Francenel-product135': 'woven-colorblock-bbw4life-shirt-and-pants-set',
+  'Pdg-Francenel-product136': 'diagonal-zip-polo-and-bbw4life-jogger-set',
+  'Pdg-Francenel-product137': 'diagonal-zip-bbw4life-polo-and-shorts-set',
+  'Pdg-Francenel-product138': 'greek-key-bbw4life-baroque-shirt',
+  'Pdg-Francenel-product139': 'diagonal-zip-cable-knit-bbw4life-sweater',
+  'Pdg-Francenel-product140': 'tricolor-wave-bbw4life-crewneck-and-jogger-set',
+  'Pdg-Francenel-product141': 'suede-patch-bbw4life-hoodie-and-jogger-set',
+  'Pdg-Francenel-product142': 'gold-trim-bbw4life-leather-look-blazer',
+  'Pdg-Francenel-product143': 'guitar-and-treble-clef-bbw4life-shirt-and-pants-set',
+  'Pdg-Francenel-product144': 'diagonal-bbw4life-colorblock-tee-and-shorts-set',
+  'Pdg-Francenel-product145': 'quarter-zip-bbw4life-ribbed-sweater-dress',
+  'Pdg-Francenel-product146': 'quilted-bbw4life-pink-hoodie-and-jogger-set',
+  'Pdg-Francenel-product147': 'ombre-pleated-bbw4life-skirt-and-vest-set',
+  'Pdg-Francenel-product148': 'floral-embroidered-bbw4life-blazer-and-skirt-set',
+  'Pdg-Francenel-product149': 'floral-tulle-bbw4life-off-shoulder-gown',
+  'Pdg-Francenel-product150': 'striped-tie-front-bbw4life-shirt-and-pleated-wide-leg-pants-set',
+  'Pdg-Francenel-product151': 'diagonal-sash-bbw4life-pearl-button-maxi-dress',
+  'Pdg-Francenel-product152': 'sunflower-ankara-bbw4life-godet-maxi-dress',
 };
 // Exposé sur window : un `const` de niveau script n'est visible que dans
 // CE fichier — un autre <script> classique séparé (ex: collections.js,
@@ -16834,6 +16976,14 @@ startAutoSlide();
 (function() {
   'use strict';
 
+  // threshold bas (0.05) + rootMargin anticipé : avant, threshold:0.15 sans
+  // rootMargin exigeait que 15% de la HAUTEUR TOTALE de l'élément soit déjà
+  // visible pour se déclencher — sur les grands blocs (images pleine largeur,
+  // sections entières), ça demandait de scroller presque jusqu'à leur milieu
+  // avant que l'animation ne parte, donnant l'impression que la section
+  // "prend du temps" ou n'apparaît qu'en la dépassant presque. On déclenche
+  // maintenant dès qu'un petit bord de l'élément entre dans le viewport,
+  // avec une marge de 80px pour anticiper légèrement avant même l'entrée.
   var observer = new IntersectionObserver(function(entries) {
     entries.forEach(function(entry) {
       if (entry.isIntersecting) {
@@ -16841,7 +16991,7 @@ startAutoSlide();
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
 
   function init() {
     document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
@@ -16865,32 +17015,9 @@ startAutoSlide();
 (function initImageMarquee() {
 
   /* IDs des 20 produits : 10 gauche, 10 droite
-     Modifiez librement l'ordre */
-  var LEFT_IDS = [
-    'Pdg-Francenel-product84',
-    'Pdg-Francenel-product78',
-    'Pdg-Francenel-product12',
-    'Pdg-Francenel-product96',
-    'Pdg-Francenel-product80',
-    'Pdg-Francenel-product91',
-    'Pdg-Francenel-product22',
-    'Pdg-Francenel-product83',
-    'Pdg-Francenel-product39',
-    'Pdg-Francenel-product56'
-  ];
-
-  var RIGHT_IDS = [
-    'Pdg-Francenel-product109',
-    'Pdg-Francenel-product8',
-    'Pdg-Francenel-product13',
-    'Pdg-Francenel-product98',
-    'Pdg-Francenel-product107',
-    'Pdg-Francenel-product20',
-    'Pdg-Francenel-product85',
-    'Pdg-Francenel-product101',
-    'Pdg-Francenel-product64',
-    'Pdg-Francenel-product58'
-  ];
+     Lus depuis settings.image_marquee (products.data.json) — modifiez l'ordre là-bas */
+  var LEFT_IDS  = [];
+  var RIGHT_IDS = [];
 
   function getImg(url, size) {
     if (!url || typeof url !== 'string') return url;
@@ -17051,12 +17178,17 @@ startAutoSlide();
 
   function run(products) {
     var realProducts = products.filter(function(p) { return !p.type; });
+    var settings     = products.find(function(p) { return p.type === 'settings'; }) || {};
+    var imq          = settings.image_marquee || {};
+
+    var leftIds  = imq.left_product_ids  || LEFT_IDS;
+    var rightIds = imq.right_product_ids || RIGHT_IDS;
 
     var trackLeft  = document.getElementById('imqTrackLeft');
     var trackRight = document.getElementById('imqTrackRight');
 
-    fillTrack(trackLeft,  LEFT_IDS,  realProducts);
-    fillTrack(trackRight, RIGHT_IDS, realProducts);
+    fillTrack(trackLeft,  leftIds,  realProducts);
+    fillTrack(trackRight, rightIds, realProducts);
   }
 
   /* ── Attendre que products soit chargé ── */
@@ -17961,7 +18093,7 @@ function injectColFbt() {
     '.highlight-product-card, .product-card:not(.pdp-grid-card), ' +
     '.bbw-nb-card__media, .jrgq-gal-img-wrap, .imq-card, ' +
     '.col-hero__media, .col-qv-media, .cf-pc-img-wrap, ' +
-    '.pdp-grid-card__media, .main-image, .thumbnail-item';
+    '.pdp-grid-card__media, .main-image, .thumbnail-item, .blog-card-img-wrap';
   const IMG_WRAP_SELECTORS = '.col-rv-card__img, .col-fbt-card__img';
   /* Conteneurs mixtes (image + texte côte à côte, ex: flex) : on entoure
      seulement l'<img> d'un wrapper dédié, pour ne pas recouvrir le texte. */

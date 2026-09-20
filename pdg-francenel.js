@@ -24,14 +24,14 @@
 
       <div class="plan-popup-header">
         <div class="plan-popup-badge">
-          <i class="fi fi-rr-heart"></i> BBW4LIFE Originals — Custom Request
+          <i class="fi fi-rr-heart"></i> BBW4LIFE Originals — Not Released Yet
         </div>
         <div class="plan-popup-spots-row">
           <span class="plan-popup-spots-count" id="plan-spots-count">27</span>
-          <span class="plan-popup-spots-label">requests open this week</span>
+          <span class="plan-popup-spots-label">women voted for this design this week</span>
         </div>
-        <h2 id="plan-popup-title">Request Your Custom Product</h2>
-        <p>Tell us what you want — our team prepares your order within 24–48h and contacts you with confirmation.</p>
+        <h2 id="plan-popup-title">This Design Isn't Out Yet — You Decide If It Should Be</h2>
+        <p>Every BBW4LIFE Original starts as a design waiting for votes. Cast yours, tell us your size and color, and if enough women want it, it goes into production — reach out and we'll bring it to life for you first.</p>
       </div>
 
       <div class="plan-popup-body">
@@ -45,16 +45,16 @@
             <img src="https://cdn.shopify.com/s/files/1/0978/0353/4627/files/Customer_plan_4.png?v=1776041171" alt="">
             <img src="https://cdn.shopify.com/s/files/1/0978/0353/4627/files/Customer_plan_5.png?v=1776041141" alt="">
           </div>
-          <span><strong>8 women</strong> submitted a request in the last 24h</span>
+          <span><strong>8 women</strong> voted for this design in the last 24h</span>
         </div>
 
         
         <div class="plan-popup-price-block">
           <div class="plan-popup-price-inner">
             <div class="plan-popup-price-left">
-              <span class="plan-popup-price-label">Reservation fee</span>
+              <span class="plan-popup-price-label">Your Vote Fee</span>
               <span class="plan-popup-price-value plan-reservation-price-label">...</span>
-              <span class="plan-popup-price-note">Deducted from your product price</span>
+              <span class="plan-popup-price-note">Deducted from your product price if it's chosen</span>
             </div>
             <div class="plan-popup-price-badge">
               <i class="fi fi-rr-shield-check"></i>
@@ -84,9 +84,9 @@
 
           
           <div class="plan-form-group plan-form-group--full">
-            <label for="plan-program">Desired Product *</label>
+            <label for="plan-program">Which Design Are You Voting For? *</label>
             <select id="plan-program">
-              <option value="" disabled selected>Choose a product...</option>
+              <option value="" disabled selected>Choose the design...</option>
               
             </select>
           </div>
@@ -113,8 +113,8 @@
         <div class="plan-checkbox-wrap">
           <input type="checkbox" id="plan-consent">
           <label for="plan-consent">
-            <strong>I want to reserve this product at BBW4LIFE.</strong>
-            I agree to be contacted by the team within 24–48h. The <span class="plan-reservation-price-label">...</span> reservation fee will be deducted from my total.
+            <strong>I want this design made at BBW4LIFE.</strong>
+            I agree to be contacted by the team within 24–48h. The <span class="plan-reservation-price-label">...</span> vote fee will be deducted from my total if this design goes into production.
           </label>
         </div>
 
@@ -122,7 +122,7 @@
 
         <button class="plan-submit-btn" id="plan-submit-btn">
           <i class="fi fi-rr-credit-card"></i>
-          Continue to Payment
+          Cast My Vote
         </button>
 
         <p class="plan-privacy-note">
@@ -142,18 +142,18 @@
       <div class="plan-popup-header plan-popup-header--payment">
         <i class="fi fi-rr-lock plan-lock-icon"></i>
         <h2>Choose Payment Method</h2>
-        <p>Secure <span class="plan-reservation-price-label">...</span> reservation — processed via your chosen provider.</p>
+        <p>Secure <span class="plan-reservation-price-label">...</span> vote fee — processed via your chosen provider.</p>
       </div>
 
       <div class="plan-popup-body">
 
-        
+
         <div class="plan-popup-summary-strip">
           <i class="fi fi-rr-check-circle"></i>
           <div>
             <strong id="plan-pay-program-name">Product</strong>
             <span id="plan-pay-variant-summary"></span>
-            <span>Reservation: <span class="plan-reservation-price-label">...</span> · Deducted from price</span>
+            <span>Vote fee: <span class="plan-reservation-price-label">...</span> · Deducted from price</span>
           </div>
         </div>
 
@@ -188,7 +188,7 @@
 
         <button class="plan-submit-btn" id="plan-pay-btn">
           <i class="fi fi-rr-lock"></i>
-          Pay <span class="plan-reservation-price-label">...</span> — Reserve My Product
+          Pay <span class="plan-reservation-price-label">...</span> — Confirm My Vote
         </button>
 
         <button class="plan-back-btn" id="plan-back-btn">
@@ -210,11 +210,11 @@
             <i class="fi fi-rr-check"></i>
           </div>
         </div>
-        <h2 class="plan-thanks-title">Your request is confirmed! 🌸</h2>
-        <p class="plan-thanks-sub" id="plan-thanks-name">Welcome, Maria!</p>
+        <h2 class="plan-thanks-title">Your vote counts! 🌸</h2>
+        <p class="plan-thanks-sub" id="plan-thanks-name">Thank you, Maria!</p>
         <p class="plan-thanks-msg">
-          Your <span class="plan-reservation-price-label">...</span> reservation is confirmed and will be deducted from your product price.
-          A BBW4LIFE team member will contact you within <strong>24–48 hours</strong> to finalize your custom order.
+          Your vote is in — and your <span class="plan-reservation-price-label">...</span> fee is confirmed, fully deducted from your product price the moment this design is chosen.
+          A BBW4LIFE team member will reach out within <strong>24–48 hours</strong> to keep you posted.
         </p>
         <div class="plan-thanks-program-badge" id="plan-thanks-program-badge">
           <i class="fi fi-rr-shopping-bag"></i>
@@ -227,7 +227,7 @@
           </div>
           <div class="plan-thanks-detail-item">
             <i class="fi fi-rr-headset"></i>
-            <span>Our team contacts you within 24–48h</span>
+            <span>Our team keeps you posted within 24–48h</span>
           </div>
           <div class="plan-thanks-detail-item">
             <i class="fi fi-rr-dollar"></i>
@@ -236,7 +236,7 @@
         </div>
         <p class="plan-thanks-marketing-msg">
           <i class="fi fi-rr-sparkles"></i>
-          Discover our full BBW4LIFE collection — fashion, beauty and swimwear designed for every beautiful curve.
+          While this design waits for more votes, discover what's already live — fashion, beauty and swimwear designed for every beautiful curve.
         </p>
         <a href="/collections/bbw4life-all-product.html" class="plan-close-thanks-btn" id="plan-close-thanks">
           <i class="fi fi-rr-heart"></i>

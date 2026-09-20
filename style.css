@@ -8314,6 +8314,8 @@ body.sr-page .bbw-search-dropdown {
   background: #fff !important;
   box-shadow: 0 12px 40px rgba(21,17,14,0.10);
   transition: transform 0.4s ease;
+  padding-top: 10px;
+  box-sizing: border-box;
 }
 .fs-img-frame:hover {
   transform: translateY(-4px);
@@ -11248,9 +11250,113 @@ body.sr-page .bbw-search-dropdown {
   .comm-reviews-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-  .comm-reviews-grid { grid-template-columns: 1fr; }
+  .comm-reviews-grid { grid-template-columns: repeat(2, 1fr); }
   .comm-reviews-band { padding: 30px 10px 0; }
   .comm-reviews-band .bbw-wave-sep--reviews-out { margin-top: 36px; }
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   HOME — "FROM THE JOURNAL" — 4 cartes blog (réutilise .blog-card
+   de /blog/blog.css pour un rendu visuel identique à la page blog)
+══════════════════════════════════════════════════════════════ */
+.comm-blog-section {
+  background: #fff;
+  padding: 44px 10px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.comm-blog-section .bbw-wave-sep--reviews-out { margin-top: 50px; }
+
+.comm-blog-header { margin-bottom: 32px; }
+
+/* Desktop : 4 colonnes fixes, une seule ligne */
+.comm-blog-scroller {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.comm-blog-cta {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.comm-blog-cta-btn {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--bbw-gold, #c9963e);
+  background: #15110E;
+  background-size: 200% auto;
+  border: 1px solid var(--bbw-gold, #c9963e);
+  border-radius: 100px;
+  padding: 15px 32px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-position 0.45s ease, transform 0.25s ease, box-shadow 0.30s ease;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.08) inset;
+  position: relative;
+  overflow: hidden;
+}
+.comm-blog-cta-btn::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -80%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  animation: comm-blog-cta-shimmer 2.8s ease-in-out infinite;
+  pointer-events: none;
+}
+.comm-blog-cta-btn:hover {
+  background-position: right center;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.48);
+  color: var(--bbw-gold-light, #e8bc6a);
+}
+.comm-blog-cta-btn:active {
+  transform: scale(0.97);
+}
+@keyframes comm-blog-cta-shimmer {
+  0%   { left: -80%; }
+  100% { left: 130%; }
+}
+
+@media (max-width: 1100px) {
+  .comm-blog-scroller { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .comm-blog-section { padding: 30px 0 0; }
+  .comm-blog-section .bbw-wave-sep--reviews-out { margin-top: 36px; }
+
+  /* Mobile : rangée horizontale scrollable, ~1.5 carte visible,
+     barre de scroll masquée (le geste swipe reste actif) */
+  .comm-blog-scroller {
+    display: flex;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 14px;
+    padding: 0 10px 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* IE/Edge legacy */
+  }
+  .comm-blog-scroller::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+  .comm-blog-scroller .blog-card {
+    flex: 0 0 66%;
+    scroll-snap-align: start;
+  }
+
+  .comm-blog-cta { padding: 0 10px; }
 }
 
 
@@ -12577,7 +12683,7 @@ body.sr-page .bbw-search-dropdown {
 .reveal {
   opacity: 0;
   transform: translateY(40px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .reveal.visible {
   opacity: 1;
@@ -12586,7 +12692,7 @@ body.sr-page .bbw-search-dropdown {
 .reveal-left {
   opacity: 0;
   transform: translateX(-40px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .reveal-left.visible {
   opacity: 1;
@@ -12595,7 +12701,7 @@ body.sr-page .bbw-search-dropdown {
 .reveal-right {
   opacity: 0;
   transform: translateX(40px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 .reveal-right.visible {
   opacity: 1;

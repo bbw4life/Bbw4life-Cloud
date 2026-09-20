@@ -8,7 +8,7 @@
 [data-scroll-reveal] {
     opacity: 0;
     transform: translateY(28px);
-    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1);
 }
 [data-scroll-reveal].revealed {
     opacity: 1;
@@ -4849,6 +4849,16 @@ details[open] .chevron {
 
 
  
+
+/* Pages BBW Features (design "Vote For This Design", identifiées par
+   .bbw-heart-banner — présent uniquement sur ces 38 pages) : le sanaica
+   banner est masqué par défaut au niveau CSS, AVANT tout JS, pour garantir
+   zéro flash quel que soit le setting sanaica_banner.show_on_bbw_features.
+   Le JS (initSanaicaBanner dans script.js) le réaffiche explicitement
+   seulement si ce setting vaut "yes" — voir script.js. */
+body:has(.bbw-heart-banner) #sanaica-banner-paul {
+    display: none;
+}
 
 #sanaica-banner-paul {
     position: relative;
