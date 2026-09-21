@@ -11150,29 +11150,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('paul-login-btn');
   if (loginBtn) {
     loginBtn.addEventListener('click', async () => {
-      const emailInput     = loginForm.querySelector('input[type="email"]');
-      const passwordInput  = loginForm.querySelector('input[placeholder*="Password"], input[type="password"], #login-password');
-      const email         = emailInput ? emailInput.value.trim() : '';
+      const email         = loginForm.querySelector('input[type="email"]').value.trim();
+      const passwordInput = loginForm.querySelector('input[placeholder*="Password"], input[type="password"], #login-password');
       const password      = passwordInput ? passwordInput.value.trim() : '';
       if (!email || !password) { window.showToast("Email and password required"); return; }
       const originalText = loginBtn.textContent;
       loginBtn.textContent = "Checking..."; loginBtn.disabled = true;
-
-      // Un seul retry silencieux en cas d'échec — protège contre un faux négatif
-      // dû à l'autofill du navigateur (Chrome/Safari peuvent remplir le champ
-      // juste après le clic initial, ou une latence de lecture ponctuelle côté
-      // Google Sheets) sans jamais valider un mauvais mot de passe : on ne
-      // retente qu'avec exactement les mêmes identifiants déjà lus plus haut.
-      async function attemptLogin() {
-        const res  = await fetch('/.netlify/functions/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-        return res.json();
-      }
-
       try {
-        let data = await attemptLogin();
-        if (!data.success && data.error !== 'EMAIL_NOT_CONFIRMED') {
-          data = await attemptLogin();
-        }
+        const res  = await fetch('/.netlify/functions/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const data = await res.json();
         if (data.success) {
           loginBtn.textContent = "Your account Loading...";
           localStorage.setItem('isLoggedIn', 'true');
