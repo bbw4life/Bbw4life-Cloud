@@ -10014,6 +10014,16 @@ window.BBW_WISHLIST_SLUG_MAP = BBW_WISHLIST_SLUG_MAP;
 // ================================================================
 (function initWishlistShare() {
 
+    // N'affiche le bouton "partage natif" que si l'appareil le supporte
+    // réellement (mobiles surtout) — resté masqué (display:none, style.css)
+    // sur desktop pour ne pas afficher un bouton inutile à côté des autres.
+    // widgets-loader.js injecte ce modal en synchrone avant l'exécution de
+    // script.js, l'élément existe donc déjà ici.
+    const wishlistShareNativeBtn = document.getElementById('wishlist-share-native');
+    if (wishlistShareNativeBtn && navigator.share) {
+        wishlistShareNativeBtn.style.display = 'flex';
+    }
+
     function buildProductUrl(id) {
         const slug = BBW_WISHLIST_SLUG_MAP[id];
         return slug
@@ -10076,6 +10086,27 @@ window.BBW_WISHLIST_SLUG_MAP = BBW_WISHLIST_SLUG_MAP;
 
         const shareUrl = buildShareUrl();
         const message  = buildShareMessage(platform);
+
+        // ── Panneau de partage natif du téléphone (même système que les
+        // pages produit, cf. initProductShare plus haut dans ce fichier) —
+        // priorité sur mobile ; sans fallback popup séparé ici, le client
+        // est déjà dans le wishlist modal qui liste les autres options. ──
+        if (platform === 'native') {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My BBW4LIFE Wishlist',
+                    text: message || shareUrl,
+                    url: shareUrl
+                }).catch(err => {
+                    if (err && err.name !== 'AbortError') {
+                        showShareToast('Could not open the share panel.');
+                    }
+                });
+            } else {
+                showShareToast('Share not supported on this device — try Copy Link.');
+            }
+            return;
+        }
 
         const urls = {
           whatsapp:  `https://wa.me/?text=${encodeURIComponent(message)}`,
@@ -12583,7 +12614,7 @@ function loadProfilePhoto() {
 
   window.logout = () => {
     localStorage.clear();
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
   };
 
 

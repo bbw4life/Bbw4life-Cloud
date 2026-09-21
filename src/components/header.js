@@ -1073,18 +1073,15 @@
     const allProducts = window.__allProducts || [];
     const settings     = allProducts.find(p => p.type === 'settings') || {};
 
-    const jackpot  = settings.jackpot_reward_amount || 150;
-    const shipping = (settings.cart_drawer && settings.cart_drawer.free_shipping_threshold) || 140;
-
-    const affiliateEl = document.getElementById('promoBarAffiliate');
-    const shippingEl   = document.getElementById('promoBarShipping');
-
-    if (affiliateEl) {
-      affiliateEl.innerHTML = `<a href="/account.html" class="promo-bar__link">Become an Affiliate</a> — Earn Per Click + a $${jackpot} Jackpot Bonus`;
-    }
-    if (shippingEl) {
-      shippingEl.innerHTML = `Free shipping on orders over $${shipping}! Need help? <a href="/page/contact.html" class="promo-bar__link">Contact Us</a>`;
-    }
+    // Le texte est déjà dans le HTML (header.html) — on n'injecte que la
+    // valeur du setting, même pattern que .hdr-free-shipping-threshold /
+    // .hdr-loyalty-points (script.js). .hdr-free-shipping-threshold à
+    // l'intérieur de promoBarShipping est déjà couvert par ces scripts,
+    // pas besoin de le refaire ici.
+    const jackpot = settings.jackpot_reward_amount || 150;
+    document.querySelectorAll('.promo-bar-jackpot').forEach(el => {
+      el.textContent = jackpot;
+    });
 
     syncPromoBarHeight();
     requestAnimationFrame(syncPromoBarHeight);

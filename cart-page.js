@@ -1141,6 +1141,14 @@
     const shareCopyBtn  = document.getElementById('cp-share-modal-copy');
     const shareBtn      = document.getElementById('cpShareCartBtn');
     const copyLinkBtn   = document.getElementById('cp-copy-link');
+    const shareNativeBtn = document.getElementById('cp-share-native');
+
+    // N'affiche le bouton "partage natif" que si l'appareil le supporte
+    // réellement (mobiles surtout) — resté masqué (display:none, cart.css)
+    // sur desktop pour ne pas afficher un bouton inutile à côté des autres.
+    if (shareNativeBtn && navigator.share) {
+      shareNativeBtn.style.display = 'flex';
+    }
 
     function buildCartShareUrl() {
       var cart = getCart();
@@ -1234,6 +1242,26 @@
 
       var shareUrl = buildCartShareUrl();
       var message  = buildShareMessage(platform);
+
+      // ── Panneau de partage natif du téléphone (même système que les
+      // pages produit, cf. script.js initProductShare) — priorité sur
+      // mobile, fallback sur notre menu custom si indisponible/échoue. ──
+      if (platform === 'native') {
+        if (navigator.share) {
+          navigator.share({
+            title: 'My BBW4LIFE Cart',
+            text: buildShareMessage('whatsapp') || message,
+            url: shareUrl
+          }).catch(function (err) {
+            if (err && err.name !== 'AbortError') {
+              openModal();
+            }
+          });
+        } else {
+          openModal();
+        }
+        return;
+      }
 
       var platformUrls = {
         whatsapp:  'https://wa.me/?text=' + encodeURIComponent(message),

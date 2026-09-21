@@ -190,6 +190,7 @@
         <button class="wishlist-share-btn wishlist-share-btn--tw" data-wishlist-share="twitter" title="Share on X / Twitter"><i class="fab fa-x-twitter"></i></button>
         <button class="wishlist-share-btn wishlist-share-btn--ig" data-wishlist-share="instagram" title="Copy link for Instagram"><i class="fab fa-instagram"></i></button>
         <button class="wishlist-share-btn wishlist-share-btn--pi" data-wishlist-share="pinterest" title="Share on Pinterest"><i class="fab fa-pinterest-p"></i></button>
+        <button class="wishlist-share-btn wishlist-share-btn--native" id="wishlist-share-native" data-wishlist-share="native" title="Share"><i class="fi fi-rr-share"></i></button>
       </div>
     </div>
   </div>

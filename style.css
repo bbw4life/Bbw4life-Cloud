@@ -1401,11 +1401,6 @@ body {
         transparent 100%);
     z-index: 100;
 }
-@keyframes topBarShimmer {
-    0%   { background-position: -200% 0; opacity: 0.9; }
-    50%  { background-position: 0% 0;    opacity: 1; }
-    100% { background-position: 200% 0;  opacity: 0.9; }
-}
 
 
 .cart-drawer::after {
@@ -3415,6 +3410,13 @@ body {
 .wishlist-share-btn--pi::before  { background: #e60023; }
 .wishlist-share-btn--pi:hover  { color: #fff; }
 
+/* Panneau de partage natif du téléphone — masqué par défaut, révélé en JS
+   uniquement si navigator.share est disponible (cf. script.js
+   initWishlistShare), même logique que .cp-share-btn--native (cart.css). */
+.wishlist-share-btn--native { display: none; color: var(--bbw-plum, #6E2439); }
+.wishlist-share-btn--native::before { background: var(--bbw-plum, #6E2439); }
+.wishlist-share-btn--native:hover { color: #fff; }
+
 .wishlist-share-btn i {
   position: relative;
   z-index: 1;
@@ -4367,12 +4369,6 @@ body {
 
 #bbw-widgets-dock-toggle:hover {
     transform: scale(1.08);
-}
-
-@keyframes topBarShimmer {
-    0%   { background-position: -200% 0; opacity: 0.8; }
-    50%  { background-position: 0% 0;    opacity: 1; }
-    100% { background-position: 200% 0;  opacity: 0.8; }
 }
 
 @keyframes popupAnim {
@@ -7660,7 +7656,7 @@ body {
    vide au-dessus de lui pendant le chargement. Le margin le remonte pour
    qu'il occupe exactement l'espace réservé par ce padding. */
 .skel-header-placeholder {
-  height: calc(var(--ann-bar-h, 40px) + var(--bbw-header-h, 84px));
+  height: calc(var(--ann-bar-h, 40px) + var(--promo-bar-h, 27px) + var(--bbw-header-h, 84px));
   margin-top: calc(-1 * var(--bbw-total-top, 187px));
   background: var(--bbw-black, #15110E);
   display: flex;
@@ -7669,6 +7665,11 @@ body {
 .skel-header-placeholder__ann {
   height: var(--ann-bar-h, 40px);
   flex-shrink: 0;
+}
+.skel-header-placeholder__promo {
+  height: var(--promo-bar-h, 27px);
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.03);
 }
 .skel-header-placeholder__main {
   flex: 1;
@@ -10642,7 +10643,7 @@ body.sr-page .bbw-search-dropdown {
     position: absolute;
     bottom: 0;
     fill: #0d0d0d;
-    animation: wave-slide 10s linear infinite;
+    animation: divider-wave-slide 10s linear infinite;
 }
 #divider-wave .wave {
     fill: #0d0d0d;
@@ -10652,7 +10653,7 @@ body.sr-page .bbw-search-dropdown {
     opacity: 0.45;
 }
 
-@keyframes wave-slide {
+@keyframes divider-wave-slide {
     0% { transform: translateX(-50%); }
     100% { transform: translateX(0); }
 }

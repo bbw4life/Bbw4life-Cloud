@@ -679,8 +679,13 @@ exports.handler = async (event) => {
         throw new Error("telegramChatId and a valid gender are required");
       }
 
-      const genderRowIndex = rows.findIndex(row => (row[36] || '').trim() === String(telegramChatId));
+      const wantedChatId = String(telegramChatId).trim();
+      const genderRowIndex = rows.findIndex(row => String(row[36] || '').trim() === wantedChatId);
       if (genderRowIndex === -1) {
+        console.error(
+          '[set_telegram_gender] ACCOUNT_NOT_FOUND — wanted:', JSON.stringify(wantedChatId),
+          '| AK values in sheet:', JSON.stringify(rows.map(r => r[36]).filter(Boolean))
+        );
         return { statusCode: 200, body: JSON.stringify({ success: false, error: 'ACCOUNT_NOT_FOUND' }) };
       }
 

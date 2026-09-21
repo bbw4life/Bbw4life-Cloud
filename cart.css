@@ -912,7 +912,8 @@
 .cp-share-btn--wa,
 .cp-share-btn--fb,
 .cp-share-btn--tw,
-.cp-share-btn--pi {
+.cp-share-btn--pi,
+.cp-share-btn--native {
   width: 36px; height: 36px;
   padding: 0;
   display: flex;
@@ -920,6 +921,13 @@
   justify-content: center;
   border-radius: 50%;
   font-size: 0.90rem;
+}
+
+/* Panneau de partage natif du téléphone — masqué par défaut, révélé en JS
+   uniquement si navigator.share est disponible (cf. cart-page.js
+   initShareCart) pour ne jamais afficher un bouton inutile sur desktop. */
+.cp-share-btn--native {
+  display: none;
 }
 
 /* ================================================================

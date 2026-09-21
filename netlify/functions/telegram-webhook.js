@@ -129,6 +129,7 @@ async function handleGenderCallback(telegramChatId, callbackQueryId, gender) {
       const label = gender === 'woman' ? 'Queen' : 'King';
       await sendTelegramMessage(telegramChatId, `Perfect — you're all set as a ${label} 👑. We'll send new arrivals picked just for you.`);
     } else {
+      console.error('[telegram-webhook] set_telegram_gender failed, status:', res.status, 'body:', JSON.stringify(data));
       await answerCallbackQuery(callbackQueryId, "We couldn't save that — please try again.");
     }
   } catch (e) {
