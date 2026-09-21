@@ -8715,11 +8715,14 @@ window.__bbwRestoreSavedCart = async function (userEmail, token) {
         if (typeof window.updateCartQuantityInSheet === 'function') window.updateCartQuantityInSheet();
       }
 
-      // Petit délai pour s'assurer que les fonctions sont disponibles
+      // Petit délai pour s'assurer que les fonctions sont disponibles —
+      // réduit de 800ms à 150ms (updateBadges est en pratique déjà chargée
+      // à ce stade dans l'immense majorité des cas, ce délai n'était qu'une
+      // marge de sécurité excessive).
       if (typeof window.updateBadges === 'function') {
         applyCartToUI();
       } else {
-        setTimeout(applyCartToUI, 800);
+        setTimeout(applyCartToUI, 150);
       }
 
     } catch (e) {
@@ -11172,17 +11175,21 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('userAddress', addressStr || 'No default address set');
 
           await new Promise((resolve) => {
+            // __bbwRestoreSavedCart est assignée à window dès que script.js a
+            // fini de s'exécuter (donc déjà là dans l'immense majorité des cas)
+            // — intervalle court et plafond réduit, ce plafond ne sert que de
+            // filet de sécurité si ce script tarde exceptionnellement à charger.
             let tries = 0;
             const waitForRestore = setInterval(() => {
               tries++;
               if (typeof window.__bbwRestoreSavedCart === 'function') {
                 clearInterval(waitForRestore);
                 window.__bbwRestoreSavedCart(email, data.token).then(resolve).catch(resolve);
-              } else if (tries > 50) {
+              } else if (tries > 30) {
                 clearInterval(waitForRestore);
                 resolve();
               }
-            }, 100);
+            }, 30);
           });
 
           // Force refresh badge items in cart après restore
