@@ -47,9 +47,16 @@ function getProductIds(collections, collectionId) {
 }
 
 async function sendBatchToSubscriber(sub, batchProducts, promo, collectionUrl) {
+  // Adresse le message au genre choisi (colonne AL) quand il est connu —
+  // "Queens" pour woman, "Kings" pour man ; garde "Queens and Kings" pour
+  // les abonnés qui n'ont pas encore fait de choix.
+  const audience =
+    sub.gender === 'woman' ? 'Queens' :
+    sub.gender === 'man'   ? 'Kings'  :
+    'Queens and Kings';
   const intro =
     `Hey ${sub.firstName} 💛\n\n` +
-    `We just dropped fresh new pieces for our plus size Queens and Kings — ` +
+    `We just dropped fresh new pieces for our plus size ${audience} — ` +
     `quality, comfort and style made for you.`;
   await sendTelegramMessage(sub.chatId, intro);
 

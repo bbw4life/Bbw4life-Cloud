@@ -61,14 +61,28 @@ async function getTelegramSubscribers() {
     range: 'bbw4life-accounts!B:AL' // B=firstName ... AK=telegram_chat_id, AL=gender
   });
   const rows = res.data.values || [];
-  const subs = [];
+  // Déduplique par chatId : si le même chat Telegram apparaît sur plusieurs
+  // lignes (compte relié plusieurs fois, ou doublon de ligne), cette
+  // personne recevait un envoi PAR ligne trouvée dans send-telegram-new-
+  // arrivals.js — une fois avec ses produits ciblés (genre rempli sur
+  // cette ligne) et une fois avec le lot générique (genre vide sur
+  // l'autre ligne). Une seule entrée par chatId désormais, en gardant le
+  // genre dès qu'une des lignes le fournit.
+  const byChatId = new Map();
   for (const row of rows) {
     const firstName = (row[0] || '').trim();  // B
     const chatId = (row[35] || '').trim();    // AK - B = index 35
     const gender = (row[36] || '').trim().toLowerCase(); // AL - B = index 36
-    if (chatId) subs.push({ firstName: firstName || 'there', chatId, gender });
+    if (!chatId) continue;
+
+    const existing = byChatId.get(chatId);
+    if (!existing) {
+      byChatId.set(chatId, { firstName: firstName || 'there', chatId, gender });
+    } else if (!existing.gender && gender) {
+      existing.gender = gender;
+    }
   }
-  return subs;
+  return Array.from(byChatId.values());
 }
 
 async function ensureCursorSheet(sheets, spreadsheetId) {
