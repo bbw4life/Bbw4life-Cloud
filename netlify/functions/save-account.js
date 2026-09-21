@@ -26,22 +26,57 @@ async function sendTelegramConfirmation(telegramChatId, text, replyMarkup) {
   }
 }
 
+// ── Agrandit la grille de bbw4life-accounts si elle n'a pas encore assez
+// de colonnes pour AL (38) — la feuille a été créée avec 37 colonnes max
+// (A:AK), donc toute écriture en AL échouait avec "Range exceeds grid
+// limits" tant que la grille elle-même n'était pas élargie. Idempotent :
+// ne fait rien si la feuille a déjà assez de colonnes. ──
+let accountsSheetColumnsEnsured = false;
+async function ensureAccountsSheetHasColumn(sheets, spreadsheetId, neededColumnCount) {
+  if (accountsSheetColumnsEnsured) return;
+  try {
+    const meta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties' });
+    const sheet = (meta.data.sheets || []).find(s => s.properties.title === 'bbw4life-accounts');
+    if (!sheet) return;
+    const currentCount = (sheet.properties.gridProperties && sheet.properties.gridProperties.columnCount) || 0;
+    if (currentCount >= neededColumnCount) {
+      accountsSheetColumnsEnsured = true;
+      return;
+    }
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId,
+      resource: {
+        requests: [{
+          updateSheetProperties: {
+            properties: {
+              sheetId: sheet.properties.sheetId,
+              gridProperties: { columnCount: neededColumnCount }
+            },
+            fields: 'gridProperties.columnCount'
+          }
+        }]
+      }
+    });
+    accountsSheetColumnsEnsured = true;
+  } catch (e) {
+    console.warn('[ensureAccountsSheetHasColumn] failed:', e.message);
+  }
+}
+
 // ── Menu de sélection Homme/Femme — envoyé une fois après la liaison
-// Telegram (signup ou compte existant). Bouton "web_app" ouvrant
-// telegram-gender.html EXACTEMENT comme le bouton "Create my BBW4LIFE
-// account" ouvre telegram-signup.html (cf. telegram-webhook.js:handleStart)
-// — pattern déjà prouvé fonctionnel, contrairement aux boutons inline
-// callback_data (callback_query) qui échouaient silencieusement en usage
-// réel malgré une logique correcte en local. ──
+// Telegram (signup ou compte existant). Boutons inline avec callback_data,
+// gérés côté telegram-webhook.js (update.callback_query). Le vrai blocage
+// précédent n'était pas ce mécanisme mais la grille Google Sheets trop
+// étroite pour la colonne AL (cf. ensureAccountsSheetHasColumn ci-dessus,
+// qui reste en place et corrige ça pour de bon). ──
 async function sendGenderSelectMenu(telegramChatId) {
-  const baseUrl = process.env.BASE_URL || 'https://bbw4life.com';
-  const genderUrl = `${baseUrl}/telegram-gender.html?chat_id=${telegramChatId}`;
   await sendTelegramConfirmation(
     telegramChatId,
-    "One last thing — so we can send you the right new arrivals 💛",
+    "One last thing — so we can send you the right new arrivals 💛\n\nAre you shopping for yourself as a Queen or a King?",
     {
       inline_keyboard: [[
-        { text: 'Select your gender', web_app: { url: genderUrl } }
+        { text: '👗 Woman', callback_data: 'bbw_gender_woman' },
+        { text: '👔 Man', callback_data: 'bbw_gender_man' }
       ]]
     }
   );
@@ -695,6 +730,7 @@ exports.handler = async (event) => {
       }
 
       const genderRowNum = genderRowIndex + 1;
+      await ensureAccountsSheetHasColumn(sheets, spreadsheetId, 38); // AL = 38e colonne
       await sheets.spreadsheets.values.update({
         spreadsheetId,
         range: `bbw4life-accounts!AL${genderRowNum}`,
