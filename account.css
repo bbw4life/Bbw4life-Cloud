@@ -2459,28 +2459,18 @@ a.stat-wishlist-link:visited {
 ══════════════════════════════════════════ */
 @media (max-width: 768px) {
 
-  /* Logout — ancré en haut à droite de la photo de profil plutôt que dans
-     le flux normal (où il finissait poussé sous le bloc photo une fois
-     .profile-section wrappé en colonne étroite). .profile-photo-block est
-     le parent commun avec .profile-photo-wrap, donc l'ancre de référence. */
-  .profile-photo-block {
+  /* Logout — ancré en haut à droite, à côté de la photo de profil, plutôt
+     que dans le flux normal (où il finissait poussé sous le bloc photo une
+     fois .profile-section wrappé en colonne étroite). Design du bouton
+     inchangé (cf. règle plus haut) — seul le positionnement change ici. */
+  .profile-section {
     position: relative;
   }
   .customer.account .profile-section a.logout-btn {
     position: absolute !important;
-    top: -8px !important;
-    right: -8px !important;
+    top: 0 !important;
+    right: 0 !important;
     align-self: auto !important;
-    padding: 8px 10px !important;
-    gap: 0 !important;
-    font-size: 0 !important;
-    border-radius: 50% !important;
-    background: #F6EFE5 !important;
-    box-shadow: 0 4px 14px rgba(21,17,14,0.14) !important;
-  }
-  .customer.account .profile-section a.logout-btn svg {
-    width: 16px !important;
-    height: 16px !important;
   }
 
 
