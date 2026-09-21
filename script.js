@@ -8661,19 +8661,29 @@ window.saveWishlist        = saveWishlist;
 window.updateBadges        = updateBadges;
 
 
-window.__bbwRestoreSavedCart = async function (userEmail, token) {
+// knownSavedCart (optionnel) : quand l'appelant a déjà la valeur brute de
+// savedCart (ex: verify-login.js la renvoie désormais directement dans sa
+// réponse, cf. login juste après), on l'utilise telle quelle et on évite
+// un 2e appel réseau vers save-account.js qui relirait la même feuille
+// Sheets pour rien. Si absent/undefined, comportement strictement
+// identique à avant : fetch get-stats comme d'habitude.
+window.__bbwRestoreSavedCart = async function (userEmail, token, knownSavedCart) {
     if (!userEmail) return;
     try {
-      const res = await fetch('/.netlify/functions/save-account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'get-stats', email: userEmail, token })
-      });
-      const data = await res.json();
-      if (!data || !data.savedCart) return;
+      let rawSavedCart = knownSavedCart;
+      if (rawSavedCart === undefined) {
+        const res = await fetch('/.netlify/functions/save-account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get-stats', email: userEmail, token })
+        });
+        const data = await res.json();
+        rawSavedCart = data && data.savedCart;
+      }
+      if (!rawSavedCart) return;
 
       let savedCart = [];
-      try { savedCart = JSON.parse(data.savedCart); } catch (e) { savedCart = []; }
+      try { savedCart = JSON.parse(rawSavedCart); } catch (e) { savedCart = []; }
       if (!Array.isArray(savedCart) || savedCart.length === 0) return;
 
       // ── Fusionner avec le cart local ──
@@ -11184,7 +11194,12 @@ document.addEventListener('DOMContentLoaded', () => {
               tries++;
               if (typeof window.__bbwRestoreSavedCart === 'function') {
                 clearInterval(waitForRestore);
-                window.__bbwRestoreSavedCart(email, data.token).then(resolve).catch(resolve);
+                // data.stats.savedCart vient directement de verify-login (même
+                // lecture Sheets que la vérification du mot de passe, pas de
+                // 2e requête) — si absent (ancienne réponse serveur, ou tout
+                // autre cas), __bbwRestoreSavedCart refait son fetch comme avant.
+                const knownSavedCart = data.stats && data.stats.savedCart;
+                window.__bbwRestoreSavedCart(email, data.token, knownSavedCart).then(resolve).catch(resolve);
               } else if (tries > 30) {
                 clearInterval(waitForRestore);
                 resolve();

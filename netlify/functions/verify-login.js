@@ -102,7 +102,18 @@ exports.handler = async (event) => {
     // ── Génère un token lié à cet email pour sécuriser les futures requêtes ──
     const token = generateAccountToken(user.email);
 
-    return { statusCode: 200, body: JSON.stringify({ success: true, user, token }) };
+    // Mêmes champs que save-account.js action=get-stats, lus depuis la même
+    // ligne déjà chargée en mémoire ci-dessus (pas de 2e appel Sheets) — le
+    // front (script.js:__bbwRestoreSavedCart) peut ainsi restaurer le panier
+    // directement depuis cette réponse au lieu de refaire un fetch séparé
+    // vers save-account.js juste après. Champ "stats" optionnel et additif :
+    // ne change rien pour un appelant qui l'ignore (comportement identique
+    // à avant pour tout le reste de cette réponse).
+    const stats = {
+      savedCart: userRow[28] || "[]"
+    };
+
+    return { statusCode: 200, body: JSON.stringify({ success: true, user, token, stats }) };
 
   } catch (error) {
     console.error("VERIFY LOGIN ERROR:", error.message);
