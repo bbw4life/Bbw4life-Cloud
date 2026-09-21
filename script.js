@@ -11150,15 +11150,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById('paul-login-btn');
   if (loginBtn) {
     loginBtn.addEventListener('click', async () => {
-      const email         = loginForm.querySelector('input[type="email"]').value.trim();
-      const passwordInput = loginForm.querySelector('input[placeholder*="Password"], input[type="password"], #login-password');
+      const emailInput     = loginForm.querySelector('input[type="email"]');
+      const passwordInput  = loginForm.querySelector('input[placeholder*="Password"], input[type="password"], #login-password');
+      const email         = emailInput ? emailInput.value.trim() : '';
       const password      = passwordInput ? passwordInput.value.trim() : '';
       if (!email || !password) { window.showToast("Email and password required"); return; }
       const originalText = loginBtn.textContent;
       loginBtn.textContent = "Checking..."; loginBtn.disabled = true;
-      try {
+
+      // Un seul retry silencieux en cas d'échec — protège contre un faux négatif
+      // dû à l'autofill du navigateur (Chrome/Safari peuvent remplir le champ
+      // juste après le clic initial, ou une latence de lecture ponctuelle côté
+      // Google Sheets) sans jamais valider un mauvais mot de passe : on ne
+      // retente qu'avec exactement les mêmes identifiants déjà lus plus haut.
+      async function attemptLogin() {
         const res  = await fetch('/.netlify/functions/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-        const data = await res.json();
+        return res.json();
+      }
+
+      try {
+        let data = await attemptLogin();
+        if (!data.success && data.error !== 'EMAIL_NOT_CONFIRMED') {
+          data = await attemptLogin();
+        }
         if (data.success) {
           loginBtn.textContent = "Your account Loading...";
           localStorage.setItem('isLoggedIn', 'true');
@@ -15191,9 +15205,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (confirm && confirmText) {
       confirmText.textContent = msg;
       confirm.classList.add('cfck-confirm--visible');
+      // Réduit de 1400ms à 500ms — le message reste juste assez visible
+      // pour être lu, sans faire traîner la disparition du popup.
       setTimeout(() => {
         closePopup();
-      }, 1400);
+      }, 500);
     } else {
       closePopup();
     }
@@ -15204,9 +15220,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const popup = document.getElementById('cf-cookie-popup');
     if (popup) {
       popup.classList.add('cfck-hiding');
+      // Aligné sur la vraie durée de la transition CSS (opacity 0.34s,
+      // style.css #cf-cookie-popup) + une petite marge, au lieu de 400ms.
       setTimeout(() => {
         if (popup.parentNode) popup.parentNode.removeChild(popup);
-      }, 400);
+      }, 350);
     }
   }
 
