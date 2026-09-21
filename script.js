@@ -15191,14 +15191,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (confirm && confirmText) {
       confirmText.textContent = msg;
       confirm.classList.add('cfck-confirm--visible');
-      // Réduit de 1400ms à 500ms — le message reste juste assez visible
-      // pour être lu, sans faire traîner la disparition du popup.
-      setTimeout(() => {
-        closePopup();
-      }, 500);
-    } else {
-      closePopup();
     }
+    // Le message s'affiche mais ne retarde plus la fermeture — le popup
+    // ferme tout de suite (comme un vrai SaaS), le message disparaît avec
+    // lui plutôt que de garder le popup ouvert pour l'attendre.
+    closePopup();
   }
 
   /* ── Close popup ── */
@@ -15206,11 +15203,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const popup = document.getElementById('cf-cookie-popup');
     if (popup) {
       popup.classList.add('cfck-hiding');
-      // Aligné sur la vraie durée de la transition CSS (opacity 0.34s,
-      // style.css #cf-cookie-popup) + une petite marge, au lieu de 400ms.
+      // Aligné sur la vraie durée de la transition CSS (opacity 0.18s,
+      // style.css #cf-cookie-popup).
       setTimeout(() => {
         if (popup.parentNode) popup.parentNode.removeChild(popup);
-      }, 350);
+      }, 200);
     }
   }
 

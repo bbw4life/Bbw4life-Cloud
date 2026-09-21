@@ -27,16 +27,21 @@ async function sendTelegramConfirmation(telegramChatId, text, replyMarkup) {
 }
 
 // ── Menu de sélection Homme/Femme — envoyé une fois après la liaison
-// Telegram (signup ou compte existant). Boutons inline avec callback_data
-// gérés côté telegram-webhook.js (action ==== 'callback_query'). ──
+// Telegram (signup ou compte existant). Bouton "web_app" ouvrant
+// telegram-gender.html EXACTEMENT comme le bouton "Create my BBW4LIFE
+// account" ouvre telegram-signup.html (cf. telegram-webhook.js:handleStart)
+// — pattern déjà prouvé fonctionnel, contrairement aux boutons inline
+// callback_data (callback_query) qui échouaient silencieusement en usage
+// réel malgré une logique correcte en local. ──
 async function sendGenderSelectMenu(telegramChatId) {
+  const baseUrl = process.env.BASE_URL || 'https://bbw4life.com';
+  const genderUrl = `${baseUrl}/telegram-gender.html?chat_id=${telegramChatId}`;
   await sendTelegramConfirmation(
     telegramChatId,
-    "One last thing — so we can send you the right new arrivals 💛\n\nAre you shopping for yourself as a Queen or a King?",
+    "One last thing — so we can send you the right new arrivals 💛",
     {
       inline_keyboard: [[
-        { text: '👗 Woman', callback_data: 'bbw_gender_woman' },
-        { text: '👔 Man', callback_data: 'bbw_gender_man' }
+        { text: 'Select your gender', web_app: { url: genderUrl } }
       ]]
     }
   );
