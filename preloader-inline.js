@@ -182,4 +182,17 @@
   window.addEventListener('pageshow', function (event) {
     if (event.persisted) removePreloader();
   });
+
+  // ── Filet de sécurité ABSOLU, posé ICI (pas dans script.js) ──────────
+  // script.js pèse ~800 Ko et se charge en toute fin de <body> sans defer —
+  // sur un réseau lent, il peut mettre plusieurs dizaines de secondes rien
+  // qu'à COMMENCER son exécution, ce qui retardait d'autant l'armement de
+  // son propre filet de sécurité (posé "seulement" 5-8s après son propre
+  // démarrage, mais ce démarrage pouvait lui-même survenir très tard).
+  // Ce fichier-ci s'exécute immédiatement dans le <head>, donc ce filet
+  // est vraiment indépendant du poids/de la vitesse de script.js : le
+  // preloader ne peut jamais rester à l'écran plus de 5s, point final.
+  // Retrait direct (pas de fondu) — cas de secours exceptionnel, le
+  // chemin normal (fondu progressif) reste géré par script.js:doHide().
+  setTimeout(removePreloader, 5000);
 })();

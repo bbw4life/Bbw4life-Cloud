@@ -493,9 +493,46 @@
 
 @media (max-width: 640px) {
   .os-page .trust-banner-wrap { height: 300px; min-height: 300px; }
-  .os-page .trust-banner-inner { padding: 16px 18px; }
+  .os-page .trust-banner-inner {
+    padding: 10px 16px;
+    max-height: 280px;
+    overflow: hidden;
+  }
   .os-hero-frame { inset: 8px; }
   .os-hero-corner { width: 16px; height: 16px; }
+
+  /* Compaction du contenu — même principe que les autres sections du
+     site (rien de masqué, tout réduit) : sans ça, le titre/texte/pills
+     du composant partagé .trust-banner-* (style.css, pensé pour un hero
+     pleine hauteur) débordaient hors des 300px sur mobile. */
+  .os-page .trust-badge {
+    font-size: 0.56rem;
+    padding: 3px 10px 3px 8px;
+    margin-bottom: 8px;
+  }
+  .os-page .trust-banner-title {
+    font-size: clamp(1.1rem, 5vw, 1.5rem);
+    line-height: 1.1;
+  }
+  .os-page .trust-divider {
+    margin: 8px auto;
+    gap: 6px;
+  }
+  .os-page .trust-divider-line { width: 32px; }
+  .os-page .trust-banner-text {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    margin-bottom: 8px;
+  }
+  .os-page .trust-pills {
+    gap: 4px 6px;
+    margin-bottom: 0;
+  }
+  .os-page .trust-pill {
+    font-size: 0.62rem;
+    padding: 3px 8px;
+  }
+  .os-page .trust-pill i { font-size: 0.6rem; }
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -4752,11 +4789,15 @@ a.au-offer-card {
   .au-page { --au-section-space: 40px; }
   .au-container { padding: 0 1.25rem; }
 
-  
-  .au-hero-section { height: 400px; min-height: 400px; padding: 0; }
-  .au-hero-inner { padding: 0 1rem; }
-  .au-hero-title { font-size: clamp(1.7rem, 7vw, 2.2rem); }
-  .au-hero-sub { font-size: 0.88rem; }
+
+  .au-hero-section { height: 300px; min-height: 300px; padding: 0; }
+  .au-hero-inner { padding: 0 1rem; max-height: 284px; overflow: hidden; }
+  .au-hero-badge { font-size: 0.56rem; padding: 4px 14px; margin-bottom: 8px; }
+  .au-hero-title { font-size: clamp(1.3rem, 6vw, 1.7rem); margin: 0 0 6px; }
+  .au-hero-sub { font-size: 0.74rem; line-height: 1.35; margin: 0 0 8px; }
+  .au-hero-pills { gap: 6px 10px; }
+  .au-hero-pill { font-size: 0.66rem; padding: 4px 10px; }
+  .au-hero-pill i { font-size: 10px; }
   .au-hero-pill-sep { display: none; }
 
   
@@ -4791,7 +4832,7 @@ a.au-offer-card {
 }
 
 @media (max-width: 480px) {
-  .au-hero-title { font-size: 1.9rem; }
+  .au-hero-title { font-size: 1.35rem; }
   .au-vision-pillars { grid-template-columns: 1fr; }
   .au-marquee-strip::before,
   .au-marquee-strip::after { width: 50px; }
@@ -5196,10 +5237,42 @@ a.au-offer-card {
   background: linear-gradient(180deg, transparent, rgba(212,169,74,0.42), transparent);
 }
 
-@media (max-width: 480px) {
-  .banner-stats { gap: 12px; }
+@media (max-width: 768px) {
+  /* Hauteur déjà à 300px (règle non-responsive ci-dessus), mais rien
+     n'était compacté à l'intérieur — eyebrow/titre/paragraphe/stats
+     débordaient hors du cadre sur mobile. Tout réduit, rien masqué. */
+  .banner-content { padding: 12px 20px; max-height: 280px; overflow: hidden; }
+  .banner-eyebrow { font-size: 0.56rem; margin-bottom: 4px; }
+  .banner-content h2 { font-size: 1.15rem; margin-bottom: 6px; line-height: 1.15; }
+  .banner-divider { margin-bottom: 6px; gap: 8px; }
+  .bd-line { width: 30px; }
+  .banner-content p { font-size: 0.72rem; line-height: 1.35; margin-bottom: 8px; }
+  .banner-bar-top, .banner-bar-bottom { margin: 0 auto 8px; }
+  .banner-bar-bottom { margin: 8px auto 0; }
+  .bs-item strong { font-size: 1.05rem; }
+  .bs-item span { font-size: 0.56rem; }
+
+  /* 3 colonnes forcées au lieu du flex-wrap naturel qui, à cette largeur,
+     faisait retomber chaque stat sur sa propre ligne (padding+nowrap trop
+     larges pour tenir 3 par ligne) — d'où l'empilement vertical vu sur
+     mobile. Grid garantit toujours 3 colonnes, quel que soit l'écran. */
+  .banner-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+  .bs-item {
+    padding: 0 4px;
+  }
+  .bs-item span {
+    white-space: normal;
+    line-height: 1.25;
+  }
   .bs-sep { display: none; }
-  .bs-item { padding: 0 14px; }
+}
+
+@media (max-width: 480px) {
+  .bs-item { padding: 0 2px; }
 }
 
 
@@ -6635,8 +6708,6 @@ button[type="submit"].cta:active {
 
 @media (max-width: 480px) {
   .success-banner-section .banner-image { height: 300px; min-height: 300px; }
-  .banner-content { padding: 16px 18px; }
-  .banner-content h2 { font-size: 1.5rem; }
   .contact-form-box { padding: 24px 16px 22px; }
   .jt-apply { padding: 22px 18px 20px; }
 }

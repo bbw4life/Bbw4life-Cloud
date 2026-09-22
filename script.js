@@ -458,11 +458,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // résoudre (ou résoudre très tard), et jusqu'ici applyStyle()/doHide()
   // n'étaient programmés QUE dans son .then() — le preloader restait
   // alors planté à l'écran indéfiniment. On force sa disparition au bout
-  // de 8s dans tous les cas, que le fetch ait répondu ou non.
+  // de 5s dans tous les cas, que le fetch ait répondu ou non.
   setTimeout(function () {
     pl = pl || document.getElementById('cf-preloader');
     doHide();
-  }, 8000);
+  }, 5000);
 
   fetch('/products.data.json')
     .then(function (r) { return r.json(); })
@@ -8190,7 +8190,12 @@ if (rcCheckoutBtn) {
     // de déclencher isIntersecting, retardant l'apparition — surtout visible
     // sur les grandes sections (images pleine largeur, blocs entiers) qu'on
     // pouvait presque dépasser en scrollant avant qu'elles s'affichent.
-    // rootMargin POSITIF anticipe au contraire le déclenchement.
+    // rootMargin POSITIF anticipe au contraire le déclenchement. 80px restait
+    // insuffisant pour les sections hautes (ex: #bbw-nb-section sur home —
+    // photo + grille produits + bandeau) : on pouvait scroller presque
+    // jusqu'à sa sortie du viewport avant qu'elle ne s'affiche, donnant
+    // l'impression que l'animation "bloque" la section. 400px anticipe
+    // largement, quelle que soit la hauteur de la section observée.
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -8198,7 +8203,7 @@ if (rcCheckoutBtn) {
           revealObserver.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
+    }, { threshold: 0.05, rootMargin: '0px 0px 400px 0px' });
     revealElements.forEach(el => revealObserver.observe(el));
   }
 
