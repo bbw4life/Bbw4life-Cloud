@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const clientTotal = parseFloat(document.getElementById('total').textContent.replace('$', '')) || clientSubtotal;
 
         // ── ÉTAPE 1 : Validation serveur + token ──
-        const validationRes = await fetch('/.netlify/functions/validate-checkout', {
+        const validationRes = await fetch('/validate-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { cartToken, sanitizedCart, shippingCost, taxAmount } = validationData;
 
         // ── ÉTAPE 2 : Vérification token avant paiement ──
-        const verifyRes = await fetch('/.netlify/functions/validate-checkout', {
+        const verifyRes = await fetch('/validate-checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
