@@ -5914,7 +5914,7 @@ initAnnouncementBar();
     async function handleStripe() {
       const returnUrl = window.location.origin + window.location.pathname;
 
-      const res = await fetch('/.netlify/functions/create-reservation-stripe-session', {
+      const res = await fetch('/create-reservation-stripe-session', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'create',
