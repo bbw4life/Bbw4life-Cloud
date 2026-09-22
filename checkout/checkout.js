@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (restoreOrderId) {
         try {
-            const res = await fetch(`/.netlify/functions/restore-abandoned-cart?orderId=${encodeURIComponent(restoreOrderId)}`);
+            const res = await fetch(`/restore-abandoned-cart?orderId=${encodeURIComponent(restoreOrderId)}`);
             const data = await res.json();
 
             if (res.ok && data.success) {
