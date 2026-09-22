@@ -6042,7 +6042,7 @@ initAnnouncementBar();
     async function savePlanRequestToSheet(client) {
       if (!client) return;
       try {
-        const res = await fetch('/.netlify/functions/save-plan-request', {
+        const res = await fetch('/save-plan-request', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             firstName: client.firstName  || '',
@@ -15693,7 +15693,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ────────────────────────────────────────────────── */
     async function savePlanRequest(payload) {
         try {
-            await fetch('/.netlify/functions/save-plan-request', {
+            await fetch('/save-plan-request', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({
