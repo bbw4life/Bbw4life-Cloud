@@ -6,7 +6,7 @@
    "Tous les produits".
 
    ⚠️ SCHEDULED FUNCTION — Netlify : [functions."send-telegram-promo"]
-   schedule = "0 12 */6 * *". Cron Trigger Cloudflare câblé séparément.
+   schedule = "0 12 (every 6 days) * *". Cron Trigger Cloudflare câblé séparément.
 ══════════════════════════════════════════════════════ */
 const {
   getSettings,

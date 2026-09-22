@@ -16,7 +16,7 @@
    abonnés non genrés.
 
    ⚠️ SCHEDULED FUNCTION — Netlify : [functions."send-telegram-new-arrivals"]
-   schedule = "0 12 */3 * *". Cron Trigger Cloudflare câblé séparément.
+   schedule = "0 12 (every 3 days) * *". Cron Trigger Cloudflare câblé séparément.
 ══════════════════════════════════════════════════════ */
 const {
   getSettings,
