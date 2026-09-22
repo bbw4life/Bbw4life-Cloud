@@ -304,7 +304,7 @@ function bbwShowPromoWarningPopup(code, balance) {
 window.bbwValidateAffPromoCode = async function (code) {
   if (!code) return null;
   try {
-    const res  = await fetch('/.netlify/functions/validate-promo-code', {
+    const res  = await fetch('/validate-promo-code', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ action: 'validate', code: code, consume: false })
@@ -323,7 +323,7 @@ window.bbwValidateAffPromoCode = async function (code) {
 window.bbwConsumeAffPromoCode = async function (code) {
   if (!code) return;
   try {
-    await fetch('/.netlify/functions/validate-promo-code', {
+    await fetch('/validate-promo-code', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ action: 'validate', code: code, consume: true })
@@ -12972,7 +12972,7 @@ function loadProfilePhoto() {
     // bbw4life-accounts!U pour ce username (voir validate-promo-code.js).
     if (!localStorage.getItem('bbw_promo_registered_' + code)) {
       try {
-        await fetch('/.netlify/functions/validate-promo-code', {
+        await fetch('/validate-promo-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
