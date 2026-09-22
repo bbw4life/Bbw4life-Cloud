@@ -546,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = true;
 
         try {
-            const res = await fetch('/.netlify/functions/save-message', {
+            const res = await fetch('/save-message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
