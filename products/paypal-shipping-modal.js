@@ -7,7 +7,7 @@
    que la commande contienne exactement les mêmes données envoyées à
    Eprolo/CJ que le flux checkout classique — juste sans changer de
    page. Une fois validé, crée la commande PayPal via
-   /.netlify/functions/paypal-create-order (même fonction, même
+   /paypal-create-order (même fonction, même
    sécurité serveur que le checkout) et redirige vers PayPal.
 ════════════════════════════════════════════════════════════════ */
 (function () {
@@ -600,7 +600,7 @@
       var shippingData = getShippingData();
       var promoCode = document.getElementById('ppsm-promo-input').value.trim().toUpperCase() || null;
 
-      fetch('/.netlify/functions/paypal-create-order', {
+      fetch('/paypal-create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

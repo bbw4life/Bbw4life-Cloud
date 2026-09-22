@@ -667,7 +667,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
         } else if (paymentMethod === 'paypal') {
-            const response = await fetch('/.netlify/functions/paypal-create-order', {
+            const response = await fetch('/paypal-create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
