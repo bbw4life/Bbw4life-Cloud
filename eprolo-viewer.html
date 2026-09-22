@@ -985,7 +985,7 @@
     activeSubcategory = 'ALL';
 
     try {
-      const res  = await fetch('/.netlify/functions/fetch-eprolo-new-products');
+      const res  = await fetch('/fetch-eprolo-new-products');
       const data = await res.json();
 
       document.getElementById('skeleton-view').style.display = 'none';
