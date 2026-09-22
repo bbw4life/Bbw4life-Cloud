@@ -396,7 +396,7 @@
 
     let passwordLoaded = false;
 
-    fetch('/.netlify/functions/get-private-settings', {
+    fetch('/get-private-settings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: '__ping__' })
@@ -438,7 +438,7 @@
       gateSubmit.disabled = true;
       gateSubmit.textContent = 'Checking...';
 
-      fetch('/.netlify/functions/get-private-settings', {
+      fetch('/get-private-settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: val })

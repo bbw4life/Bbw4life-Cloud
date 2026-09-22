@@ -689,7 +689,7 @@
 let _serverPass = null;
 
 (function loadPass() {
-  fetch('/.netlify/functions/get-private-settings', {
+  fetch('/get-private-settings', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ password: '__ping__' })
@@ -700,7 +700,7 @@ let _serverPass = null;
 
 function checkPassword() {
   const val = document.getElementById('lock-input').value;
-  fetch('/.netlify/functions/get-private-settings', {
+  fetch('/get-private-settings', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({ password: val })

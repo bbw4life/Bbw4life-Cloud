@@ -1067,7 +1067,7 @@
     gateMsg.textContent    = '';
     gateMsg.classList.remove('err');
 
-    fetch('/.netlify/functions/get-private-settings', {
+    fetch('/get-private-settings', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ password: val })
