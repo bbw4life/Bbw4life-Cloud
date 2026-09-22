@@ -2308,7 +2308,7 @@ function showErrorPopup(message) {
           const vids = (prod.variants || []).map(v => v.vid).filter(Boolean);
           if (!vids.length) { fsStock.style.display = 'none'; return; }
 
-          fetch(`/.netlify/functions/get-product-stock?cj_vids=${vids.join(',')}`)
+          fetch(`/get-product-stock?cj_vids=${vids.join(',')}`)
             .then(r => r.json())
             .then(stockData => {
               setCachedCJStock(prod.cj_product_id, stockData);
@@ -2318,7 +2318,7 @@ function showErrorPopup(message) {
           return;
         }
 
-        fetch(`/.netlify/functions/get-product-stock?eprolo_id=${prod.eprolo_id}`)
+        fetch(`/get-product-stock?eprolo_id=${prod.eprolo_id}`)
           .then(r => r.json())
           .then(render)
           .catch(() => { fsStock.style.display = 'none'; });
@@ -13990,7 +13990,7 @@ function initStockBar(source) {
         const cached = getCachedCJStock(source.cj_product_id);
         if (cached) { renderStock(cached); return; }
 
-        fetch(`/.netlify/functions/get-product-stock?cj_vids=${(source.cj_vids || []).join(',')}`)
+        fetch(`/get-product-stock?cj_vids=${(source.cj_vids || []).join(',')}`)
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 setCachedCJStock(source.cj_product_id, data);
@@ -14001,7 +14001,7 @@ function initStockBar(source) {
     }
 
     // EPROLO — comportement original intact, sans cache.
-    fetch(`/.netlify/functions/get-product-stock?eprolo_id=${source.eprolo_id}`)
+    fetch(`/get-product-stock?eprolo_id=${source.eprolo_id}`)
         .then(function(res) { return res.json(); })
         .then(renderStock)
         .catch(onError);
