@@ -1,0 +1,41 @@
+name = "bbw4life-cron-worker"
+main = "index.js"
+compatibility_date = "2026-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─────────────────────────────────────────────────────────────
+# BBW4LIFE — Cron Worker
+#
+# Cloudflare Pages Functions (le dossier functions/ à la racine du
+# projet, déployé comme Cloudflare Pages) ne supporte PAS les Cron
+# Triggers natifs — cette fonctionnalité est réservée aux Workers
+# "purs". Ce Worker séparé n'a qu'un rôle : se réveiller aux mêmes
+# fréquences que les [functions.X] schedule = "..." de netlify.toml,
+# et appeler par fetch() l'endpoint HTTP correspondant déjà migré
+# dans functions/ (ex: https://bbw4life.com/retry-pending-order).
+#
+# Toute la LOGIQUE des tâches reste dans les Pages Functions — ce
+# Worker est un simple déclencheur, jamais une réimplémentation.
+#
+# Déploiement : `wrangler deploy` depuis ce dossier (cron-worker/),
+# séparément du déploiement Cloudflare Pages du reste du site.
+#
+# BASE_URL doit pointer vers le domaine réel une fois le site déployé
+# sur Cloudflare Pages (ex: "https://bbw4life.com" ou l'URL *.pages.dev
+# temporaire avant la bascule DNS finale).
+# ─────────────────────────────────────────────────────────────
+
+[vars]
+BASE_URL = "https://bbw4life.com"
+
+# Chaque entrée reproduit exactement une fréquence de netlify.toml.
+# Format cron standard 5 champs, UTC uniquement (pas de fuseau horaire
+# par worker sur Cloudflare).
+[triggers]
+crons = [
+  "*/5 * * * *",   # retry-pending-order, reply-contact-message, send-cart-push-reminder
+  "*/10 * * * *",  # detect-abandoned-cart, check-approved-stories
+  "* * * * *",     # process-email-queue
+  "0 12 */3 * *",  # send-telegram-new-arrivals
+  "0 12 */6 * *",  # send-telegram-promo
+]
