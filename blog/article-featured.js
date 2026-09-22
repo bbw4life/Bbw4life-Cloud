@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ════════════════════════════════════════════════════════ */
   (function () {
     var ARTICLE_ID       = 'article-featured';
-    var API              = '/.netlify/functions/reviews-article';
+    var API              = '/reviews-article';
     var REVIEWS_PER_PAGE = 5;
     var allReviews       = [];
     var shownCount       = 0;

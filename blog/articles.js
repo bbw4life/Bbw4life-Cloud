@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ════════════════════════════════════════════════════════════ */
   (function () {
     var ARTICLE_ID       = 'article1';
-    var API              = '/.netlify/functions/reviews-article';
+    var API              = '/reviews-article';
     var REVIEWS_PER_PAGE = 5;
     var allReviews       = [];
     var shownCount       = 0;
@@ -1121,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article2';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -1953,7 +1953,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article3';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -2693,7 +2693,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article4';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -3494,7 +3494,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article5';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -4303,7 +4303,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article6';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -5178,7 +5178,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article7';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -5983,7 +5983,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article8';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -6839,7 +6839,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article9';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -7650,7 +7650,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article10';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -8408,7 +8408,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article11';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -9104,7 +9104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article12';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -9975,7 +9975,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article13';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -10789,7 +10789,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article14';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -11597,7 +11597,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article15';
-      var API              = '/.netlify/functions/reviews-article';
+      var API              = '/reviews-article';
       var PER_PAGE         = 5;
       var allReviews       = [];
       var shownCount       = 0;
