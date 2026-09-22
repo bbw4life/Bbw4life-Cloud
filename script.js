@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionsCount
       };
 
-      fetch('/.netlify/functions/save-analytics', {
+      fetch('/save-analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
