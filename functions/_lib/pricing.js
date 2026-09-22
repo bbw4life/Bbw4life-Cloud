@@ -4,6 +4,7 @@
 // sans mettre à jour validate-checkout.js ET tous les appelants.
 const crypto = require('crypto');
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./google-auth');
 
 async function getAllProductsData(env) {
   try {
@@ -31,13 +32,7 @@ async function getAllProductsData(env) {
 //    commande après commande : solde à 0 = plus rien à donner. ──
 async function getAffiliatePromoBalance(code, env) {
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    });
+    const auth = await getGoogleAuthClient(env);
     const sheets = google.sheets({ version: 'v4', auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_ACCOUNTS;
 

@@ -1,5 +1,6 @@
 // functions/create-reservation-paypal.js
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 // ── Lire reservation_price depuis products.data.json (anti-tamper) ──
 async function getReservationPrice(env) {
@@ -37,13 +38,7 @@ async function getPaypalToken(PAYPAL_BASE, env) {
 }
 
 async function saveToSheet(data, env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+  const auth = await getGoogleAuthClient(env);
   const sheets        = google.sheets({ version: 'v4', auth });
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_PLAN;
 

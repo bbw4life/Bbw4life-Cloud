@@ -4,6 +4,7 @@
 // (wrangler.toml), câblé séparément avec les 7 autres scheduled functions.
 // Migrée ici avec un handler HTTP (onRequestGet) pour test manuel en attendant.
 const { google } = require("googleapis");
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 // ── Délai entre deux appels CJ pour respecter le rate-limit (~1 req/s) ──
 const CJ_REQUEST_DELAY_MS = 1100;
@@ -72,13 +73,7 @@ export async function onRequestGet(context) {
   const { env } = context;
   console.log('[RETRY PENDING] 🚀 Démarrage - ' + new Date().toISOString());
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-    });
+    const auth = await getGoogleAuthClient(env);
     const sheets = google.sheets({ version: "v4", auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
 

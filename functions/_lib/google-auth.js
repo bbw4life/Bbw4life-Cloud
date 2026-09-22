@@ -27,7 +27,7 @@
 const { OAuth2Client } = require('google-auth-library');
 
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
+const DEFAULT_SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
 // ── Encodage base64url (RFC 4648 §5) — différent du base64 standard :
 //    remplace +/ par -_ et retire le padding =. Requis par le format JWT. ──
@@ -72,7 +72,7 @@ async function importPrivateKey(pem) {
 //    un access_token via le endpoint OAuth2 token de Google. Même échange
 //    que celui que google-auth-library fait en interne — uniquement la
 //    méthode de signature change (Web Crypto au lieu de crypto.createSign). ──
-async function getGoogleAccessToken(env) {
+async function getGoogleAccessToken(env, scopes) {
   const clientEmail = env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKeyPem = (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
 
@@ -86,7 +86,7 @@ async function getGoogleAccessToken(env) {
   const header = { alg: 'RS256', typ: 'JWT' };
   const claims = {
     iss: clientEmail,
-    scope: SCOPES.join(' '),
+    scope: (scopes || DEFAULT_SCOPES).join(' '),
     aud: TOKEN_URL,
     exp: expirySeconds,
     iat: nowSeconds
@@ -121,10 +121,15 @@ async function getGoogleAccessToken(env) {
 }
 
 // ── Retourne un objet "auth" directement utilisable par
-//    google.sheets({ version: 'v4', auth }) et tout autre client googleapis,
-//    en remplacement direct de `new google.auth.GoogleAuth({...})`. ──
-async function getGoogleAuthClient(env) {
-  const accessToken = await getGoogleAccessToken(env);
+//    google.sheets({ version: 'v4', auth }) et tout autre client googleapis
+//    (google.searchconsole, google.indexing, etc.), en remplacement direct
+//    de `new google.auth.GoogleAuth({...})`. `scopes` optionnel : par
+//    défaut le scope Sheets (utilisé par la quasi-totalité des functions
+//    migrées) — à fournir explicitement pour les APIs Google non-Sheets
+//    (ex: Search Console, Indexing API dans gsc-reindex.js), qui exigent
+//    chacune leur propre scope OAuth. ──
+async function getGoogleAuthClient(env, scopes) {
+  const accessToken = await getGoogleAccessToken(env, scopes);
   const client = new OAuth2Client();
   client.setCredentials({ access_token: accessToken, token_type: 'Bearer' });
   return client;

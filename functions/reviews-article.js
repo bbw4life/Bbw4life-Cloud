@@ -1,16 +1,11 @@
 // functions/reviews-article.js
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const SHEET_NAME = 'bbw4life-reviews-article';
 
 async function getSheets(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 

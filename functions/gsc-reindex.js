@@ -7,15 +7,10 @@
 // réponse, probablement déclenchée manuellement ou par un script externe
 // suivant ce nextUrl.
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
-function getAuth(scopes, env) {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    },
-    scopes
-  });
+async function getAuth(scopes, env) {
+  return getGoogleAuthClient(env, scopes);
 }
 
 async function getUrlsFromSitemap(env) {
@@ -45,11 +40,10 @@ export async function onRequestGet(context) {
     const allUrls = await getUrlsFromSitemap(env);
     const urls    = allUrls.slice(offset, offset + BATCH_SIZE);
 
-    const inspectAuth = getAuth(['https://www.googleapis.com/auth/webmasters.readonly'], env);
+    const inspectAuth = await getAuth(['https://www.googleapis.com/auth/webmasters.readonly'], env);
     const searchconsole = google.searchconsole({ version: 'v1', auth: inspectAuth });
 
-    const indexAuth = getAuth(['https://www.googleapis.com/auth/indexing'], env);
-    const indexingClient = await indexAuth.getClient();
+    const indexingClient = await getAuth(['https://www.googleapis.com/auth/indexing'], env);
 
     const notIndexed = [];
     const indexed = [];

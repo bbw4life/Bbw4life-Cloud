@@ -5,17 +5,12 @@ const { google } = require("googleapis");
 const { notifyTelegram } = require('./_lib/notify-telegram');
 const { notifyCartAbandoned } = require('./_lib/notify-email');
 const { notifyCustomerTelegram } = require('./_lib/telegram-broadcast');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const ABANDON_THRESHOLD_MINUTES = 20;
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: "v4", auth });
 }
 
@@ -120,7 +115,7 @@ export async function onRequestGet(context) {
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   console.log('[ABANDONED CART] 🚀 Démarrage - ' + new Date().toISOString());
   try {
-    const sheets = getSheetsClient(env);
+    const sheets = await getSheetsClient(env);
     await ensureAbandonedTabExists(sheets, spreadsheetId);
 
     const res = await sheets.spreadsheets.values.get({

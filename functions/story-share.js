@@ -1,17 +1,12 @@
 const { google } = require('googleapis');
 const { notifyTelegram } = require('./_lib/notify-telegram');
 const { notifyStoryReceived } = require('./_lib/notify-email');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const SHEET_NAME = 'bbw4life-stories';
 
-function getAuth(env) {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+async function getAuth(env) {
+  return await getGoogleAuthClient(env);
 }
 
 function formatDate() {
@@ -32,7 +27,7 @@ async function saveStory(body, env) {
     throw new Error('Required fields missing');
   }
 
-  const auth   = getAuth(env);
+  const auth   = await getAuth(env);
   const sheets = google.sheets({ version: 'v4', auth });
   const values = [[
     firstName.trim(),
@@ -79,7 +74,7 @@ async function saveStory(body, env) {
 
 // ── FETCH approved stories ─────────────────────────────────────────────
 async function fetchStories(env) {
-  const auth   = getAuth(env);
+  const auth   = await getAuth(env);
   const sheets = google.sheets({ version: 'v4', auth });
 
   const res = await sheets.spreadsheets.values.get({

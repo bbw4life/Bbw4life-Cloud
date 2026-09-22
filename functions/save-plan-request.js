@@ -2,6 +2,7 @@
 const { google } = require('googleapis');
 const { notifyTelegram } = require('./_lib/notify-telegram');
 const { notifyPlanRequest } = require('./_lib/notify-email');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -27,13 +28,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    });
+    const auth = await getGoogleAuthClient(env);
 
     const sheets        = google.sheets({ version: 'v4', auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_PLAN_REQUEST;

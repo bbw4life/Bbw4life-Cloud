@@ -1,6 +1,7 @@
 // functions/save-pending-order.js
 const { google } = require('googleapis');
 const { notifyTelegram } = require('./_lib/notify-telegram');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 function response(statusCode, body) {
   return new Response(JSON.stringify(body), {
@@ -45,13 +46,7 @@ export async function onRequestPost(context) {
     shipping.postalCode = normalize(shipping.postalCode);
     shipping.address    = normalize(shipping.address);
 
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-      },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets']
-    });
+    const auth = await getGoogleAuthClient(env);
 
     const sheets        = google.sheets({ version: 'v4', auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;

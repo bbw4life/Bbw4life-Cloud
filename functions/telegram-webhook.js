@@ -31,18 +31,13 @@ const {
   setLiveChatStatus,
   getDeviceIdFor
 } = require('./_lib/live-chat-sheet');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const CHAT_ID_PATTERN = /^(CHAT-[A-Z0-9]+):\s*(.*)$/s;
 const START_PATTERN = /^\/start(?:\s+(.*))?$/s;
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 
@@ -50,7 +45,7 @@ function getSheetsClient(env) {
    chat (cf. send-cart-push-reminder.js) — même logique de lookup ici. */
 async function findSubscriptionByDeviceId(deviceId, env) {
   if (!deviceId) return null;
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,

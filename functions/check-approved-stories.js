@@ -9,24 +9,19 @@
 // utilisées par saveStory()/fetchStories() dans story-share.js.
 const { google } = require('googleapis');
 const { notifyCustomerTelegram } = require('./_lib/telegram-broadcast');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const SHEET_NAME = 'bbw4life-stories';
 
-function getAuth(env) {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+async function getAuth(env) {
+  return await getGoogleAuthClient(env);
 }
 
 export async function onRequestGet(context) {
   const { env } = context;
   console.log('[check-approved-stories] Starting — ' + new Date().toISOString());
   try {
-    const auth   = getAuth(env);
+    const auth   = await getAuth(env);
     const sheets = google.sheets({ version: 'v4', auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_ACCOUNTS;
 

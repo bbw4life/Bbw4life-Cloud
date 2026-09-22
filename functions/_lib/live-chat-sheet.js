@@ -15,18 +15,13 @@
      bon visiteur pour le notifier (cf. telegram-webhook.js).
 ══════════════════════════════════════════════════════ */
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./google-auth');
 
 const SHEET_NAME = 'bbw4life-live-chat';
 const HEADERS = ['chat_id', 'sender', 'message', 'timestamp', 'status', 'device_id'];
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 
@@ -68,7 +63,7 @@ function generateChatId() {
  * @param {string|null} deviceId — posé uniquement sur la ligne d'ouverture.
  */
 async function appendLiveChatRow(chatId, sender, message, status = '', deviceId = '', env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getSpreadsheetId(env);
   await ensureLiveChatSheet(sheets, spreadsheetId);
 
@@ -83,7 +78,7 @@ async function appendLiveChatRow(chatId, sender, message, status = '', deviceId 
 
 /** Renvoie toutes les lignes (hors header) de la feuille live chat. */
 async function getAllLiveChatRows(env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getSpreadsheetId(env);
   await ensureLiveChatSheet(sheets, spreadsheetId);
 
@@ -103,7 +98,7 @@ async function getLiveChatRowsFor(chatId, env) {
  * Réécrit uniquement la colonne E de cette ligne précise.
  */
 async function setLiveChatStatus(chatId, status, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getSpreadsheetId(env);
   await ensureLiveChatSheet(sheets, spreadsheetId);
 

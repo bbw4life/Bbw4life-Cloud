@@ -1,14 +1,9 @@
 // functions/restore-abandoned-cart.js
 const { google } = require("googleapis");
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: "v4", auth });
 }
 
@@ -40,7 +35,7 @@ export async function onRequestGet(context) {
       });
     }
 
-    const sheets = getSheetsClient(env);
+    const sheets = await getSheetsClient(env);
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: ABANDONED_RANGE

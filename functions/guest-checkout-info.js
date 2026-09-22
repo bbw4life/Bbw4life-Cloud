@@ -6,18 +6,13 @@
 // devient définitivement inatteignable : à la demande, on la supprime alors
 // du sheet dès qu'on détecte cet état (action 'clear').
 const { google } = require("googleapis");
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const SHEET_NAME = "Guest_Saved_Info";
 const SHEET_RANGE = `${SHEET_NAME}!A:C`;
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: "v4", auth });
 }
 
@@ -47,7 +42,7 @@ export async function onRequestPost(context) {
     const { action, guestId, info } = body;
     if (!guestId) throw new Error("guestId required");
 
-    const sheets = getSheetsClient(env);
+    const sheets = await getSheetsClient(env);
     await ensureSheetExists(sheets, spreadsheetId);
 
     const res = await sheets.spreadsheets.values.get({ spreadsheetId, range: SHEET_RANGE });

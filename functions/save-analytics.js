@@ -1,5 +1,6 @@
 // functions/save-analytics.js — BBW4LIFE Analytics + Orders
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 const CORS_HEADERS = {
   "Content-Type": "application/json",
@@ -15,13 +16,7 @@ export async function onRequestOptions() {
 export async function onRequestGet(context) {
   const { env } = context;
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-    });
+    const auth = await getGoogleAuthClient(env);
 
     const sheets        = google.sheets({ version: "v4", auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_ANALYTICS;
@@ -46,13 +41,7 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-    });
+    const auth = await getGoogleAuthClient(env);
 
     const sheets        = google.sheets({ version: "v4", auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_ANALYTICS;

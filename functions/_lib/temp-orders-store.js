@@ -1,14 +1,9 @@
 // functions/_lib/temp-orders-store.js
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./google-auth');
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-    },
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: "v4", auth });
 }
 
@@ -38,7 +33,7 @@ async function ensureProcessedTabExists(sheets, spreadsheetId) {
 
 // ── Écrit cart + shipping dans le sheet temporaire, identifié par orderId ──
 async function saveTempOrder(orderId, cart, shipping, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   const now = new Date().toISOString();
   await sheets.spreadsheets.values.append({
@@ -59,7 +54,7 @@ async function saveTempOrder(orderId, cart, shipping, env) {
 
 // ── Récupère cart + shipping par orderId, puis supprime immédiatement la ligne ──
 async function getAndDeleteTempOrder(orderId, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
 
   const res = await sheets.spreadsheets.values.get({
@@ -107,7 +102,7 @@ async function getAndDeleteTempOrder(orderId, env) {
 
 // ── Supprime la ligne Temp_Orders correspondant à un orderId, sans la retourner ──
 async function deleteTempOrderByPaymentId(orderId, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
 
   const res = await sheets.spreadsheets.values.get({
@@ -144,7 +139,7 @@ async function deleteTempOrderByPaymentId(orderId, env) {
 
 // ── Vérifie si paymentId a déjà été traité (lecture fiable, onglet dédié) ──
 async function isOrderAlreadyProcessed(paymentId, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   try {
     await ensureProcessedTabExists(sheets, spreadsheetId);
@@ -165,7 +160,7 @@ async function isOrderAlreadyProcessed(paymentId, env) {
 
 // ── Marque paymentId comme traité (écriture fiable, onglet dédié) ──
 async function markOrderAsProcessed(paymentId, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   try {
     await ensureProcessedTabExists(sheets, spreadsheetId);

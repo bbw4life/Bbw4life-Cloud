@@ -5,15 +5,10 @@
 // reconfiguré pour pointer vers la nouvelle URL /daily-report.
 const { google } = require('googleapis');
 const { notifyTelegram } = require('./_lib/notify-telegram');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
-function getAuth(env) {
-  return new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n')
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets']
-  });
+async function getAuth(env) {
+  return await getGoogleAuthClient(env);
 }
 
 // Le rapport résume la journée d'HIER (envoyé le matin pour la veille
@@ -45,7 +40,7 @@ export async function onRequestGet(context) {
   }
 
   try {
-    const auth   = getAuth(env);
+    const auth   = await getAuth(env);
     const sheets = google.sheets({ version: 'v4', auth });
     const today     = getYesterdayDate();
     const todayISO  = getYesterdayISO();

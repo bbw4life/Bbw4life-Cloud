@@ -6,19 +6,14 @@
 // ailleurs dans le code (rotation Telegram "New Arrivals",
 // _lib/telegram-broadcast.js), appliqué ici à la feuille des commandes.
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./google-auth');
 
 const COUNTER_SHEET  = 'bbw4life-order-counter';
 const COUNTER_HEADERS = ['key', 'value'];
 const START_AT = 100000; // premier numéro généré : BBW-100001
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 
@@ -43,7 +38,7 @@ async function ensureCounterSheet(sheets, spreadsheetId) {
  *  Pas d'incrémentation atomique garantie (lire-puis-écrire, même limite que
  *  le curseur Telegram existant) — acceptable au volume de commandes actuel. */
 async function getNextOrderNumber(env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
   await ensureCounterSheet(sheets, spreadsheetId);
 

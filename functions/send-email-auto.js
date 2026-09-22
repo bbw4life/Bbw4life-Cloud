@@ -5,6 +5,7 @@ const { Resend } = require('resend');
 const { google }  = require('googleapis');
 const crypto = require('crypto');
 const { notifyCustomerTelegram } = require('./_lib/telegram-broadcast');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 // ════════════════════════════════════════════════════════════════
 //  ENVIRONMENT
@@ -145,14 +146,8 @@ async function loadSettings(env) {
 // ════════════════════════════════════════════════════════════════
 //  GOOGLE SHEETS HELPERS
 // ════════════════════════════════════════════════════════════════
-function getSheets(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key:  (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+async function getSheets(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 
@@ -2075,7 +2070,7 @@ export async function onRequestPost(context) {
 
   try {
     const settings = await loadSettings(env);
-    const sheets   = getSheets(env);
+    const sheets   = await getSheets(env);
     const sentLog  = await loadEmailLog(sheets, env);
 
     const bodyText = await request.text();
@@ -2212,7 +2207,7 @@ export async function onRequestGet(context) {
 
   try {
     const settings = await loadSettings(env);
-    const sheets   = getSheets(env);
+    const sheets   = await getSheets(env);
     const sentLog  = await loadEmailLog(sheets, env);
 
     const params = new URL(request.url).searchParams;

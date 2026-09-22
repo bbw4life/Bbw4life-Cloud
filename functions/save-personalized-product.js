@@ -2,6 +2,7 @@
 const { google } = require('googleapis');
 const { notifyTelegram, notifyTelegramWithPhotos } = require('./_lib/notify-telegram');
 const { notifyCustomProduct } = require('./_lib/notify-email');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -11,14 +12,8 @@ export async function onRequestPost(context) {
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_PLAN_REQUEST;
     const SHEET_NAME = "bbw4life-product-personalized";
 
-    function getAuth() {
-      return new google.auth.GoogleAuth({
-        credentials: {
-          client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-          private_key:  env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-        },
-        scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-      });
+    async function getAuth() {
+      return await getGoogleAuthClient(env);
     }
 
     function formatDate() {
@@ -35,7 +30,7 @@ export async function onRequestPost(context) {
     // ACTION : get_votes
     // ════════════════════════════════════════
     if (body.action === 'get_votes') {
-      const sheets  = google.sheets({ version: "v4", auth: getAuth() });
+      const sheets  = google.sheets({ version: "v4", auth: await getAuth() });
       const readRes = await sheets.spreadsheets.values.get({
         spreadsheetId,
         range: `${SHEET_NAME}!A:Q`
@@ -66,7 +61,7 @@ export async function onRequestPost(context) {
       const { group = "", val: voteVal = "" } = body;
       if (!group || !voteVal) throw new Error("group et val requis");
 
-      const sheets = google.sheets({ version: "v4", auth: getAuth() });
+      const sheets = google.sheets({ version: "v4", auth: await getAuth() });
 
       // Ajouter une ligne avec colonnes A-M vides, N=vote, O=group, P=value, Q=timestamp
       await sheets.spreadsheets.values.append({
@@ -126,7 +121,7 @@ export async function onRequestPost(context) {
         throw new Error("Email invalide");
       }
 
-      const sheets = google.sheets({ version: "v4", auth: getAuth() });
+      const sheets = google.sheets({ version: "v4", auth: await getAuth() });
 
       await sheets.spreadsheets.values.append({
         spreadsheetId,
@@ -171,7 +166,7 @@ export async function onRequestPost(context) {
         throw new Error("Au moins un champ requis");
       }
 
-      const sheets = google.sheets({ version: "v4", auth: getAuth() });
+      const sheets = google.sheets({ version: "v4", auth: await getAuth() });
 
       await sheets.spreadsheets.values.append({
         spreadsheetId,
@@ -226,7 +221,7 @@ export async function onRequestPost(context) {
       throw new Error("Données manquantes (firstname, lastname, email, product_title requis)");
     }
 
-    const sheets = google.sheets({ version: "v4", auth: getAuth() });
+    const sheets = google.sheets({ version: "v4", auth: await getAuth() });
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,

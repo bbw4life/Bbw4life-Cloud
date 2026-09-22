@@ -16,18 +16,13 @@
      de produits) pour construire les cartes produit.
 ══════════════════════════════════════════════════════ */
 const { google } = require('googleapis');
+const { getGoogleAuthClient } = require('./google-auth');
 
 const CURSOR_SHEET = 'bbw4life-telegram-cursor';
 const CURSOR_HEADERS = ['key', 'value'];
 
-function getSheetsClient(env) {
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: (env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+async function getSheetsClient(env) {
+  const auth = await getGoogleAuthClient(env);
   return google.sheets({ version: 'v4', auth });
 }
 
@@ -54,7 +49,7 @@ async function getSettings(env) {
  *  'man' ou '' (non sélectionné — cf. menu envoyé après liaison Telegram,
  *  save-account.js:sendGenderSelectMenu / colonne AL). */
 async function getTelegramSubscribers(env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getAccountsSpreadsheetId(env);
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId,
@@ -103,7 +98,7 @@ async function ensureCursorSheet(sheets, spreadsheetId) {
 }
 
 async function getCursorValue(key, defaultValue = 0, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getAccountsSpreadsheetId(env);
   await ensureCursorSheet(sheets, spreadsheetId);
 
@@ -114,7 +109,7 @@ async function getCursorValue(key, defaultValue = 0, env) {
 }
 
 async function setCursorValue(key, value, env) {
-  const sheets = getSheetsClient(env);
+  const sheets = await getSheetsClient(env);
   const spreadsheetId = getAccountsSpreadsheetId(env);
   await ensureCursorSheet(sheets, spreadsheetId);
 
@@ -186,7 +181,7 @@ async function sendTelegramPhoto(chatId, photoUrl, caption, env) {
 async function getAccountByEmail(email, env) {
   if (!email) return null;
   try {
-    const sheets = getSheetsClient(env);
+    const sheets = await getSheetsClient(env);
     const spreadsheetId = getAccountsSpreadsheetId(env);
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
