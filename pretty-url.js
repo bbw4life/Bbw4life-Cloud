@@ -179,6 +179,23 @@
     '/blog/article15.html': '/bbw4life/journal/bbw4life-big-beautiful-woman-lifestyle-pride-family',
   };
 
+  // ── Cloudflare Pages : redirection 308 automatique et non désactivable
+  // qui retire l'extension .html des URLs AVANT que ce script ne
+  // s'exécute (ex: /products/product1.html -> /products/product1),
+  // contrairement à Netlify qui sert le .html tel quel sans y toucher.
+  // Sans ce complément, window.location.pathname vaudrait alors
+  // "/products/product1" (sans .html), qui ne correspond à aucune clé
+  // ci-dessus, et la jolie URL ne serait jamais appliquée sur
+  // Cloudflare. On duplique donc chaque entrée sous sa forme sans
+  // .html, en plus de la forme originale (gardée pour Netlify où
+  // l'URL .html brute peut encore être visitée directement). ──
+  Object.keys(SLUGS).forEach(function (key) {
+    if (key.slice(-5) === '.html') {
+      var withoutExt = key.slice(0, -5);
+      if (!(withoutExt in SLUGS)) SLUGS[withoutExt] = SLUGS[key];
+    }
+  });
+
   window.BBW_SLUGS = SLUGS;
   var path = window.location.pathname;
   var pretty = SLUGS[path];
