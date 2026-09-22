@@ -14781,7 +14781,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         try {
-          const res = await fetch('/.netlify/functions/chat', {
+          const res = await fetch('/chat', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify(payload)
@@ -14844,7 +14844,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sendBtn.disabled = true;
         isLoading = true;
         try {
-          await fetch('/.netlify/functions/chat', {
+          await fetch('/chat', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ action: 'live_chat_message', chatId: liveChatId, message: text })
@@ -14870,7 +14870,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       try {
-        const response = await fetch('/.netlify/functions/chat', {
+        const response = await fetch('/chat', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({
