@@ -61,7 +61,12 @@ export async function onRequestPost(context) {
       resource:         { values }
     });
 
-    notifyPlanRequest({ email, firstName, lastName, program, productId, size, color }, env).catch(() => {});
+    // ⚠️ NOTE MIGRATION CLOUDFLARE : fire-and-forget non awaited — sur Workers,
+    // une promesse non passée à waitUntil() peut être tuée dès la réponse
+    // renvoyée. context.waitUntil() garantit que l'email se termine bien.
+    context.waitUntil(
+      notifyPlanRequest({ email, firstName, lastName, program, productId, size, color }, env).catch(() => {})
+    );
 
     await notifyTelegram(
     `⏳ <b>Pdg Francenel, un client vient de mettre en attente un des design BBW4LIFE!</b>\n\n` +

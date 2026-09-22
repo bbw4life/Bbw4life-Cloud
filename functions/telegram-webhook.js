@@ -74,7 +74,9 @@ async function notifyClientPush(deviceId, chatId, env) {
       body: 'Un agent vient de vous répondre en direct 💬',
       icon: `${BASE_URL}/public/bbw4life-favicon.png`,
       badge: `${BASE_URL}/public/bbw4life-favicon.png`,
-      url: `${BASE_URL}/?openChat=${chatId}`,
+      // ⚠️ FIX : url relative (voir send-cart-push-reminder.js) — sinon un
+      // BASE_URL mal configuré redirige vers le mauvais domaine au clic.
+      url: `/?openChat=${chatId}`,
       hasCart: false
     });
 

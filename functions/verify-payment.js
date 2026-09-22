@@ -315,71 +315,81 @@ export async function onRequestPost(context) {
     }
 
     // ── Email Order Confirmation ──
+    // ⚠️ NOTE MIGRATION CLOUDFLARE : ce fetch n'est pas awaited (fire-and-forget,
+    // comme sur Netlify). Sur Cloudflare Workers, une promesse non-awaited et non
+    // passée à waitUntil() peut être tuée dès que la réponse est renvoyée — d'où
+    // context.waitUntil() ici pour garantir que l'appel réseau se termine.
     if (shipping.email) {
-      fetch(`${BASE_URL}/send-email-auto`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          trigger:    'order_confirm',
-          email:      shipping.email,
-          firstName:  shipping.firstName || '',
-          lastName:   shipping.lastName  || '',
-          orderId:    orderNumber,
-          items:      orderItems,
-          total:      totalAmount,
-          shippingAddress: [
-            shipping.address,
-            shipping.city,
-            shipping.state,
-            shipping.country
-          ].filter(Boolean).join(', ')
-        })
-      }).catch(e => console.warn('[Email] order_confirm failed:', e.message));
+      context.waitUntil(
+        fetch(`${BASE_URL}/send-email-auto`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            trigger:    'order_confirm',
+            email:      shipping.email,
+            firstName:  shipping.firstName || '',
+            lastName:   shipping.lastName  || '',
+            orderId:    orderNumber,
+            items:      orderItems,
+            total:      totalAmount,
+            shippingAddress: [
+              shipping.address,
+              shipping.city,
+              shipping.state,
+              shipping.country
+            ].filter(Boolean).join(', ')
+          })
+        }).catch(e => console.warn('[Email] order_confirm failed:', e.message))
+      );
     }
 
     // ── Telegram : confirmation de commande au client lié (best effort,
     //    ne bloque jamais le reste si l'envoi échoue) ──
     if (shipping.email) {
       const itemsList = orderItems.map(it => `• ${it.title}${it.size ? ` (${it.size})` : ''} × ${it.quantity}`).join('\n');
-      notifyCustomerTelegram(
-        shipping.email,
-        (firstName) =>
-          `${firstName}, you're all set! 🎉\n\n` +
-          `✅ <b>Order Confirmed!</b>\n` +
-          `Order: <b>${orderNumber}</b>\n` +
-          `${itemsList}\n\n` +
-          `💰 Total: <b>$${totalAmount.toFixed(2)}</b>\n\n` +
-          `We'll notify you here as soon as it ships. Thank you for shopping with BBW4LIFE! 💕`,
-        undefined,
-        env
-      ).catch(e => console.warn('[Telegram] order_confirm failed:', e.message));
+      context.waitUntil(
+        notifyCustomerTelegram(
+          shipping.email,
+          (firstName) =>
+            `${firstName}, you're all set! 🎉\n\n` +
+            `✅ <b>Order Confirmed!</b>\n` +
+            `Order: <b>${orderNumber}</b>\n` +
+            `${itemsList}\n\n` +
+            `💰 Total: <b>$${totalAmount.toFixed(2)}</b>\n\n` +
+            `We'll notify you here as soon as it ships. Thank you for shopping with BBW4LIFE! 💕`,
+          undefined,
+          env
+        ).catch(e => console.warn('[Telegram] order_confirm failed:', e.message))
+      );
     }
 
     // ── Analytics : enregistrer la commande dans le sheet ──
-    fetch(`${BASE_URL}/save-analytics`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        timestamp:    new Date().toISOString(),
-        sessionId:    paymentId,
-        pageUrl:      `${BASE_URL}/checkout.html`,
-        pageTitle:    'Checkout — Order Confirmed',
-        timeOnPage:   0,
-        clicks:       0,
-        menuClicks:   0,
-        scrollDepth:  0,
-        referrer:     provider,
-        device:       '',
-        browser:      '',
-        screenWidth:  0,
-        actionsCount: 0,
-        orderId:      paymentId,
-        orderTotal:   totalAmount.toFixed(2),
-        currency:     'USD',
-        itemsCount:   totalQuantity,
-        orderCountry: shipping.country || ''
-      })
-    }).catch(e => console.warn('[Analytics] save-analytics failed:', e.message));
+    context.waitUntil(
+      fetch(`${BASE_URL}/save-analytics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp:    new Date().toISOString(),
+          sessionId:    paymentId,
+          pageUrl:      `${BASE_URL}/checkout.html`,
+          pageTitle:    'Checkout — Order Confirmed',
+          timeOnPage:   0,
+          clicks:       0,
+          menuClicks:   0,
+          scrollDepth:  0,
+          referrer:     provider,
+          device:       '',
+          browser:      '',
+          screenWidth:  0,
+          actionsCount: 0,
+          orderId:      paymentId,
+          orderTotal:   totalAmount.toFixed(2),
+          currency:     'USD',
+          itemsCount:   totalQuantity,
+          orderCountry: shipping.country || ''
+        })
+      }).catch(e => console.warn('[Analytics] save-analytics failed:', e.message))
+    );
 
     const affRef = (provider === 'paypal' ? (purchaseUnit?.reference_id || '').split('|')[5] : shipping.affRef) || null;
 

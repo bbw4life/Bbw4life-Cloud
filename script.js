@@ -10348,6 +10348,32 @@ window.BBW_WISHLIST_SLUG_MAP = BBW_WISHLIST_SLUG_MAP;
     }
   })();
 
+  // ====================== PUSH NOTIFICATION → OPEN LIVE CHAT ======================
+  // Clic sur la notification "Un agent vient de vous répondre en direct" (voir
+  // telegram-webhook.js) : /?openChat=<chatId>. Ouvre directement le widget
+  // chat avec les messages de l'agent, au lieu de rediriger vers une page
+  // d'accueil vide sans aucune action visible (bug rapporté).
+  (function checkOpenChatFromPush() {
+    const params = new URLSearchParams(window.location.search);
+    const chatId = params.get('openChat');
+    if (chatId) {
+      let tries = 0;
+      const tryOpen = setInterval(() => {
+        tries++;
+        if (typeof window.__cfOpenChat === 'function' && typeof window.__cfStartLiveChat === 'function') {
+          clearInterval(tryOpen);
+          window.__cfOpenChat();
+          window.__cfStartLiveChat(chatId);
+        } else if (tries > 30) {
+          clearInterval(tryOpen);
+        }
+      }, 200);
+      params.delete('openChat');
+      const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '') + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
+    }
+  })();
+
   (function initHeaderParticles() {
     function create() {
       const header = document.querySelector('.sticky-header');
@@ -14934,8 +14960,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
-    window.__cfSendMessage = sendMessage;
-    window.__cfOpenChat    = openChat;
+    window.__cfSendMessage    = sendMessage;
+    window.__cfOpenChat       = openChat;
+    window.__cfStartLiveChat  = startLiveChat;
 
     /* ── Image attachment ── */
     function clearPendingImage() {

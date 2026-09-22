@@ -44,14 +44,17 @@ const T = {
 // ════════════════════════════════════════════════════════════════
 //  GROQ AI — MODELS & HELPERS
 // ════════════════════════════════════════════════════════════════
+// ⚠️ NOTE MIGRATION CLOUDFLARE : les anciens modèles (llama-3.3-70b-versatile,
+// llama-3.1-70b-versatile, mixtral-8x7b-32768, gemma2-9b-it, llama3-70b-8192,
+// llama3-8b-8192, llama-3.1-8b-instant) ont tous été décommissionnés par Groq
+// (HTTP 400 "model_decommissioned" / 404 confirmés via /v1/models). Les
+// modèles de remplacement "openai/gpt-oss-*" actuellement actifs sont des
+// modèles de raisonnement : ils consomment max_tokens sur un raisonnement
+// interne caché avant la réponse, ce qui tronque presque toujours le texte
+// final (vérifié : réponse coupée à 1 mot avec max_tokens=100). Seul
+// qwen/qwen3.8-27b répond directement sans ce problème (vérifié en direct).
 const GROQ_MODELS = [
-  'llama-3.3-70b-versatile',
-  'llama-3.1-70b-versatile',
-  'mixtral-8x7b-32768',
-  'gemma2-9b-it',
-  'llama3-70b-8192',
-  'llama3-8b-8192',
-  'llama-3.1-8b-instant',
+  'qwen/qwen3.8-27b',
 ];
 let modelIdx = 0;
 const sleep = ms => new Promise(r => setTimeout(r, ms));

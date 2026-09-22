@@ -20,13 +20,18 @@ compatibility_flags = ["nodejs_compat"]
 # Déploiement : `wrangler deploy` depuis ce dossier (cron-worker/),
 # séparément du déploiement Cloudflare Pages du reste du site.
 #
-# BASE_URL doit pointer vers le domaine réel une fois le site déployé
-# sur Cloudflare Pages (ex: "https://bbw4life.com" ou l'URL *.pages.dev
-# temporaire avant la bascule DNS finale).
+# ⚠️ BASE_URL DOIT pointer vers le projet Cloudflare Pages lui-même
+# (bbw4life-cloud.pages.dev), PAS vers bbw4life.com (qui reste le domaine
+# Netlify de production, un repository totalement séparé). Ce Worker et le
+# site Cloudflare Pages sont dans le même repo/projet — se tromper ici fait
+# déclencher les crons (panier abandonné, retry commande, etc.) contre
+# Netlify au lieu de Cloudflare, où ils n'ont aucun effet. À mettre à jour
+# vers le vrai domaine bbw4life.com UNIQUEMENT le jour où ce domaine sera
+# officiellement basculé sur Cloudflare Pages (DNS + projet Cloudflare).
 # ─────────────────────────────────────────────────────────────
 
 [vars]
-BASE_URL = "https://bbw4life.com"
+BASE_URL = "https://bbw4life-cloud.pages.dev"
 
 # Chaque entrée reproduit exactement une fréquence de netlify.toml.
 # Format cron standard 5 champs, UTC uniquement (pas de fuseau horaire
