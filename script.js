@@ -152,7 +152,7 @@ async function bbwInitCartPushReminder() {
 
     const deviceId = bbwGetPushDeviceId();
 
-    await fetch('/.netlify/functions/save-push-subscription', {
+    await fetch('/save-push-subscription', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deviceId, subscription, cart: currentCart })
@@ -187,7 +187,7 @@ async function bbwSubscribeGeneral() {
     const deviceId = bbwGetPushDeviceId();
     const currentCart = JSON.parse(localStorage.getItem('cart') || '[]');
 
-    await fetch('/.netlify/functions/save-push-subscription', {
+    await fetch('/save-push-subscription', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ deviceId, subscription, cart: currentCart })
