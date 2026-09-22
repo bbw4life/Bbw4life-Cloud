@@ -14707,7 +14707,7 @@ document.addEventListener('DOMContentLoaded', function () {
     async function pollLiveChat() {
       if (!liveChatId) return;
       try {
-        const res = await fetch(`/.netlify/functions/get-live-chat-messages?chatId=${encodeURIComponent(liveChatId)}`);
+        const res = await fetch(`/get-live-chat-messages?chatId=${encodeURIComponent(liveChatId)}`);
         if (!res.ok) return;
         const data = await res.json();
         if (!data.success) return;
