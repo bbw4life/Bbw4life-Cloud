@@ -4,6 +4,7 @@ const { google } = require('googleapis');
 const { verifyAccountToken, generateConfirmToken, verifyConfirmToken } = require('./_lib/account-token');
 const { notifyWelcome, notifyNewsletter1, notifyConfirmEmail, notifyPasswordReset } = require('./_lib/notify-email');
 const { hashPassword, verifyPassword, isHashedPassword } = require('./_lib/password');
+const { getGoogleAuthClient } = require('./_lib/google-auth');
 
 // ── Confirmation directe dans le fil Telegram du client (pas la Web App
 // elle-même) après signup_via_telegram / link_telegram — le message reste
@@ -193,13 +194,7 @@ export async function onRequestPost(context) {
     }
 
     const normalize = (str) => str ? str.normalize("NFKD").replace(/[̀-ͯ]/g, "").trim().toLowerCase() : "";
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
-      },
-      scopes: ["https://www.googleapis.com/auth/spreadsheets"]
-    });
+    const auth = await getGoogleAuthClient(env);
     const sheets = google.sheets({ version: "v4", auth });
     const spreadsheetId = env.SHEET_ID_BBW4LIFE_ACCOUNTS;
 
