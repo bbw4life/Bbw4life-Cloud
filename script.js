@@ -11189,7 +11189,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalText = loginBtn.textContent;
       loginBtn.textContent = "Checking..."; loginBtn.disabled = true;
       try {
-        const res  = await fetch('/.netlify/functions/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+        const res  = await fetch('/verify-login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
         const data = await res.json();
         if (data.success) {
           loginBtn.textContent = "Your account Loading...";
