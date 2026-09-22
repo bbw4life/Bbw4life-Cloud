@@ -1,0 +1,458 @@
+const Stripe = require('stripe');
+const {
+  getAndDeleteTempOrder,
+  isOrderAlreadyProcessed,
+  markOrderAsProcessed
+} = require('./_lib/temp-orders-store');
+const { getAllProductsData } = require('./_lib/pricing');
+const { notifyCustomerTelegram } = require('./_lib/telegram-broadcast');
+const { getNextOrderNumber } = require('./_lib/order-number');
+
+// PayPal ne renvoie aucun identifiant produit interne dans ses items — on le
+// retrouve après coup via le variant id (sku), pour que l'historique de
+// commande (Order History) puisse reconstruire le lien vers la fiche produit.
+function findProductIdByVariant(allProducts, variantId) {
+  if (!variantId) return '';
+  const prod = (allProducts || []).find(p =>
+    !p.type && Array.isArray(p.variants) && p.variants.some(v => String(v.vid) === String(variantId))
+  );
+  return prod ? prod.id : '';
+}
+
+function response(statusCode, body) {
+  return new Response(JSON.stringify(body), { status: statusCode, headers: { "Content-Type": "application/json" } });
+}
+
+async function saveAsPending(item, shipping, BASE_URL, provider, paymentId, status = "pending_stock", fulfillment_method = "eprolo", orderTotal = 0, orderNumber = "") {
+  try {
+    await fetch(`${BASE_URL}/save-pending-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shipping,
+        item,
+        payment_provider:   provider,
+        payment_id:         paymentId || "auto",
+        status,
+        fulfillment_method, // ← NOUVEAU
+        orderTotal,          // ← NOUVEAU : montant total vérifié côté serveur
+        orderNumber          // ← NOUVEAU : numéro de commande propre envoyé au client (colonne X)
+      })
+    });
+  } catch (e) {
+    console.error("saveAsPending failed:", e.message);
+  }
+}
+
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  console.log("=== VERIFY PAYMENT STARTED ===");
+
+  // Cloudflare Workers n'ont pas le module Node "https" utilisé par défaut
+  // par stripe-node — httpClient: fetch est requis (stripe-node >= 11.10).
+  const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+    httpClient: Stripe.createFetchHttpClient()
+  });
+
+  try {
+    const bodyText = await request.text();
+    if (!bodyText) throw new Error("No data received");
+    const { provider, sessionId, orderID } = JSON.parse(bodyText);
+    console.log(`Provider: ${provider} | OrderID: ${orderID || 'N/A'}`);
+    const paymentId = sessionId || orderID;
+    if (!paymentId) throw new Error("Missing payment ID");
+
+    // ── ANTI-DOUBLON : vérification ET marquage immédiat avant tout traitement ──
+    const alreadyProcessed = await isOrderAlreadyProcessed(paymentId, env);
+    if (alreadyProcessed) {
+      console.log(`🚫 DUPLICATE DETECTED (${paymentId}) → SKIP`);
+      return response(200, { success: true, message: "Duplicate - already processed" });
+    }
+
+    const marked = await markOrderAsProcessed(paymentId, env);
+    if (!marked) {
+      console.error(`[ANTI-DUPLICATE] Impossible de marquer ${paymentId} — abandon par sécurité`);
+      throw new Error("Could not secure payment processing lock");
+    }
+
+    let cart = [];
+    let shipping = {};
+    let paymentVerified = false;
+    let session;
+    let purchaseUnit;
+    const BASE_URL = env.BASE_URL || env.URL || new URL(request.url).origin;
+    console.log(`🔗 BASE_URL utilisée : ${BASE_URL}`);
+
+    // ====================== STRIPE ======================
+    if (provider === "stripe") {
+      session = await stripe.checkout.sessions.retrieve(sessionId);
+      if (session.payment_status !== "paid") throw new Error("Stripe not paid");
+
+      const tempOrder = await getAndDeleteTempOrder(sessionId, env);
+      if (!tempOrder) throw new Error("Stripe order data not found in temp store");
+
+      cart = (tempOrder.cart || []).map(item => ({
+        id:             item.id || item.cj_product_id || '',
+        title:          item.title,
+        price:          parseFloat(item.price) || 0,
+        quantity:       parseInt(item.quantity) || 1,
+        variantsid:     item.cj_variant_id || item.variantsid || null,
+        // Perdu en route auparavant : cj_product_id n'était lu que comme
+        // repli pour "id" ci-dessus, jamais conservé tel quel — save-pending-order.js
+        // (colonne L) en a pourtant besoin pour les commandes CJ (CJ exige
+        // l'ID produit EN PLUS de l'ID variante, contrairement à Eprolo qui
+        // ne demande que la variante).
+        cj_product_id:  item.cj_product_id || null,
+        image:          item.image || '',
+        image_variant:  item.image || '',
+        color:          item.color || '',
+        size:           item.size  || ''
+      }));
+      shipping = tempOrder.shipping || {};
+      paymentVerified = true;
+
+    // ====================== PAYPAL ======================
+    } else if (provider === "paypal") {
+      const PAYPAL_BASE = env.PAYPAL_ENV === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+      const auth = Buffer.from(`${env.PAYPAL_CLIENT_ID}:${env.PAYPAL_SECRET}`).toString("base64");
+      const tokenRes = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, { method: "POST", headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/x-www-form-urlencoded" }, body: "grant_type=client_credentials" });
+      const { access_token } = await tokenRes.json();
+
+      const orderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${orderID}`, { headers: { Authorization: `Bearer ${access_token}` } });
+      const orderData = await orderRes.json();
+
+      if (orderData.status === "APPROVED") {
+        await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${orderID}/capture`, { method: "POST", headers: { Authorization: `Bearer ${access_token}`, "Content-Type": "application/json" } });
+      }
+
+      const finalOrderRes = await fetch(`${PAYPAL_BASE}/v2/checkout/orders/${orderID}`, { headers: { Authorization: `Bearer ${access_token}` } });
+      const finalOrderData = await finalOrderRes.json();
+      if (finalOrderData.status !== "COMPLETED") throw new Error("PayPal payment not completed");
+
+      // ── Récupère (au lieu de juste supprimer) le panier temporaire pour
+      //    en extraire le code promo affilié éventuellement appliqué —
+      //    PayPal ne renvoie aucun champ custom pour ça, contrairement à
+      //    Stripe où tempOrder.shipping le porte déjà naturellement. ──
+      let paypalTempPromo = null;
+      try {
+        const tempOrderForPromo = await getAndDeleteTempOrder(orderID, env);
+        if (tempOrderForPromo && tempOrderForPromo.shipping && tempOrderForPromo.shipping.appliedPromoCode) {
+          paypalTempPromo = {
+            code:     tempOrderForPromo.shipping.appliedPromoCode,
+            discount: tempOrderForPromo.shipping.appliedPromoDiscount || 0
+          };
+        }
+      } catch (e) {
+        console.warn("[PAYPAL] getAndDeleteTempOrder failed:", e.message);
+      }
+
+      purchaseUnit = finalOrderData.purchase_units?.[0] || {};
+      const storedVariants = purchaseUnit.custom_id ? purchaseUnit.custom_id.split('|') : [];
+      const itemsArray = purchaseUnit.items || [];
+
+      let allProductsForLookup = [];
+      try {
+        allProductsForLookup = await getAllProductsData(env);
+      } catch (e) {
+        console.warn('[PAYPAL] getAllProductsData failed (product_id lookup skipped):', e.message);
+      }
+
+      cart = itemsArray.map((item, i) => {
+        const descParts = (item.description || '').split('|');
+        const variantForLookup = item.sku || storedVariants[i] || null;
+        const resolvedId = findProductIdByVariant(allProductsForLookup, variantForLookup);
+        // Comme pour "id" ci-dessus, PayPal ne renvoie aucun champ interne —
+        // on retrouve cj_product_id après coup dans le catalogue via l'id
+        // produit déjà résolu. Nécessaire pour la colonne L des commandes CJ
+        // (save-pending-order.js) : CJ exige l'ID produit en plus de l'ID
+        // variante, contrairement à Eprolo qui ne demande que la variante.
+        const resolvedProduct = (allProductsForLookup || []).find(p => p.id === resolvedId);
+        return {
+          id: resolvedId,
+          title: item.name,
+          price: parseFloat(item.unit_amount.value),
+          quantity: parseInt(item.quantity),
+          variantsid: variantForLookup,
+          cj_product_id: resolvedProduct ? (resolvedProduct.cj_product_id || null) : null,
+          image: descParts[1] || item.description || '',
+          color: descParts[0] && descParts[0] !== 'N/A' ? descParts[0] : ''
+        };
+      });
+
+      if (cart.length === 0 && storedVariants.length > 0) {
+        cart = storedVariants.map((str, i) => {
+          return { title: `Product ${i+1}`, price: 0, quantity: 1, variantsid: str || null, image: '' };
+        });
+      }
+
+      const payer = finalOrderData.payer || {};
+      const ship = purchaseUnit.shipping || {};
+      const refParts = purchaseUnit.reference_id ? purchaseUnit.reference_id.split('|') : [];
+
+      let countryCode = refParts[3] || ship.address?.country_code || "US";
+      let countryName = "United States";
+      try {
+        const countriesRes = await fetch(`${BASE_URL}/countries.json`);
+        const countriesData = await countriesRes.json();
+        const found = countriesData.find(c => c.cca2 === countryCode);
+        if (found) countryName = found.name.common;
+      } catch (err) {
+        console.log("[PAYPAL] Country lookup failed, using fallback");
+      }
+
+      let email = refParts[2] || payer.email_address || '';
+      let firstName = payer.name?.given_name || '';
+      let lastName = payer.name?.surname || '';
+      if (firstName.toLowerCase() === 'john' && lastName.toLowerCase() === 'doe') {
+        const nameParts = (refParts[0] || '').split(' ');
+        firstName = nameParts[0] || '';
+        lastName = nameParts.slice(1).join(' ') || '';
+      }
+
+      shipping = {
+        firstName, lastName,
+        email,
+        phone: payer.phone?.phone_number ? `+${payer.phone.phone_number.country_code || ''}${payer.phone.phone_number.national_number || ''}` : refParts[1] || '',
+        address: ship.address?.address_line_1 || "",
+        city: ship.address?.admin_area_2 || "",
+        state: ship.address?.admin_area_1 || "",
+        postalCode: ship.address?.postal_code || "",
+        country: countryName,
+        countryCode: countryCode,
+        shipping_method: refParts[4] || "Standard Shipping",
+        fulfillment_method: refParts[6] || "eprolo"
+    };
+      if (paypalTempPromo) {
+        shipping.appliedPromoCode     = paypalTempPromo.code;
+        shipping.appliedPromoDiscount = paypalTempPromo.discount;
+      }
+      console.log("[PAYPAL] Final shipping pulled:", JSON.stringify(shipping));
+      paymentVerified = true;
+
+    // ====================== NOWPAYMENTS ======================
+    } else if (provider === "nowpayments") {
+      const parsed = JSON.parse(bodyText);
+      cart     = parsed.cart     || [];
+      shipping = parsed.shipping || {};
+      if (cart.length === 0) throw new Error("Cart empty from NOWPayments webhook");
+      paymentVerified = true;
+    }
+
+    if (!paymentVerified || cart.length === 0) throw new Error("Payment verification failed or cart empty");
+
+    // ── Déduire le solde du code promo affilié — SEULEMENT maintenant que
+    //    le paiement est réellement confirmé (jamais au clic "Apply" côté
+    //    client, pour ne pas brûler le solde d'un client sur un paiement
+    //    abandonné ou échoué). Le montant déduit est celui déjà calculé
+    //    côté serveur (source unique de vérité) au moment de la création
+    //    du paiement — jamais recalculé/fait confiance côté client. ──
+    if (shipping.appliedPromoCode && shipping.appliedPromoDiscount > 0) {
+      try {
+        await fetch(`${BASE_URL}/validate-promo-code`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action:     "consume",
+            code:       shipping.appliedPromoCode,
+            amountUsed: shipping.appliedPromoDiscount
+          })
+        });
+        console.log(`[VERIFY PAYMENT] Solde promo affilié déduit : ${shipping.appliedPromoCode} — $${shipping.appliedPromoDiscount}`);
+      } catch (e) {
+        console.warn('[VERIFY PAYMENT] Déduction solde promo affilié échouée:', e.message);
+      }
+    }
+
+    // ── Numéro de commande propre (BBW-100001...) envoyé au CLIENT — distinct
+    //    du payment_id Stripe/PayPal (paymentId), qui reste inchangé en
+    //    colonne C du sheet pour la traçabilité interne. Un seul numéro par
+    //    commande (pas par article), généré ici une fois. ──
+    let orderNumber;
+    try {
+      orderNumber = await getNextOrderNumber(env);
+    } catch (e) {
+      console.warn('[VERIFY PAYMENT] getNextOrderNumber failed, fallback to paymentId:', e.message);
+      orderNumber = paymentId;
+    }
+
+    let totalAmount = 0;
+    if (provider === "stripe") {
+      totalAmount = session.amount_total / 100;
+    } else if (provider === "paypal") {
+      totalAmount = parseFloat(purchaseUnit.amount.value);
+    } else if (provider === "nowpayments") {
+      const parsed = JSON.parse(bodyText);
+      totalAmount = parseFloat(parsed.totalAmount) || 0;
+    }
+    const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+    const orderItems = cart.map(item => ({
+      product_id:    item.id             || item.cj_product_id || '',
+      title:         item.title,
+      variant_color: item.color         || '',
+      color:         item.color         || '',
+      size:          item.size          || '',
+      image_variant: item.image_variant || item.image || '',
+      image:         item.image_variant || item.image || '',
+      price:         item.price,
+      quantity:      item.quantity,
+      lineTotal:     item.price * item.quantity,
+      variantsid:    item.variantsid    || ''
+    }));
+
+    if (shipping.email) {
+      await fetch(`${BASE_URL}/save-account`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: 'record-order',
+          email: shipping.email,
+          totalAmount,
+          totalQuantity,
+          orderItems
+        })
+      });
+    }
+
+    // ── Email Order Confirmation ──
+    if (shipping.email) {
+      fetch(`${BASE_URL}/send-email-auto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trigger:    'order_confirm',
+          email:      shipping.email,
+          firstName:  shipping.firstName || '',
+          lastName:   shipping.lastName  || '',
+          orderId:    orderNumber,
+          items:      orderItems,
+          total:      totalAmount,
+          shippingAddress: [
+            shipping.address,
+            shipping.city,
+            shipping.state,
+            shipping.country
+          ].filter(Boolean).join(', ')
+        })
+      }).catch(e => console.warn('[Email] order_confirm failed:', e.message));
+    }
+
+    // ── Telegram : confirmation de commande au client lié (best effort,
+    //    ne bloque jamais le reste si l'envoi échoue) ──
+    if (shipping.email) {
+      const itemsList = orderItems.map(it => `• ${it.title}${it.size ? ` (${it.size})` : ''} × ${it.quantity}`).join('\n');
+      notifyCustomerTelegram(
+        shipping.email,
+        (firstName) =>
+          `${firstName}, you're all set! 🎉\n\n` +
+          `✅ <b>Order Confirmed!</b>\n` +
+          `Order: <b>${orderNumber}</b>\n` +
+          `${itemsList}\n\n` +
+          `💰 Total: <b>$${totalAmount.toFixed(2)}</b>\n\n` +
+          `We'll notify you here as soon as it ships. Thank you for shopping with BBW4LIFE! 💕`,
+        undefined,
+        env
+      ).catch(e => console.warn('[Telegram] order_confirm failed:', e.message));
+    }
+
+    // ── Analytics : enregistrer la commande dans le sheet ──
+    fetch(`${BASE_URL}/save-analytics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        timestamp:    new Date().toISOString(),
+        sessionId:    paymentId,
+        pageUrl:      `${BASE_URL}/checkout.html`,
+        pageTitle:    'Checkout — Order Confirmed',
+        timeOnPage:   0,
+        clicks:       0,
+        menuClicks:   0,
+        scrollDepth:  0,
+        referrer:     provider,
+        device:       '',
+        browser:      '',
+        screenWidth:  0,
+        actionsCount: 0,
+        orderId:      paymentId,
+        orderTotal:   totalAmount.toFixed(2),
+        currency:     'USD',
+        itemsCount:   totalQuantity,
+        orderCountry: shipping.country || ''
+      })
+    }).catch(e => console.warn('[Analytics] save-analytics failed:', e.message));
+
+    const affRef = (provider === 'paypal' ? (purchaseUnit?.reference_id || '').split('|')[5] : shipping.affRef) || null;
+
+    if (affRef) {
+      try {
+        await fetch(`${BASE_URL}/save-account`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action:      "aff-record-order",
+            username:    affRef,
+            orderAmount: totalAmount
+          })
+        });
+        console.log(`[AFFILIATION] Commission enregistrée pour @${affRef} — commande $${totalAmount}`);
+      } catch(e) {
+        console.warn("[AFFILIATION] Erreur commission:", e.message);
+      }
+    }
+
+    console.log("=== DÉBUT FULFILLMENT SÉQUENTIEL ===");
+    const cartMap = {};
+    cart.forEach(item => {
+      const vid = item.variantsid || null;
+      if (vid) {
+        // cj_product_id doit survivre à ce regroupement — sans lui, la
+        // colonne L (save-pending-order.js) reste vide pour les commandes
+        // CJ même quand il avait été correctement résolu plus haut.
+        if (!cartMap[vid]) cartMap[vid] = { title: item.title, price: item.price, quantity: 0, variantsid: vid, cj_product_id: item.cj_product_id || null };
+        cartMap[vid].quantity += item.quantity;
+      }
+    });
+    const groupedCart = Object.values(cartMap);
+    const readyForEprolo = groupedCart.filter(item => item.variantsid);
+    const notReady = cart.filter(item => !item.variantsid);
+
+    // ── Récupérer fulfillment_method depuis shipping (envoyé par checkout.js,
+    //    basé sur le pays — countries.json) ──
+    let fulfillment_method = (shipping.fulfillment_method || 'eprolo').toLowerCase().trim();
+
+    // ── Si le panier contient un produit dont le stock est géré par CJ
+    //    (stock_managed_by: "cj" dans products.data.json), on force 'cj'
+    //    quel que soit le pays — un produit CJ ne peut pas être fulfill par
+    //    Eprolo. Vérifié côté serveur (jamais confiance au fulfillment_method
+    //    envoyé par le client) contre le catalogue à jour. ──
+    try {
+      const catalogForFulfillment = await getAllProductsData(env);
+      const cartHasCjProduct = cart.some(item => {
+        const prod = catalogForFulfillment.find(p => p.id === item.id);
+        return prod && prod.stock_managed_by === 'cj';
+      });
+      if (cartHasCjProduct) fulfillment_method = 'cj';
+    } catch (e) {
+      console.warn('[VERIFY PAYMENT] Vérification produit CJ échouée, fulfillment basé sur le pays uniquement:', e.message);
+    }
+
+    console.log(`[VERIFY PAYMENT] Fulfillment method détecté: ${fulfillment_method}`);
+
+    for (const item of notReady) {
+      await saveAsPending(item, shipping, BASE_URL, provider, paymentId, "pending_stock", fulfillment_method, totalAmount, orderNumber);
+    }
+    for (const item of readyForEprolo) {
+      await saveAsPending(item, shipping, BASE_URL, provider, paymentId, "pending", fulfillment_method, totalAmount, orderNumber);
+    }
+
+    console.log("🎯 Fulfillment terminé");
+    return response(200, { success: true, fulfillmentStatus: "processing", orderNumber });
+  } catch (error) {
+    console.error("=== VERIFY PAYMENT ERROR ===", error.message);
+    return response(500, { success: false, error: error.message });
+  }
+}
+
+export async function onRequestGet() {
+  return response(405, { success: false, error: 'Method not allowed' });
+}

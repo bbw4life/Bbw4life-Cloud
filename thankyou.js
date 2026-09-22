@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const functionUrl = `${window.location.origin}/.netlify/functions/verify-payment`;
+        const functionUrl = `${window.location.origin}/verify-payment`;
         console.log(`📡 Calling: ${functionUrl}`);
 
         const response = await fetch(functionUrl, {
