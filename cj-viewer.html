@@ -932,7 +932,7 @@
         setStatus('cj', 'running', `Récupération lot ${batchNum} (produits ${offset + 1} à ${offset + CJ_PRODUCTS_BATCH_SIZE})...`);
         runBtn.textContent = `⏳  Lot ${batchNum}...`;
 
-        const res  = await fetch(`/.netlify/functions/fetch-cj-products?offset=${offset}&limit=${CJ_PRODUCTS_BATCH_SIZE}`);
+        const res  = await fetch(`/fetch-cj-products?offset=${offset}&limit=${CJ_PRODUCTS_BATCH_SIZE}`);
         const data = await res.json();
 
         if (!data.success) {
