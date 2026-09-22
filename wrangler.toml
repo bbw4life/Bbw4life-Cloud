@@ -1,0 +1,29 @@
+# ─────────────────────────────────────────────────────────────
+# BBW4LIFE — Cloudflare Pages configuration
+#
+# Ce fichier configure le déploiement Cloudflare Pages du site
+# (fichiers statiques à la racine + Pages Functions dans functions/).
+# Il est distinct de cron-worker/wrangler.toml, qui configure un
+# Worker séparé pour les tâches planifiées (voir ce dossier pour
+# le détail — Cloudflare Pages Functions ne supporte pas les Cron
+# Triggers nativement).
+#
+# `pages_build_output_dir` pointe vers la racine du projet : le site
+# est un site statique multi-pages sans étape de build (mêmes fichiers
+# HTML/CSS/JS servis tels quels qu'en Netlify), donc aucun build command
+# n'est nécessaire ici — à configurer dans le dashboard Cloudflare Pages
+# au moment de connecter le repo (Build command: vide, Build output
+# directory: "/").
+# ─────────────────────────────────────────────────────────────
+
+name = "bbw4life"
+pages_build_output_dir = "."
+compatibility_date = "2026-09-01"
+
+# nodejs_compat est requis par les Pages Functions qui utilisent des
+# modules Node (googleapis, stripe, resend, crypto, web-push, Buffer) —
+# aucun de ces modules ne tourne nativement sur le runtime Workers sans
+# ce flag. Confirmé nécessaire pour : create-stripe-session.js,
+# verify-payment.js, save-account.js, send-email-auto.js, et la quasi-
+# totalité des ~48 functions migrées qui utilisent googleapis.
+compatibility_flags = ["nodejs_compat"]
