@@ -909,7 +909,7 @@
         setStatus('running', `Récupération lot ${batchNum} (produits ${offset + 1} à ${offset + EPROLO_PRODUCTS_BATCH_SIZE})...`);
         runBtn.textContent = `⏳  Lot ${batchNum}...`;
 
-        const res  = await fetch(`/.netlify/functions/fetch-eprolo-products?offset=${offset}&limit=${EPROLO_PRODUCTS_BATCH_SIZE}`);
+        const res  = await fetch(`/fetch-eprolo-products?offset=${offset}&limit=${EPROLO_PRODUCTS_BATCH_SIZE}`);
         const data = await res.json();
 
         if (!data.success) {
