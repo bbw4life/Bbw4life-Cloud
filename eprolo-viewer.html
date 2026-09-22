@@ -1052,7 +1052,7 @@
         setStatus('running', `Récupération marge — ${allMarginProducts.length}${total ? '/' + total : ''} produits...`);
         view.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:20px 0;">Récupération en cours — ${allMarginProducts.length}${total ? '/' + total : ''} produits analysés...</div>`;
 
-        const res  = await fetch(`/.netlify/functions/get-eprolo-margin-all?offset=${offset}&limit=12`);
+        const res  = await fetch(`/get-eprolo-margin-all?offset=${offset}&limit=12`);
         const data = await res.json();
 
         if (!data.success) {
