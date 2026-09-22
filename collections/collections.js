@@ -1968,7 +1968,7 @@
 
   async function fetchVotesFromSheet() {
     try {
-      const res  = await fetch('/.netlify/functions/save-personalized-product', {
+      const res  = await fetch('/save-personalized-product', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ action: 'get_votes' })
@@ -2015,7 +2015,7 @@
         saveUserVote(group, val);
 
         try {
-          const res  = await fetch('/.netlify/functions/save-personalized-product', {
+          const res  = await fetch('/save-personalized-product', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ action: 'vote', group, val })
@@ -2120,7 +2120,7 @@
       }
 
       try {
-        const res  = await fetch('/.netlify/functions/save-personalized-product', {
+        const res  = await fetch('/save-personalized-product', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ action: 'waitlist', email })
@@ -2184,7 +2184,7 @@
       }
 
       try {
-        const res  = await fetch('/.netlify/functions/save-personalized-product', {
+        const res  = await fetch('/save-personalized-product', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({

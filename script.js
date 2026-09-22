@@ -7125,7 +7125,7 @@ if (rcCheckoutBtn) {
       };
 
         try {
-            const res  = await fetch('/.netlify/functions/save-personalized-product', {
+            const res  = await fetch('/save-personalized-product', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify(payload)
