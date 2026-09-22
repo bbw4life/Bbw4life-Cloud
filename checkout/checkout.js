@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (paymentMethod === 'stripe') {
             const STRIPE_PUBLIC_KEY = "pk_live_51PMDwoF9QAVBUyaU9ffneo6gWLCCPP94en6PPapDPawI9mnKqWBnJUjTbjUzjw3B8Et2ZWLBQHfCxm2djyCkzvXw00sP60H2NX";
             const stripe = Stripe(STRIPE_PUBLIC_KEY);
-            const response = await fetch('/.netlify/functions/create-stripe-session', {
+            const response = await fetch('/create-stripe-session', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
