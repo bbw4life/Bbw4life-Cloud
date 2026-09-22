@@ -2246,6 +2246,38 @@
     opacity: 1; visibility: visible;
 }
 
+/* Card avatar (40x40) de la couleur en hover — mobile uniquement, et
+   seulement quand swatch_scroll_mobile:"no" (body.bbw-swatch-avatar-on,
+   cf. script.js). Placée au-dessus du tooltip nom existant (::after,
+   top:-42px/-48px) pour ne jamais le chevaucher. Masquée par défaut sur
+   toutes tailles d'écran — activée uniquement dans le bloc @media mobile
+   ci-dessous, jamais sur desktop même si la classe est présente sur body. */
+.swatch-avatar {
+    display: none;
+    position: absolute;
+    top: -96px;
+    left: 50%;
+    transform: translateX(calc(-50% + var(--tooltip-shift, 0px)));
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--bbw-gold);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.24);
+    opacity: 0; visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none; z-index: 10;
+}
+@media (max-width: 768px) {
+    body.bbw-swatch-avatar-on .swatch-avatar {
+        display: block;
+    }
+    body.bbw-swatch-avatar-on .color-swatches .swatch:hover .swatch-avatar {
+        opacity: 1; visibility: visible; top: -102px;
+    }
+}
+
 .swatch-extra {
     display: none;
 }

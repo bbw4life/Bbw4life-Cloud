@@ -103,7 +103,7 @@ exports.handler = async (event) => {
       mode: 'payment',
       ...(discounts.length ? { discounts } : {}),
       success_url: `${process.env.BASE_URL}/thankyou.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url:  `${process.env.BASE_URL}/checkout.html`,
+      cancel_url:  `${process.env.BASE_URL}/index.html`,
     });
 
     // ── Le code promo affilié appliqué (et son montant, déjà calculé côté

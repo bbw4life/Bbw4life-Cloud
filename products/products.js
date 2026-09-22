@@ -32,6 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (colorContainer && product.colors && Array.isArray(product.colors)) {
         colorContainer.innerHTML = '';
         const SWATCH_VISIBLE_LIMIT = 5;
+        // Même logique que script.js (bloc PAGE PRODUIT) : ce fichier refait
+        // son propre fetch de products.data.json et reconstruit .color-swatches
+        // en parallèle, donc doit reproduire l'avatar ici aussi — sinon,
+        // selon lequel des deux fetches finit en dernier, l'avatar créé par
+        // script.js pouvait être écrasé silencieusement par ce bloc.
+        const settingsEntry = (allProducts || []).find(p => p.type === 'settings') || {};
+        const swatchScrollEnabled = (settingsEntry.swatch_scroll_mobile || 'yes').toLowerCase() === 'yes';
+        document.body.classList.toggle('bbw-swatch-avatar-on', !swatchScrollEnabled);
+
         product.colors.forEach((col, index) => {
           const sw = document.createElement('div');
           sw.className = 'swatch';
@@ -40,6 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
           sw.dataset.image = col.image;
           sw.dataset.variantId = col.variant_id;
           if (index >= SWATCH_VISIBLE_LIMIT) sw.classList.add('swatch-extra');
+          if (col.image) {
+            const avatar = document.createElement('div');
+            avatar.className = 'swatch-avatar';
+            const avatarUrl = (typeof upgradeShopifyImageUrl === 'function')
+              ? upgradeShopifyImageUrl(col.image, 120)
+              : col.image;
+            avatar.style.backgroundImage = `url("${avatarUrl}")`;
+            sw.appendChild(avatar);
+          }
           colorContainer.appendChild(sw);
         });
 

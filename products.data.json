@@ -3563,7 +3563,7 @@
     },
     "title": "Curl & Volume Mascara — Waterproof",
     "description": "Volumizing 4D mascara that curls, lifts and defines lashes. Waterproof, sweat-resistant, and built for all-day wear.",
-    "price": 1.00,
+    "price": 17.41,
     "compare_price": 28.11,
     "image": "https://cdn.shopify.com/s/files/1/0746/5346/6724/files/Pdg-Francenel_56.png?v=1778005454",
     "image_hover": "https://cdn.shopify.com/s/files/1/0746/5346/6724/files/Pdg-Francenel_56.1.png?v=1778005548",
@@ -3572,7 +3572,7 @@
       { "name": "Gray", "hex": "#b5bab5", "image": "https://cdn.shopify.com/s/files/1/0746/5346/6724/files/Pdg-Francenel-Product_56_Gray.png?v=1778717421", "active": true }
     ],
     "variants": [
-      { "vid": "713477467", "color": "Gray", "size": "", "price": 1.00, "active": true }
+      { "vid": "713477467", "color": "Gray", "size": "", "price": 17.41, "active": true }
     ],
     "media": [
       "https://cdn.shopify.com/s/files/1/0746/5346/6724/files/Pdg-Francenel-Product_56_1.png?v=1778717423",
@@ -9121,7 +9121,7 @@
     "thumbnails_mobile_vertical_left": "no",
     "sticky_media_mobile": "no",
     "media_auto_slider": "yes",
-    "swatch_scroll_mobile": "yes",
+    "swatch_scroll_mobile": "no",
     "sticky_atc_mobile_threshold": 10,
     "sticky_atc_mobile_threshold_bbw_features": 7.5,
     "sticky_atc_desktop_threshold": 7.3,
@@ -11363,7 +11363,7 @@
     "disable_image_download": "yes", 
     "disable_video_download": "yes", 
     "disable_copy": "yes", 
-    "disable_devtools_key": "yes" },
+    "disable_devtools_key": "no" },
     "mini_product_slider": {
       "title": "Queens And Kings Also Love These",
       "product_ids": [

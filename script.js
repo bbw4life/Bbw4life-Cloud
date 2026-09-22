@@ -4070,11 +4070,28 @@ function showErrorPopup(message) {
                 new Image().src = upgradeShopifyImageUrl(color.image, colorPreloadSize);
               }
             });
+            // Setting mobile : quand le scroll auto vers l'image est désactivé
+            // (swatch_scroll_mobile:"no"), on affiche à la place une petite
+            // card avatar (40x40) de la couleur au-dessus du nom, en hover —
+            // pilotée en CSS pur via cette classe sur <body>, jamais sur
+            // desktop (le scroll et cette card sont mutuellement exclusifs,
+            // tous deux réservés au mobile — cf. bloc SWATCH SCROLL MOBILE
+            // plus bas dans ce fichier, qui lit le même setting).
+            const swatchSettings = (window.__allProducts || []).find(p => p.type === 'settings') || {};
+            const swatchScrollEnabled = (swatchSettings.swatch_scroll_mobile || 'yes').toLowerCase() === 'yes';
+            document.body.classList.toggle('bbw-swatch-avatar-on', !swatchScrollEnabled);
+
             prod.colors.forEach((color) => {
               const swatch = document.createElement('div');
               swatch.className = 'swatch';
               swatch.style.backgroundColor = color.hex;
               swatch.dataset.color = color.name;
+              if (color.image) {
+                const avatar = document.createElement('div');
+                avatar.className = 'swatch-avatar';
+                avatar.style.backgroundImage = `url("${upgradeShopifyImageUrl(color.image, 120)}")`;
+                swatch.appendChild(avatar);
+              }
               swatch.addEventListener('click', () => {
                 colorContainer.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
                 swatch.classList.add('active');
