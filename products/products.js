@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Charge les reviews réels depuis l'API save-reviews
   async function loadRealReviewCounts(productId, baseCounts, baseTotal, jsonTotal) {
     try {
-      const res = await fetch('/.netlify/functions/save-reviews', {
+      const res = await fetch('/save-reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get-reviews', productId: productId })
@@ -798,7 +798,7 @@ async function loadDynamicReviews() {
     if (!window.currentProductId) return;
     document.querySelectorAll('.review-card.dynamic-review').forEach(el => el.remove());
     try {
-        const res = await fetch('/.netlify/functions/save-reviews', {
+        const res = await fetch('/save-reviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'get-reviews', productId: window.currentProductId })
@@ -897,7 +897,7 @@ if (form) {
         });
 
         try {
-            const res = await fetch('/.netlify/functions/save-reviews', {
+            const res = await fetch('/save-reviews', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1077,7 +1077,7 @@ async function initPdpMiniReviews(product, productId) {
   // ── Affine la note/le total avec les vrais avis serveur (n'affecte que
   //    le texte étoiles/count, jamais le contenu des cartes déjà en HTML). ──
   try {
-    const res = await fetch('/.netlify/functions/save-reviews', {
+    const res = await fetch('/save-reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'get-reviews', productId: productId })

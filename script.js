@@ -3985,7 +3985,7 @@ function showErrorPopup(message) {
                 const identity = getIdentity();
                 const body = Object.assign({ action, productId: pid }, identity);
                 if (voteType) body.voteType = voteType;
-                return fetch('/.netlify/functions/save-reviews', {
+                return fetch('/save-reviews', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify(body)
@@ -7599,7 +7599,7 @@ if (rcCheckoutBtn) {
                 const identity = satcGetIdentity();
                 const body = Object.assign({ action, productId: product.id }, identity);
                 if (voteType) body.voteType = voteType;
-                return fetch('/.netlify/functions/save-reviews', {
+                return fetch('/save-reviews', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
@@ -18002,7 +18002,7 @@ function injectColFbt() {
     const identity = getIdentity();
     const body = Object.assign({ action, productId }, identity);
     if (voteType) body.voteType = voteType;
-    return fetch('/.netlify/functions/save-reviews', {
+    return fetch('/save-reviews', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
