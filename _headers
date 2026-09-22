@@ -20,3 +20,60 @@
 
 /cart*
   X-Robots-Tag: noindex, nofollow
+
+# ─────────────────────────────────────────────
+# CACHE — no-store interdit TOUTE mise en cache (navigateur + intermédiaires),
+# pas seulement une revalidation optionnelle : chaque requête retélécharge le
+# fichier depuis Cloudflare, garantissant que la dernière version déployée
+# s'affiche automatiquement après un simple refresh, sans purge manuelle.
+#
+# Équivalent Cloudflare Pages des [[headers]] par EXTENSION du netlify.toml
+# d'origine (/*.html, /*.js, /*.css) — Cloudflare Pages ne supporte pas le
+# matching par extension dans _headers (uniquement des préfixes de chemin,
+# un seul splat "*" par règle), donc reproduit ici par préfixe de dossier :
+# la racine du site, puis chaque sous-dossier public connu.
+# ─────────────────────────────────────────────
+
+/*.html
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/*.js
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/*.css
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/products.data.json
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/products/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/blog/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/collections/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/page/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/policies/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/checkout/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+
+/src/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
