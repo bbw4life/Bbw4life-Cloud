@@ -5941,7 +5941,7 @@ initAnnouncementBar();
     async function handlePaypal() {
       const returnUrl = window.location.origin + window.location.pathname;
 
-      const res = await fetch('/.netlify/functions/create-reservation-paypal', {
+      const res = await fetch('/create-reservation-paypal', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'create', amount: reservationPrice, program: selectedProgram, customer: clientData, returnUrl })
       });
@@ -6017,7 +6017,7 @@ initAnnouncementBar();
 
       // ← CAPTURE PAYPAL
       try {
-        await fetch('/.netlify/functions/create-reservation-paypal', {
+        await fetch('/create-reservation-paypal', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'capture', orderID, clientData: pendingClient, program: pendingProgram, amount: reservationPrice })
         });
