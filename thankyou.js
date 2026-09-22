@@ -151,7 +151,7 @@ function loadOrderSummary() {
     const userToken = localStorage.getItem('userAccountToken');
     if (!userEmail || !userToken) { section.style.display = 'none'; return; }
 
-    fetch('/.netlify/functions/save-account', {
+    fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get-stats', email: userEmail, token: userToken })
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         nlMsg.textContent = '';
         nlMsg.className = 'ty-footer__newsletter-msg';
 
-        fetch('/.netlify/functions/save-account', {
+        fetch('/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'newsletter-subscribe', email })

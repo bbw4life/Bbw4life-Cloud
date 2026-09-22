@@ -2513,7 +2513,7 @@ document.addEventListener('click', function (e) {
 
       try {
         
-        var res = await fetch('/.netlify/functions/save-account', {
+        var res = await fetch('/save-account', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

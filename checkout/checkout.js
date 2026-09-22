@@ -471,7 +471,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const checkbox = document.getElementById('ck-newsletter-optin');
         if (!checkbox || !checkbox.checked || !shippingData.email) return;
 
-        fetch('/.netlify/functions/save-account', {
+        fetch('/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const email = localStorage.getItem('userEmail');
             const token = localStorage.getItem('userAccountToken');
             if (!email || !token) return;
-            fetch('/.netlify/functions/save-account', {
+            fetch('/save-account', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -553,7 +553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const pendingAffEmail = sessionStorage.getItem('pendingAffPromo');
         if (pendingAffEmail && appliedPromo && appliedPromo.isAffiliate) {
             try {
-                await fetch('/.netlify/functions/save-account', {
+                await fetch('/save-account', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action: 'aff-mark-promo-used', email: pendingAffEmail })
@@ -1362,7 +1362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         promoMessage.style.color = '#888';
 
         try {
-            const res  = await fetch('/.netlify/functions/save-account', {
+            const res  = await fetch('/save-account', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({

@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       try {
-        var res  = await fetch('/.netlify/functions/save-account', {
+        var res  = await fetch('/save-account', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ action: 'newsletter-subscribe', email: email })
@@ -574,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
       try {
-        var res  = await fetch('/.netlify/functions/save-account', {
+        var res  = await fetch('/save-account', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ action: 'newsletter-subscribe', email: email })

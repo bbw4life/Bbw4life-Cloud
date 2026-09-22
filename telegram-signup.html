@@ -163,7 +163,7 @@
     submitBtn.disabled = true;
     showMsg('Creating your account…', '');
 
-    fetch('/.netlify/functions/save-account', {
+    fetch('/save-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

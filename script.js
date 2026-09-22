@@ -41,7 +41,7 @@ const BBW_VAPID_PUBLIC_KEY = 'BPAy2x7jsTHvHMYA5uLWKZAbmwpAtUlFtCbgSiALsYFH4EKhST
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
     document.cookie = `aff_ref=${encodeURIComponent(refParam)};expires=${expires};path=/;SameSite=Lax`;
     
-    fetch('/.netlify/functions/save-account', {
+    fetch('/save-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'aff-track-click', username: refParam }),
@@ -8551,7 +8551,7 @@ if (carousel) {
     }
 
     try {
-      const res = await fetch('/.netlify/functions/save-account', {
+      const res = await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'newsletter-subscribe', email: email })
@@ -8694,7 +8694,7 @@ window.__bbwRestoreSavedCart = async function (userEmail, token, knownSavedCart)
     try {
       let rawSavedCart = knownSavedCart;
       if (rawSavedCart === undefined) {
-        const res = await fetch('/.netlify/functions/save-account', {
+        const res = await fetch('/save-account', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'get-stats', email: userEmail, token })
@@ -9245,7 +9245,7 @@ document.dispatchEvent(new Event('wishlist:change'));
     const userEmail = localStorage.getItem('userEmail');
     if (!userEmail) return;
     const qty = cart.reduce((sum, item) => sum + item.quantity, 0);
-    await fetch('/.netlify/functions/save-account', {
+    await fetch('/save-account', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'update-cart-quantity',
@@ -10889,7 +10889,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmTok  = urlParams.get('confirm_token');
     const confirmMail = urlParams.get('email');
     if (confirmTok && confirmMail) {
-      fetch('/.netlify/functions/save-account', {
+      fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'confirm-account', email: confirmMail, confirmToken: confirmTok })
@@ -11020,7 +11020,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalText = registerBtn.textContent;
       registerBtn.textContent = "Creating account..."; registerBtn.disabled = true;
       try {
-        const res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lastName, firstName, email, phone, password, newsletter }) });
+        const res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lastName, firstName, email, phone, password, newsletter }) });
         const data = await res.json();
         if (data.success) {
           registerBtn.textContent = "Account created!";
@@ -11093,7 +11093,7 @@ document.addEventListener('DOMContentLoaded', () => {
         paulForgotBtn.disabled = true;
 
         try {
-          const res  = await fetch('/.netlify/functions/save-account', {
+          const res  = await fetch('/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'reset-password', email: emailVal, newPassword: newPass, resetToken: pendingResetToken })
@@ -11145,7 +11145,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let found = false;
       let rateLimited = false;
       try {
-        const res  = await fetch('/.netlify/functions/save-account', {
+        const res  = await fetch('/save-account', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'request-password-reset', email: emailVal })
@@ -11299,7 +11299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('userAccountToken');
     if (!email) return;
     try {
-      const res = await fetch('/.netlify/functions/save-account', {
+      const res = await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'get-stats', email, token })
@@ -11540,7 +11540,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const zip = document.getElementById('addr-zip').value.trim();
     const addressStr = [line1, line2, city, state, zip].filter(Boolean).join(', ');
     try {
-      const res = await fetch('/.netlify/functions/save-account', {
+      const res = await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update-address', email, line1, line2, city, state, zip, token })
@@ -11570,7 +11570,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPassword = document.getElementById('new-password').value.trim();
     if (!email || !newPassword) return showToast("Email and new password are required");
     try {
-      const res = await fetch('/.netlify/functions/save-account', {
+      const res = await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update-password', email, newPassword, token })
@@ -11651,7 +11651,7 @@ function loadProfilePhoto() {
     const email = localStorage.getItem('userEmail');
     if (!email) return;
     try {
-      await fetch('/.netlify/functions/save-account', {
+      await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update-profile-photo', email, photoBase64: base64, token: localStorage.getItem('userAccountToken') })
@@ -11681,7 +11681,7 @@ function loadProfilePhoto() {
     var token = localStorage.getItem('userAccountToken');
     if (!email) return;
     try {
-      var res  = await fetch('/.netlify/functions/save-account', {
+      var res  = await fetch('/save-account', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ action: 'get-stats', email: email, token: token })
@@ -11720,7 +11720,7 @@ function loadProfilePhoto() {
     showBdayMsg('Saving...', '');
 
     try {
-      var res  = await fetch('/.netlify/functions/save-account', {
+      var res  = await fetch('/save-account', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ action: 'save-birthday', email: email, birthday: birthday })
@@ -11893,7 +11893,7 @@ function loadProfilePhoto() {
   ────────────────────────────────────────────────────────────── */
  async function fetchTodayBirthdays() {
     try {
-      var res  = await fetch('/.netlify/functions/save-account', {
+      var res  = await fetch('/save-account', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ 
@@ -12629,7 +12629,7 @@ function loadProfilePhoto() {
   }, 150);
 
   /* ── Charger les paniers abandonnés ── */
-  fetch('/.netlify/functions/save-account', {
+  fetch('/save-account', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'get-abandoned-carts', email: userEmail, token: userToken })
@@ -13131,7 +13131,7 @@ function loadProfilePhoto() {
         affiliatesFromSheet.push(newAff);
 
         try {
-          const res = await fetch('/.netlify/functions/save-account', {
+          const res = await fetch('/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'aff-create', email: userEmail, allAffiliates: affiliatesFromSheet, token: localStorage.getItem('userAccountToken') })
@@ -13179,7 +13179,7 @@ function loadProfilePhoto() {
       withdrawBtn.innerHTML = '<div class="plan-spinner"></div> Sending...';
 
       try {
-        const res  = await fetch('/.netlify/functions/save-account', {
+        const res  = await fetch('/save-account', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'aff-withdraw-request', email: userEmail, paypalName, paypalEmail, token: localStorage.getItem('userAccountToken') })
@@ -13231,7 +13231,7 @@ function loadProfilePhoto() {
     if (!userEmail) return;
     const token = localStorage.getItem('userAccountToken');
     try {
-      const res  = await fetch('/.netlify/functions/save-account', {
+      const res  = await fetch('/save-account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'aff-get-stats', email: userEmail, token })
@@ -13300,7 +13300,7 @@ function loadProfilePhoto() {
             if (titleEl)  titleEl.textContent  = 'Click reward — ' + totalClicks.toLocaleString() + ' total clicks';
 
             // Stocker dans le sheet si la valeur a changé
-            fetch('/.netlify/functions/save-account', {
+            fetch('/save-account', {
               method:  'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
