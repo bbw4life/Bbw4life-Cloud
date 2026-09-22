@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // pour ce client.
         const guestId = localStorage.getItem('bbw_guest_id');
         if (guestId) {
-            fetch('/.netlify/functions/guest-checkout-info', {
+            fetch('/guest-checkout-info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'get', guestId })
@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 guestId = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
                 localStorage.setItem('bbw_guest_id', guestId);
             }
-            fetch('/.netlify/functions/guest-checkout-info', {
+            fetch('/guest-checkout-info', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
