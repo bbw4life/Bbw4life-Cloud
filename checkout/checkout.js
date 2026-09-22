@@ -686,7 +686,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = `${paypalDomain}/checkoutnow?token=${data.orderID}`;
 
         } else if (paymentMethod === 'nowpayments') {
-            const response = await fetch('/.netlify/functions/nowpayments-create-order', {
+            const response = await fetch('/nowpayments-create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
