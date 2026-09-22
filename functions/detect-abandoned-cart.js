@@ -1,0 +1,254 @@
+// functions/detect-abandoned-cart.js
+// ⚠️ SCHEDULED FUNCTION — Netlify : [functions.detect-abandoned-cart]
+// schedule = "*/10 * * * *". Cron Trigger Cloudflare câblé séparément.
+const { google } = require("googleapis");
+const { notifyTelegram } = require('./_lib/notify-telegram');
+const { notifyCartAbandoned } = require('./_lib/notify-email');
+const { notifyCustomerTelegram } = require('./_lib/telegram-broadcast');
+
+const ABANDON_THRESHOLD_MINUTES = 20;
+
+function getSheetsClient(env) {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      private_key: env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n")
+    },
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+  });
+  return google.sheets({ version: "v4", auth });
+}
+
+const TEMP_TAB          = "Temp_Orders";
+const TEMP_RANGE         = `${TEMP_TAB}!A:D`;
+const ABANDONED_TAB     = "Abandoned_Carts";
+const ABANDONED_RANGE    = `${ABANDONED_TAB}!A:J`;
+
+// ── Crée l'onglet Abandoned_Carts s'il n'existe pas, avec en-têtes ──
+async function ensureAbandonedTabExists(sheets, spreadsheetId) {
+  const meta = await sheets.spreadsheets.get({ spreadsheetId });
+  const exists = meta.data.sheets.some(s => s.properties.title === ABANDONED_TAB);
+  if (exists) return;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [{
+        addSheet: { properties: { title: ABANDONED_TAB } }
+      }]
+    }
+  });
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId,
+    range: `${ABANDONED_TAB}!A:J`,
+    valueInputOption: "RAW",
+    insertDataOption: "INSERT_ROWS",
+    resource: {
+      values: [[
+        "Order ID", "Email", "First Name", "Last Name",
+        "Cart JSON", "Shipping JSON", "Promo Code",
+        "Created At", "Status", "Restart Link"
+      ]]
+    }
+  });
+  console.log(`[ABANDONED CART] Onglet "${ABANDONED_TAB}" créé avec en-têtes`);
+}
+
+// ── Charge settings depuis products.data.json (pour les promos) ──
+async function getSettings(env) {
+  try {
+    const BASE_URL = env.BASE_URL || '';
+    const res = await fetch(`${BASE_URL}/products.data.json`);
+    if (!res.ok) throw new Error('Failed to fetch products.data.json');
+    const data = await res.json();
+    return data.find(p => p.type === 'settings') || {};
+  } catch (err) {
+    console.warn('[ABANDONED CART] Could not load products.data.json:', err.message);
+    return {};
+  }
+}
+
+function pickRandomPromo(settings) {
+  const promos = settings.promos || [];
+  if (!promos.length) return null;
+  return promos[Math.floor(Math.random() * promos.length)];
+}
+
+async function notifyTelegramAbandoned(orderId, shipping, cart, promo, env) {
+  try {
+    const itemCount = (cart || []).reduce((sum, i) => sum + (parseInt(i.quantity) || 1), 0);
+    const fullName  = shipping.fullName || `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim();
+    await notifyTelegram(
+      `🛒 <b>Pdg Francenel, un panier vient d'être abandonné !</b>\n\n` +
+      `🆔 <b>Order ID:</b> ${orderId}\n` +
+      `👤 <b>Client:</b> ${fullName || 'N/A'}\n` +
+      `📧 <b>Email:</b> ${shipping.email || 'N/A'}\n` +
+      `📦 <b>Articles:</b> ${itemCount}\n` +
+      `🎁 <b>Code promo envoyé:</b> ${promo ? `${promo.code} (${promo.percent}%)` : 'aucun disponible'}`,
+      env
+    );
+  } catch (e) {
+    console.warn("[ABANDONED CART] Telegram notify failed:", e.message);
+  }
+}
+
+async function deleteTempOrderRow(sheets, spreadsheetId, rowIndex) {
+  const sheetMeta = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheetObj  = sheetMeta.data.sheets.find(s => s.properties.title === TEMP_TAB);
+  const sheetId   = sheetObj ? sheetObj.properties.sheetId : 0;
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    resource: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: sheetId,
+            dimension: "ROWS",
+            startIndex: rowIndex,
+            endIndex: rowIndex + 1
+          }
+        }
+      }]
+    }
+  });
+}
+
+export async function onRequestGet(context) {
+  const { env } = context;
+  const spreadsheetId = env.SHEET_ID_BBW4LIFE_PENDING_ORDERS;
+  console.log('[ABANDONED CART] 🚀 Démarrage - ' + new Date().toISOString());
+  try {
+    const sheets = getSheetsClient(env);
+    await ensureAbandonedTabExists(sheets, spreadsheetId);
+
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: TEMP_RANGE
+    });
+    const rows = res.data.values || [];
+
+    if (rows.length === 0) {
+      console.log('[ABANDONED CART] Aucun panier en cours');
+      return new Response(JSON.stringify({ success: true, processed: 0 }), {
+        status: 200, headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const now = new Date();
+    const settings = await getSettings(env);
+
+    let processed = 0;
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const row = rows[i];
+      const [orderId, cartJson, shippingJson, createdAt] = row;
+
+      if (!orderId || !createdAt) continue;
+
+      const createdDate = new Date(createdAt);
+      const minutesElapsed = (now - createdDate) / (1000 * 60);
+
+      if (minutesElapsed < ABANDON_THRESHOLD_MINUTES) continue;
+
+      let cart = [];
+      let shipping = {};
+      try { cart = JSON.parse(cartJson || "[]"); } catch {}
+      try { shipping = JSON.parse(shippingJson || "{}"); } catch {}
+
+      const email = (shipping.email || '').trim();
+
+      console.log(`[ABANDONED CART] Détecté : ${orderId} | ${minutesElapsed.toFixed(1)} min écoulées`);
+
+      const promo = pickRandomPromo(settings);
+      const restartLink = `${env.BASE_URL || ''}/checkout/checkout.html?restore=${encodeURIComponent(orderId)}`;
+
+      // ── Sauvegarder dans Abandoned_Carts ──
+      let savedOk = true;
+      try {
+        await sheets.spreadsheets.values.append({
+          spreadsheetId,
+          range: ABANDONED_RANGE,
+          valueInputOption: "RAW",
+          insertDataOption: "INSERT_ROWS",
+          resource: {
+            values: [[
+              orderId,
+              email,
+              shipping.firstName || '',
+              shipping.lastName  || '',
+              cartJson     || "[]",
+              shippingJson || "{}",
+              promo ? promo.code : '',
+              new Date().toISOString(),
+              "abandoned",
+              restartLink
+            ]]
+          }
+        });
+      } catch (e) {
+        console.error(`[ABANDONED CART] Échec sauvegarde ${orderId}:`, e.message);
+        savedOk = false; // on continue quand même vers Telegram/email
+      }
+
+      // ── Notifier Telegram ──
+      await notifyTelegramAbandoned(orderId, shipping, cart, promo, env);
+
+      // ── Envoyer l'email de relance au client ──
+      if (email && email.includes('@')) {
+       const emailResult = await notifyCartAbandoned({
+          email,
+          orderId,
+          firstName:    shipping.firstName || '',
+          items:        cart,
+          promoCode:    promo ? promo.code    : null,
+          promoPercent: promo ? promo.percent : null,
+          restartLink
+        }, env);
+        if (emailResult.success) {
+          console.log(`[ABANDONED CART] ✅ Email de relance envoyé à ${email}`);
+        } else {
+          console.warn(`[ABANDONED CART] Échec envoi email à ${email}:`, emailResult.error);
+        }
+
+        // ── Telegram : relance au client lié, avec bouton "Restore Order"
+        //    (même restartLink que l'email — best effort) ──
+        const cartLines = (cart || []).map(it => `• ${it.title || it.name || 'Item'}`).join('\n');
+        notifyCustomerTelegram(
+          email,
+          (firstName) =>
+            `${firstName}, don't forget about these! 👀\n\n` +
+            `🛍️ <b>You left something behind!</b>\n` +
+            `${cartLines || 'Your cart is waiting for you.'}\n\n` +
+            (promo ? `We're giving you a discount, just for you\n✨ Use code <b>${promo.code}</b> for ${promo.percent}% off!\n\n` : '') +
+            `Tap below to pick up right where you left off.`,
+          { inline_keyboard: [[{ text: '🛒 Restore My Order', url: restartLink }]] },
+          env
+        ).catch(e => console.warn('[ABANDONED CART] Telegram client notify failed:', e.message));
+      }
+
+      // ── Supprimer la ligne de Temp_Orders (seulement si la sauvegarde a réussi) ──
+      if (savedOk) {
+        try {
+          await deleteTempOrderRow(sheets, spreadsheetId, i);
+        } catch (e) {
+          console.error(`[ABANDONED CART] Échec suppression Temp_Orders ligne ${i}:`, e.message);
+        }
+      }
+
+      processed++;
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    console.log(`[ABANDONED CART] ✅ FIN - Traités: ${processed}`);
+    return new Response(JSON.stringify({ success: true, processed }), {
+      status: 200, headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    console.error("[ABANDONED CART] ERROR:", error.message);
+    return new Response(JSON.stringify({ success: false, error: error.message }), {
+      status: 500, headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
