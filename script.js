@@ -13668,7 +13668,7 @@ if (storyForm) {
     };
 
     try {
-      const res  = await fetch('/.netlify/functions/story-share', {
+      const res  = await fetch('/story-share', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload)
@@ -13755,7 +13755,7 @@ async function loadCommunityStories() {
   if (!grid) return;
 
   try {
-    const res  = await fetch('/.netlify/functions/story-share');
+    const res  = await fetch('/story-share');
     const data = await res.json();
 
     if (!data.success || !data.stories.length) return;
