@@ -187,7 +187,7 @@
 # ─────────────────────────────────────────────
 # PRODUCT FEED — Google Merchant / Meta / Pinterest / TikTok Shop
 # ─────────────────────────────────────────────
-/product-feed.xml    /product-feed   200!
+/product-feed.xml    /product-feed   200
 
 # ─────────────────────────────────────────────
 # CATCH-ALL — must stay LAST (order matters)
