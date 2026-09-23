@@ -243,11 +243,17 @@ export async function onRequestPost(context) {
         ]] }
       });
 
-      // ── Email de confirmation — ENVOI IMMÉDIAT (attendu avant de répondre) ──
+      // ── Email de confirmation — envoyé en arrière-plan, sans faire attendre
+      //    le client (le compte est déjà créé à ce stade ; l'email composite
+      //    Sheets+Groq+Resend est l'étape la plus lente du signup). context.
+      //    waitUntil() garantit que Cloudflare laisse cet appel se terminer
+      //    même après la réponse déjà renvoyée. ──
       const confirmToken = generateConfirmToken(email, env);
-      await notifyConfirmEmail({ email, firstName, confirmToken }, env).catch((e) => {
-        console.warn('[signup] notifyConfirmEmail failed:', e.message);
-      });
+      context.waitUntil(
+        notifyConfirmEmail({ email, firstName, confirmToken }, env).catch((e) => {
+          console.warn('[signup] notifyConfirmEmail failed:', e.message);
+        })
+      );
 
       return res(200, { success: true, requireConfirmation: true });
     }

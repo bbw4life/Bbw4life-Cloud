@@ -122,6 +122,87 @@ async function callGroq(userPrompt, env) {
 }
 
 // ════════════════════════════════════════════════════════════════
+//  CASCADE IA — Anthropic (Claude) → Google (Gemini) → Groq
+//  Même logique de secours que le chat live (functions/chat.js) : on
+//  essaie le fournisseur principal, et on tombe sur le suivant à la
+//  moindre erreur (crédit épuisé, HTTP en échec, réseau). Si les 3
+//  échouent, callAI() retourne null — chaque gen*Copy() a déjà son
+//  propre texte de secours codé en dur pour ce cas.
+// ════════════════════════════════════════════════════════════════
+const CLAUDE_MODEL_EMAIL = 'claude-haiku-4-5-20251001';
+// gemini-3.5-flash-lite : 15 req/min en niveau gratuit (voir chat.js)
+const GEMINI_MODEL_EMAIL = 'gemini-3.5-flash-lite';
+
+async function callClaudeForEmail(userPrompt, env) {
+  if (!env.ANTHROPIC_API_KEY) return null;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL_EMAIL,
+        max_tokens: 500,
+        temperature: 0.70,
+        system: BBW_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+    if (!res.ok) {
+      console.warn(`[Claude] HTTP ${res.status} for email copy`);
+      return null;
+    }
+    const data    = await res.json();
+    const content = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+    return content.length >= 20 ? content : null;
+  } catch (e) {
+    console.warn('[Claude] Error for email copy:', e.message);
+    return null;
+  }
+}
+
+async function callGeminiForEmail(userPrompt, env) {
+  if (!env.GOOGLE_AI_API_KEY) return null;
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_EMAIL}:generateContent?key=${env.GOOGLE_AI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+          systemInstruction: { parts: [{ text: BBW_SYSTEM_PROMPT }] },
+          generationConfig: { maxOutputTokens: 500, temperature: 0.70 }
+        })
+      }
+    );
+    if (!res.ok) {
+      console.warn(`[Gemini] HTTP ${res.status} for email copy`);
+      return null;
+    }
+    const data    = await res.json();
+    const content = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim();
+    return content.length >= 20 ? content : null;
+  } catch (e) {
+    console.warn('[Gemini] Error for email copy:', e.message);
+    return null;
+  }
+}
+
+async function callAI(userPrompt, env) {
+  const claudeReply = await callClaudeForEmail(userPrompt, env);
+  if (claudeReply) return claudeReply;
+
+  const geminiReply = await callGeminiForEmail(userPrompt, env);
+  if (geminiReply) return geminiReply;
+
+  return callGroq(userPrompt, env);
+}
+
+// ════════════════════════════════════════════════════════════════
 //  SETTINGS LOADER — from products.data.json
 // ════════════════════════════════════════════════════════════════
 // ⚠️ NOTE MIGRATION CLOUDFLARE : ce cache en variable globale ne persiste pas
@@ -1050,7 +1131,7 @@ function cPromoBlock(code, percent, items, label) {
 // ════════════════════════════════════════════════════════════════
 
 async function genWelcomeCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Welcome — new BBW4LIFE customer created their account.
 RECIPIENT: ${name}
 Write 2 short paragraphs (blank line between):
@@ -1063,7 +1144,7 @@ Plain text only, no greeting, no sign-off.`,
 }
 
 async function genOrderConfirmCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Order confirmation for BBW4LIFE.
 RECIPIENT: ${name}
 Write 1 paragraph (2-3 sentences): Thank her for the order. Express genuine excitement. Mention order is being prepared.
@@ -1074,7 +1155,7 @@ Plain text only.`,
 }
 
 async function genTrackingCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Shipping notification with tracking number — BBW4LIFE.
 RECIPIENT: ${name}
 Write 1 paragraph (2 sentences): Great news, order is on the way. Warm, excited tone.
@@ -1085,7 +1166,7 @@ Plain text only.`,
 }
 
 async function genNewsletter1Copy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Newsletter welcome #1 — BBW4LIFE subscriber confirmation.
 RECIPIENT: ${name || 'Beautiful'}
 Write 2 paragraphs: Welcome to the family, explain what they'll receive (deals, new arrivals, stories, tips). Warm and excited.
@@ -1096,7 +1177,7 @@ Plain text only.`,
 }
 
 async function genNewsletter2Copy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Newsletter follow-up day 3 — BBW4LIFE. Emotional connection email.
 RECIPIENT: ${name || 'Beautiful'}
 Write 2 paragraphs: Check in warmly. Ask about their browsing experience. Invite feedback. Create genuine conversation.
@@ -1107,7 +1188,7 @@ Plain text only.`,
 }
 
 async function genNewsletter3Copy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Newsletter day 5 — BBW4LIFE bundle & favorites email.
 RECIPIENT: ${name || 'Beautiful'}
 Write 2 paragraphs: Make her feel valued. Highlight that BBW4LIFE has bundles and customer favorites. Encourage first purchase warmly.
@@ -1118,7 +1199,7 @@ Plain text only.`,
 }
 
 async function genNewsletter4BuyerCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Newsletter day 10 — BBW4LIFE appreciation email for existing buyer.
 RECIPIENT: ${name || 'Beautiful'}
 Write 2 paragraphs: Thank her for her purchase. Ask about experience. Invite to share feedback. Recommend exploring more.
@@ -1129,7 +1210,7 @@ Plain text only.`,
 }
 
 async function genNewsletter4NewCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Newsletter day 10 — BBW4LIFE conversion email for non-buyer.
 RECIPIENT: ${name || 'Beautiful'}
 Write 2 paragraphs: Encourage first purchase gently. Mention exclusive discount below. Create soft urgency without pressure.
@@ -1140,7 +1221,7 @@ Plain text only.`,
 }
 
 async function genContactReplyCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Contact form auto-reply — BBW4LIFE.
 RECIPIENT: ${name || 'Beautiful'}
 Write 1 paragraph (2-3 sentences): Confirm message received. Reassure them. Team will respond within 24-48 hours. Professional and caring.
@@ -1151,7 +1232,7 @@ Plain text only.`,
 }
 
 async function genPlanRequestCopy(name, program, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Product reservation/plan request confirmation — BBW4LIFE.
 RECIPIENT: ${name || 'Beautiful'} PRODUCT: ${program}
 Write 2 paragraphs: Confirm request received for ${program}. Make her feel great. Team will review and contact her soon.
@@ -1162,7 +1243,7 @@ Plain text only.`,
 }
 
 async function genCustomProductCopy(name, productTitle, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Custom/personalized product request confirmation — BBW4LIFE.
 RECIPIENT: ${name || 'Beautiful'} PRODUCT: ${productTitle}
 Write 2 paragraphs: Confirm receipt of personalized product request. Excite them. Design team will review. BBW4LIFE evaluating possibility.
@@ -1173,7 +1254,7 @@ Plain text only.`,
 }
 
 async function genCartAbandonedCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Abandoned cart recovery — BBW4LIFE.
 RECIPIENT: ${name}
 Write 2 short paragraphs (blank line between):
@@ -1238,7 +1319,7 @@ Write a short sincere apology (2 paragraphs max). Address their EXACT issue from
 Ask them kindly to reach us on WhatsApp: ${whatsapp} or contact page: ${contactPage} to resolve personally.
 Warm, humble, genuine. No excuses. Plain text only.`;
 
-  const copy = await callGroq(userPrompt, env);
+  const copy = await callAI(userPrompt, env);
   return copy || (sentiment === 'positive'
     ? `Thank you so much for your kind words about ${productName} — it means everything to us to know you love it. You just made our whole team smile.\n\nAs a small thank-you, here's an exclusive gift for you: use code ${promo ? promo.code : ''} for ${promo ? promo.percent + '% off' : 'a special discount'}. We can't wait to see what you pick next.`
     : `We're truly sorry about your experience with ${productName} — this is not the standard we hold ourselves to, and we completely understand your frustration.\n\nPlease reach out to us on WhatsApp (${whatsapp}) or through our contact page (${contactPage}) so we can personally make this right for you.`
@@ -1246,7 +1327,7 @@ Warm, humble, genuine. No excuses. Plain text only.`;
 }
 
 async function genStoryReceivedCopy(name, env) {
-  const copy = await callGroq(
+  const copy = await callAI(
     `EMAIL TYPE: Story submission confirmation — BBW4LIFE community page.
 RECIPIENT: ${name}
 Write 2 short paragraphs (blank line between):

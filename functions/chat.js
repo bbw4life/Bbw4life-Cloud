@@ -1341,6 +1341,76 @@ async function callClaude(systemPrompt, history, userMessage, imageBase64, env) 
 }
 
 /* ══════════════════════════════════════════════════════
+   GOOGLE GEMINI — SECONDARY PROVIDER (fallback #1)
+   Tried when Claude fails for any reason (credit exhausted, HTTP
+   error, network error). Same shape as callClaude() on purpose —
+   the caller doesn't need to know which provider answered.
+══════════════════════════════════════════════════════ */
+// gemini-3.5-flash-lite : 15 req/min en niveau gratuit sur ce compte,
+// contre 5 req/min pour gemini-2.5-flash (vérifié dans AI Studio > Limite
+// de débit) — plus de marge avant de retomber sur Groq.
+const GEMINI_MODEL = 'gemini-3.5-flash-lite';
+
+function isGeminiCreditError(status, bodyText) {
+  if (status === 402 || status === 429) return true;
+  const t = (bodyText || '').toLowerCase();
+  return t.includes('quota') || t.includes('billing') || t.includes('resource_exhausted');
+}
+
+async function callGemini(systemPrompt, history, userMessage, imageBase64, env) {
+  if (!env.GOOGLE_AI_API_KEY) {
+    return { ok: false, creditError: false, reply: null };
+  }
+
+  const userParts = [];
+  if (imageBase64) {
+    const matches = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
+    if (matches) {
+      userParts.push({ inline_data: { mime_type: matches[1], data: matches[2] } });
+    }
+  }
+  userParts.push({ text: userMessage });
+
+  const contents = [
+    ...history.slice(-8).map(h => ({
+      role: h.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: h.content }]
+    })),
+    { role: 'user', parts: userParts }
+  ];
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GOOGLE_AI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents,
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: { maxOutputTokens: 500, temperature: 0.70 }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => '');
+      console.error(`[Chat] Gemini HTTP ${res.status}: ${bodyText.slice(0, 300)}`);
+      return { ok: false, creditError: isGeminiCreditError(res.status, bodyText), reply: null };
+    }
+
+    const data  = await res.json();
+    const reply = (data.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('').trim() || null;
+    if (!reply) return { ok: false, creditError: false, reply: null };
+
+    return { ok: true, creditError: false, reply };
+  } catch (fetchErr) {
+    console.error('[Chat] Gemini fetch error:', fetchErr.message);
+    return { ok: false, creditError: false, reply: null };
+  }
+}
+
+/* ══════════════════════════════════════════════════════
    HUMAN ESCALATION — client insisted on reaching a human.
    Frontend collects name/email/whatsapp via an inline form,
    we notify the existing Telegram bot (same mechanism used
@@ -1416,17 +1486,16 @@ async function handleLiveChatMessage(body, headers, env) {
 /* ══════════════════════════════════════════════════════
    MODEL ROTATION STATE
 ══════════════════════════════════════════════════════ */
+// ⚠️ llama-3.3-70b-versatile, moonshotai/kimi-k2-instruct(-0905),
+// meta-llama/llama-4-scout-17b-16e-instruct, qwen/qwen3-32b,
+// llama-3.1-8b-instant et meta-llama/llama-prompt-guard-2-22m ont tous
+// été retirés du catalogue Groq (confirmé via /v1/models et test direct
+// — "model_not_found"). qwen/qwen3.8-27b (vérifié actif, même famille
+// que send-email-auto.js) est le seul modèle texte fiable restant : les
+// gpt-oss-* sont des modèles "reasoning" qui peuvent tronquer leur
+// réponse (max_tokens consommé par un raisonnement caché avant le texte).
 const MODELS = [
-  'llama-3.3-70b-versatile',
-  'moonshotai/kimi-k2-instruct',
-  'meta-llama/llama-4-scout-17b-16e-instruct',
-  'qwen/qwen3-32b',
-  'openai/gpt-oss-120b',
-  'openai/gpt-oss-20b',
-  'moonshotai/kimi-k2-instruct-0905',
-  'openai/gpt-oss-safeguard-20b',
-  'llama-3.1-8b-instant',
-  'meta-llama/llama-prompt-guard-2-22m',
+  'qwen/qwen3.8-27b',
 ];
 let currentModelIndex = 0;
 
@@ -1654,10 +1723,22 @@ export async function onRequestPost(context) {
       usedModel    = CLAUDE_MODEL;
       modelSuccess = true;
     } else {
-      console.log(`[Chat] Claude unavailable (creditError: ${claudeResult.creditError}) — falling back to Groq`);
+      console.log(`[Chat] Claude unavailable (creditError: ${claudeResult.creditError}) — falling back to Gemini`);
     }
 
-    /* ── 2. FALLBACK TO GROQ (unchanged existing logic) — runs on ANY Claude failure ── */
+    /* ── 2. FALLBACK TO GEMINI — runs on ANY Claude failure ── */
+    if (!modelSuccess) {
+      const geminiResult = await callGemini(systemPrompt, history, userTurnContent, image, env);
+      if (geminiResult.ok) {
+        reply        = geminiResult.reply;
+        usedModel    = GEMINI_MODEL;
+        modelSuccess = true;
+      } else {
+        console.log(`[Chat] Gemini unavailable (creditError: ${geminiResult.creditError}) — falling back to Groq`);
+      }
+    }
+
+    /* ── 3. FALLBACK TO GROQ (unchanged existing logic) — runs if Claude AND Gemini both failed ── */
     if (!modelSuccess) {
       for (let attempt = 0; attempt < MODELS.length; attempt++) {
         const idx   = (currentModelIndex + attempt) % MODELS.length;

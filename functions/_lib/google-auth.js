@@ -29,6 +29,19 @@ const { OAuth2Client } = require('google-auth-library');
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DEFAULT_SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
+// ── Cache mémoire du token par combinaison de scopes ──
+// Sur Netlify, google-auth-library (SDK officiel) gère ce cache en interne —
+// perdu ici puisqu'on signe le JWT nous-mêmes (voir plus bas). Sans ce cache,
+// CHAQUE appel à getGoogleAuthClient() referait un aller-retour réseau complet
+// (signature + échange OAuth) avant même de pouvoir lire le Sheet, ce qui
+// ralentissait sensiblement signup/login. Un isolate Cloudflare Workers reste
+// chaud entre requêtes rapprochées (pas de garantie de durée, mais fréquent en
+// pratique) — ce cache module-level est donc réellement réutilisé la plupart
+// du temps. Marge de 60s avant l'expiration réelle (3600s) pour ne jamais
+// utiliser un token qui expire en plein milieu d'une requête Google.
+const _tokenCache = new Map();
+const TOKEN_SAFETY_MARGIN_MS = 60 * 1000;
+
 // ── Encodage base64url (RFC 4648 §5) — différent du base64 standard :
 //    remplace +/ par -_ et retire le padding =. Requis par le format JWT. ──
 function base64url(input) {
@@ -80,6 +93,12 @@ async function getGoogleAccessToken(env, scopes) {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL or GOOGLE_PRIVATE_KEY missing in env');
   }
 
+  const cacheKey = (scopes || DEFAULT_SCOPES).join(' ');
+  const cached = _tokenCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.accessToken;
+  }
+
   const nowSeconds = Math.floor(Date.now() / 1000);
   const expirySeconds = nowSeconds + 3600; // 1h, identique à la durée de vie standard d'un token Google
 
@@ -116,6 +135,11 @@ async function getGoogleAccessToken(env, scopes) {
   if (!tokenRes.ok || !tokenData.access_token) {
     throw new Error('Google OAuth token exchange failed: ' + JSON.stringify(tokenData));
   }
+
+  _tokenCache.set(cacheKey, {
+    accessToken: tokenData.access_token,
+    expiresAt: Date.now() + (expirySeconds - nowSeconds) * 1000 - TOKEN_SAFETY_MARGIN_MS
+  });
 
   return tokenData.access_token;
 }
