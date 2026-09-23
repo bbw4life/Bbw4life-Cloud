@@ -252,7 +252,22 @@ export async function onRequestPost(context) {
       return new Response('ok', { status: 200 });
     }
 
-    await appendLiveChatRow(chatId, 'agent', replyText, '', '', env);
+    // ⚠️ Retry : sans ça, un échec transitoire (quota Google Sheets
+    // momentanément dépassé) fait disparaître silencieusement la réponse
+    // de l'agent — elle n'apparaît dans le chat qu'au prochain message
+    // renvoyé manuellement (bug observé en prod).
+    let savedOk = false;
+    for (let attempt = 1; attempt <= 2 && !savedOk; attempt++) {
+      try {
+        await appendLiveChatRow(chatId, 'agent', replyText, '', '', env);
+        savedOk = true;
+      } catch (e) {
+        console.error(`[live-chat] appendLiveChatRow(agent) failed (attempt ${attempt}):`, e.message);
+        if (attempt < 2) await new Promise(r => setTimeout(r, 800));
+      }
+    }
+    if (!savedOk) return new Response('ok', { status: 200 });
+
     await setLiveChatStatus(chatId, 'answered', env);
 
     const deviceId = await getDeviceIdFor(chatId, env);
