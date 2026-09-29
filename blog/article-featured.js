@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ════════════════════════════════════════════════════════ */
   (function () {
     var ARTICLE_ID       = 'article-featured';
-    var API              = '/reviews-article';
+    var API              = '/.netlify/functions/reviews-article';
     var REVIEWS_PER_PAGE = 5;
     var allReviews       = [];
     var shownCount       = 0;
@@ -640,7 +640,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
         try {
-          var res  = await fetch('/save-account', {
+          var res  = await fetch('/.netlify/functions/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
         try {
-          var res  = await fetch('/save-account', {
+          var res  = await fetch('/.netlify/functions/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'newsletter-subscribe', email: val })

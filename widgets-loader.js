@@ -35,7 +35,12 @@
       </svg>
     </div>
     </div>
-    <button class="close-drawer">✕</button>
+    <div class="drawer-header__actions">
+      <button type="button" class="cart-drawer__share-btn" id="cart-drawer-share" title="Share your cart" aria-label="Share your cart">
+        <i class="fi fi-rr-share" aria-hidden="true"></i>
+      </button>
+      <button class="close-drawer">✕</button>
+    </div>
   </div>
 
   <!-- ORDER TIMELINE — insert after .drawer-header in cart drawer, and after .cp-cart-header in cart page -->
@@ -95,7 +100,7 @@
       <div class="marquee-content">
         <span>Free Shipping on Orders Over <span class="col-marquee-free-shipping"></span>+</span>
         <span>Secure Checkout Guaranteed!</span>
-        <span>30-Day Money Back Guarantee!</span>
+        <span>30-Day Returns (Conditions Apply)</span>
         <span>Shop Now and Save Big!</span>
       </div>
     </div>
@@ -355,7 +360,7 @@
       </svg>
     </span>
   </div>
-  <span class="cf-toggle-label">Bbw4life Support</span>
+  <span class="cf-toggle-label">Chat with Us</span>
   <span class="cf-notif-dot"></span>
 </button>
 

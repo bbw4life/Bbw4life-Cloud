@@ -159,6 +159,11 @@
     '/products/product150.html': '/bbw4life/striped-tie-front-bbw4life-shirt-and-pleated-wide-leg-pants-set',
     '/products/product151.html': '/bbw4life/diagonal-sash-bbw4life-pearl-button-maxi-dress',
     '/products/product152.html': '/bbw4life/sunflower-ankara-bbw4life-godet-maxi-dress',
+    '/products/product153.html': '/bbw4life/sculpting-one-piece-shaping-jumpsuit',
+    '/products/product154.html': '/bbw4life/zip-front-tummy-control-shapewear-bodysuit',
+    '/products/product155.html': '/bbw4life/buckle-front-shaping-bra',
+    '/products/product156.html': '/bbw4life/essential-haven-back-support-belt',
+    '/products/product157.html': '/bbw4life/zip-front-neoprene-waist-shaper',
 
     // ── BLOG ARTICLES ─────────────────────────────────────
     '/blog/article-featured.html': '/bbw4life/journal/beauty-has-no-sizes-movement-redefining-beauty',
@@ -178,23 +183,6 @@
     '/blog/article14.html': '/bbw4life/journal/bbw-and-seduction-your-body-is-a-power-not-a-problem',
     '/blog/article15.html': '/bbw4life/journal/bbw4life-big-beautiful-woman-lifestyle-pride-family',
   };
-
-  // ── Cloudflare Pages : redirection 308 automatique et non désactivable
-  // qui retire l'extension .html des URLs AVANT que ce script ne
-  // s'exécute (ex: /products/product1.html -> /products/product1),
-  // contrairement à Netlify qui sert le .html tel quel sans y toucher.
-  // Sans ce complément, window.location.pathname vaudrait alors
-  // "/products/product1" (sans .html), qui ne correspond à aucune clé
-  // ci-dessus, et la jolie URL ne serait jamais appliquée sur
-  // Cloudflare. On duplique donc chaque entrée sous sa forme sans
-  // .html, en plus de la forme originale (gardée pour Netlify où
-  // l'URL .html brute peut encore être visitée directement). ──
-  Object.keys(SLUGS).forEach(function (key) {
-    if (key.slice(-5) === '.html') {
-      var withoutExt = key.slice(0, -5);
-      if (!(withoutExt in SLUGS)) SLUGS[withoutExt] = SLUGS[key];
-    }
-  });
 
   window.BBW_SLUGS = SLUGS;
   var path = window.location.pathname;

@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ════════════════════════════════════════════════════════════ */
   (function () {
     var ARTICLE_ID       = 'article1';
-    var API              = '/reviews-article';
+    var API              = '/.netlify/functions/reviews-article';
     var REVIEWS_PER_PAGE = 5;
     var allReviews       = [];
     var shownCount       = 0;
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
         try {
-          var res  = await fetch('/save-account', {
+          var res  = await fetch('/.netlify/functions/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -695,7 +695,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
         try {
-          var res  = await fetch('/save-account', {
+          var res  = await fetch('/.netlify/functions/save-account', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -1121,7 +1121,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article2';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -1425,7 +1425,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -1464,7 +1464,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -1953,7 +1953,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article3';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -2220,7 +2220,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.innerHTML : '';
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) {
               nlEmail.value = '';
@@ -2242,7 +2242,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) { footerEmail.value = ''; showNewsletterPopup(); }
           } catch (err) { console.error(err); } finally { if (btn) { btn.textContent = orig; btn.disabled = false; } }
@@ -2693,7 +2693,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article4';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -2996,7 +2996,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -3035,7 +3035,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -3494,7 +3494,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article5';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -3797,7 +3797,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -3836,7 +3836,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -4303,7 +4303,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article6';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -4606,7 +4606,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -4645,7 +4645,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -5178,7 +5178,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article7';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -5481,7 +5481,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -5520,7 +5520,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -5983,7 +5983,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article8';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -6286,7 +6286,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -6321,7 +6321,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var originalText = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -6839,7 +6839,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article9';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -7143,7 +7143,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -7182,7 +7182,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -7650,7 +7650,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article10';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -7939,7 +7939,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var originalHTML = btn ? btn.innerHTML : '';
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -7974,7 +7974,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var originalText = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -8408,7 +8408,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article11';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -8630,7 +8630,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.innerHTML : '';
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) {
               nlEmail.value = '';
@@ -8653,7 +8653,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) { footerEmail.value = ''; a11ShowNlPopup(); }
           } catch (err) {}
@@ -9104,7 +9104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article12';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -9407,7 +9407,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -9446,7 +9446,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -9975,7 +9975,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article13';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -10280,7 +10280,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -10316,7 +10316,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -10789,7 +10789,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article14';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var REVIEWS_PER_PAGE = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -11091,7 +11091,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing...'; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -11130,7 +11130,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (btn) { btn.textContent = 'Saving...'; btn.disabled = true; }
 
           try {
-            var res  = await fetch('/save-account', {
+            var res  = await fetch('/.netlify/functions/save-account', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ action: 'newsletter-subscribe', email: val })
@@ -11597,7 +11597,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ════════════════════════════════════════════════════════════ */
     (function () {
       var ARTICLE_ID       = 'article15';
-      var API              = '/reviews-article';
+      var API              = '/.netlify/functions/reviews-article';
       var PER_PAGE         = 5;
       var allReviews       = [];
       var shownCount       = 0;
@@ -11862,7 +11862,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.innerHTML : '';
           if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fi fi-rr-spinner"></i> Subscribing…'; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) {
               nlEmail.value = '';
@@ -11889,7 +11889,7 @@ document.addEventListener('DOMContentLoaded', function () {
           var orig = btn ? btn.textContent : '';
           if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
           try {
-            var res  = await fetch('/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
+            var res  = await fetch('/.netlify/functions/save-account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'newsletter-subscribe', email: val }) });
             var data = await res.json();
             if (data.success) { footerEmail.value = ''; a15ShowNewsletterPopup(); }
           } catch (err) { console.error(err); }
