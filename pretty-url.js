@@ -186,7 +186,10 @@
 
   window.BBW_SLUGS = SLUGS;
   var path = window.location.pathname;
-  var pretty = SLUGS[path];
+  // Cloudflare Pages redirects .html pages to their extension-less URL.
+  // Resolve both forms so direct visits and legacy .html links get the same
+  // pretty URL behavior.
+  var pretty = SLUGS[path] || (path.slice(-5).toLowerCase() === '.html' ? null : SLUGS[path + '.html']);
 
   // ── Setting settings.use_pretty_urls (products.data.json) ──────────
   // "yes" (défaut) → comportement actuel, URL réécrite en jolie URL.
