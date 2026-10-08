@@ -66,7 +66,7 @@
     social_title: 'Follow us in social Media',
     social_links: {
       facebook:  '',
-      twitter:   '',
+      twitter:   '', 
       instagram: '',
       youtube:   '',
       tiktok:    ''

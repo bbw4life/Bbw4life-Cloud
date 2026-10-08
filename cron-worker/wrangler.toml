@@ -20,18 +20,12 @@ compatibility_flags = ["nodejs_compat"]
 # Déploiement : `wrangler deploy` depuis ce dossier (cron-worker/),
 # séparément du déploiement Cloudflare Pages du reste du site.
 #
-# ⚠️ BASE_URL DOIT pointer vers le projet Cloudflare Pages lui-même
-# (bbw4life-cloud.pages.dev), PAS vers bbw4life.com (qui reste le domaine
-# Netlify de production, un repository totalement séparé). Ce Worker et le
-# site Cloudflare Pages sont dans le même repo/projet — se tromper ici fait
-# déclencher les crons (panier abandonné, retry commande, etc.) contre
-# Netlify au lieu de Cloudflare, où ils n'ont aucun effet. À mettre à jour
-# vers le vrai domaine bbw4life.com UNIQUEMENT le jour où ce domaine sera
-# officiellement basculé sur Cloudflare Pages (DNS + projet Cloudflare).
+# ⚠️ BASE_URL doit pointer vers le domaine public qui sert les Pages Functions.
+# Il est actuellement configuré sur bbw4life.com.
 # ─────────────────────────────────────────────────────────────
 
 [vars]
-BASE_URL = "https://bbw4life-cloud.pages.dev"
+BASE_URL = "https://bbw4life.com"
 
 # Chaque entrée reproduit exactement une fréquence de netlify.toml.
 # Format cron standard 5 champs, UTC uniquement (pas de fuseau horaire
