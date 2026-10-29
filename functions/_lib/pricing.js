@@ -161,12 +161,22 @@ async function computeServerTotal(cart, settings, allProducts, shippingMethod, p
     return s + (parseFloat(i.price) || 0) * (parseInt(i.quantity) || 0);
   }, 0);
 
-  const freeByThreshold = freeThreshold > 0 && subtotal >= freeThreshold;
-  const freeByMethod = ['Standard Shipping', 'Economy Shipping'].includes(shippingMethod);
-  const isFree = freeByThreshold || freeByMethod;
+  const thresholdReached = freeThreshold > 0 && subtotal >= freeThreshold;
+  // Express and DHL remain chargeable even after the free-shipping threshold.
+  // Keep both labels because older checkout sessions may still send "Express DHL".
+  const alwaysPaidMethod = ['Express Shipping', 'Express DHL', 'Priority FedEx'].includes(
+    String(shippingMethod || '').trim()
+  );
+  const freeByThreshold = thresholdReached && !alwaysPaidMethod;
+  const freeByMethod = ['Economy Shipping'].includes(shippingMethod);
+  const isFreeShipping = freeByThreshold || freeByMethod;
 
-  const shipping = isFree ? 0 : SHIPPING_COST;
-  const tax = isFree ? 0 : parseFloat((subtotal * TAX_RATE).toFixed(2));
+  const shipping = isFreeShipping ? 0 : SHIPPING_COST;
+  // Preserve the existing tax behavior: the threshold and free methods still
+  // control tax independently of whether an express shipping fee is charged.
+  const tax = (thresholdReached || freeByMethod)
+    ? 0
+    : parseFloat((subtotal * TAX_RATE).toFixed(2));
 
   // ── Promo code (depuis settings.promos + birthday_gift) ──
   let discountAmount = 0;
@@ -239,9 +249,9 @@ if (promoCode && discountAmount > 0) {
   }
 }
 
-// ── Sécurité : pas de code promo cumulable avec la livraison gratuite
-//    par seuil (source unique de vérité, indépendante du client) ──
-if (freeByThreshold && discountAmount > 0) {
+// ── Sécurité : aucun code promo lorsque le seuil est atteint, quelle que
+//    soit la méthode de livraison sélectionnée. ──
+if (thresholdReached && discountAmount > 0) {
   discountAmount = 0;
 }
 

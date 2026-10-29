@@ -1605,7 +1605,7 @@ function showErrorPopup(message) {
       const ab       = settings.announcement_bar || {};
       const stats    = settings.site_stats   || {};
 
-      const freeShipping = cd.free_shipping_threshold || 140;
+      const freeShipping = cd.free_shipping_threshold || 200;
       const buyQty       = cd.promo_buy_quantity      || 5;
       const getQty       = cd.promo_get_quantity      || 3;
       const members      = stats.members              || 12000;
@@ -9521,7 +9521,7 @@ document.dispatchEvent(new Event('wishlist:change'));
         if (existingContainer) existingContainer.style.display = 'none';
         return;
     }
-    const threshold    = parseFloat(cd.free_shipping_threshold) || 140;
+    const threshold    = parseFloat(cd.free_shipping_threshold) || 200;
     const cartSubtotal = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
     const remaining    = Math.max(0, threshold - cartSubtotal);
     const pct          = Math.min(100, (cartSubtotal / threshold) * 100);

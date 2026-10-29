@@ -1039,26 +1039,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         return cart.reduce((sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 0), 0);
     }
 
-    // Une fois le seuil de livraison gratuite atteint, le code promo ne peut
-    // plus être combiné : on masque le champ de saisie (au lieu de juste
+    // Une fois le seuil de livraison gratuite atteint, aucun code promo ne
+    // peut être appliqué : on masque le champ de saisie (au lieu de juste
     // bloquer au clic) et on efface toute réduction déjà appliquée, pour que
     // la livraison gratuite et un code promo ne se cumulent jamais.
-    let _wasFreeByThreshold = false;
-    function updateFreeShippingPromoLock(isFreeByThreshold) {
+    let _wasThresholdReached = false;
+    function updateFreeShippingPromoLock(thresholdReached) {
         const promoTitle      = document.getElementById('promo-title');
         const suggestedPromo  = document.getElementById('suggested-promo');
         const promoInputGroup = document.querySelector('.promo-input-group');
         const promoMessage    = document.getElementById('promo-message');
         const freeShipMsg     = document.getElementById('free-shipping-unlocked-message');
 
-        if (isFreeByThreshold) {
+        if (thresholdReached) {
             if (promoTitle)      promoTitle.style.display = 'none';
             if (suggestedPromo)  suggestedPromo.style.display = 'none';
             if (promoInputGroup) promoInputGroup.style.display = 'none';
             if (promoMessage)    { promoMessage.textContent = ''; promoMessage.style.display = 'none'; }
             if (freeShipMsg) {
                 freeShipMsg.style.display = 'block';
-                freeShipMsg.innerHTML = `✨ <strong>Free Shipping Unlocked!</strong> Your order already qualifies for free shipping, so promo codes can't be stacked on top of this offer — but every stitch of savings is already working in your favor, Queen.`;
+                freeShipMsg.innerHTML = `✨ <strong>Free shipping unlocked!</strong> Promo codes aren’t available with this offer.`;
             }
             if (appliedPromo || discountAmount > 0 || affPromoApplied) {
                 // Efface aussi le marqueur sessionStorage posé lors de
@@ -1084,9 +1084,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             // #suggested-promo a sa propre logique dans updatePromoDisplay() —
             // on la relance ici pour qu'elle reprenne la main correctement
             // au lieu de deviner nous-mêmes son état.
-            if (_wasFreeByThreshold && typeof updatePromoDisplay === 'function') updatePromoDisplay();
+            if (_wasThresholdReached && typeof updatePromoDisplay === 'function') updatePromoDisplay();
         }
-        _wasFreeByThreshold = isFreeByThreshold;
+        _wasThresholdReached = thresholdReached;
     }
 
     function updateTotals() {
@@ -1096,11 +1096,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const s = productsData.find(i => i.type === 'settings');
             return s?.cart_drawer?.free_shipping_threshold || 140;
         })();
-        const isFreeByThreshold = freeShipThresh > 0 && subtotal >= freeShipThresh;
-        updateFreeShippingPromoLock(isFreeByThreshold);
-        const isFreeMethod = ['Standard Shipping', 'Economy Shipping'].includes(selectedMethod);
+        const thresholdReached = freeShipThresh > 0 && subtotal >= freeShipThresh;
+        const alwaysPaidMethod = ['Express Shipping', 'Express DHL', 'Priority FedEx'].includes(selectedMethod);
+        const isFreeByThreshold = thresholdReached && !alwaysPaidMethod;
+        updateFreeShippingPromoLock(thresholdReached);
+        const isFreeMethod = ['Economy Shipping'].includes(selectedMethod);
         const effectiveShipping = (isFreeByThreshold || isFreeMethod) ? 0 : SHIPPING_COST;
-        const effectiveTax = (isFreeByThreshold || isFreeMethod) ? 0 : parseFloat((subtotal * TAX_RATE).toFixed(2));
+        const effectiveTax = (thresholdReached || isFreeMethod) ? 0 : parseFloat((subtotal * TAX_RATE).toFixed(2));
         let affPromoDiscountAmount = 0;
         if (affPromoApplied && affPromoDiscount > 0) {
             affPromoDiscountAmount = parseFloat((subtotal * (affPromoDiscount / 100)).toFixed(2));
@@ -1113,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
         document.getElementById('taxes').textContent = `$${effectiveTax.toFixed(2)}`;
         const taxLabel = document.getElementById('tax-rate-label');
-        if (taxLabel) taxLabel.textContent = (isFreeByThreshold || isFreeMethod)
+        if (taxLabel) taxLabel.textContent = (thresholdReached || isFreeMethod)
             ? 0
             : (TAX_RATE * 100).toFixed(TAX_RATE * 100 % 1 === 0 ? 0 : 1);
         document.getElementById('shipping').textContent = effectiveShipping === 0 ? 'FREE' : `$${effectiveShipping.toFixed(2)}`;
@@ -1293,12 +1295,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cd          = settings?.cart_drawer || {};
     const affCfg      = settings?.affiliation || {};
 
-    // ── Garde : aucun code promo ne peut être combiné avec la livraison
-    //    gratuite une fois le seuil atteint (le champ est normalement déjà
+    // ── Garde : aucun code promo ne peut être appliqué une fois le seuil
+    //    atteint (le champ est normalement déjà
     //    masqué à ce stade — ceci protège aussi contre un état obsolète) ──
     const freeShipThreshGuard = parseFloat(cd.free_shipping_threshold) || 140;
-    if (freeShipThreshGuard > 0 && getSubtotal() >= freeShipThreshGuard) {
-        promoMessage.textContent = "This code cannot be combined with free shipping.";
+    const shippingThresholdReached = freeShipThreshGuard > 0 && getSubtotal() >= freeShipThreshGuard;
+    if (shippingThresholdReached) {
+        promoMessage.textContent = "Promo codes cannot be applied once your order reaches the free shipping threshold.";
         promoMessage.style.color = 'red';
         return;
     }
@@ -1482,8 +1485,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const balance        = check.balance || 0;
             const freeShipThresh = parseFloat(cd.free_shipping_threshold) || 140;
             const subtotal       = getSubtotal();
-            if (freeShipThresh > 0 && subtotal >= freeShipThresh) {
-                promoMessage.textContent = "This code cannot be combined with free shipping.";
+            const shippingThresholdReached = freeShipThresh > 0 && subtotal >= freeShipThresh;
+            if (shippingThresholdReached) {
+                promoMessage.textContent = "Promo codes cannot be applied once your order reaches the free shipping threshold.";
                 promoMessage.style.color = 'red';
                 return;
             }
